@@ -252,7 +252,7 @@ int DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, 
 		// z_s(i) = info_s_block[i]->z;
 		z_s(i) = info_s_block[i].z;
 	// small effect genotype matrix
-	mat geno_s = zeros<mat>(n_ref, num_s_block);
+	mat geno_s = zeros<mat>(n_ref, num_s_block); //geno_s gets filled to become the matrix Xs
 	for (int i = 0; i < num_s_block; ++i) {
 		vec geno = zeros<vec>(n_ref);
 		double maf = 0.0; 
@@ -283,7 +283,7 @@ int DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, 
 
 
 		// large effect matrix
-		mat geno_l = zeros<mat>(n_ref, num_l_block);
+		mat geno_l = zeros<mat>(n_ref, num_l_block); //geno_l gets filled to become Xl matrix (in notation of supplemental materials)
 		for (int i = 0; i < num_l_block; ++i) {
 			vec geno = zeros<vec>(n_ref);
 			double maf = 0.0; 
