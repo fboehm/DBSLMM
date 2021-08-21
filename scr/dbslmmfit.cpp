@@ -31,9 +31,17 @@ using namespace std;
 using namespace arma;
 
 // estimate large and small effect
-int DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<int> idv, string bed_str,
-				 vector <INFO> info_s, vector <INFO> info_l, int thread, 
-                 vector <EFF> &eff_s, vector <EFF> &eff_l){
+int DBSLMMFIT::est(int n_ref, 
+                   int n_obs, 
+                   double sigma_s, 
+                   int num_block, 
+                   vector<int> idv, 
+                   string bed_str,
+                   vector <INFO> info_s, 
+                   vector <INFO> info_l, 
+                   int thread, 
+                   vector <EFF> &eff_s, 
+                   vector <EFF> &eff_l){
 	
 	// get the maximum number of each block
 	int count_s = 0, count_l = 0;
@@ -252,7 +260,7 @@ int DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, 
 		// z_s(i) = info_s_block[i]->z;
 		z_s(i) = info_s_block[i].z;
 	// small effect genotype matrix
-	mat geno_s = zeros<mat>(n_ref, num_s_block);
+	mat geno_s = zeros<mat>(n_ref, num_s_block); //geno_s gets filled to become the matrix Xs
 	for (int i = 0; i < num_s_block; ++i) {
 		vec geno = zeros<vec>(n_ref);
 		double maf = 0.0; 
@@ -283,7 +291,7 @@ int DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, 
 
 
 		// large effect matrix
-		mat geno_l = zeros<mat>(n_ref, num_l_block);
+		mat geno_l = zeros<mat>(n_ref, num_l_block); //geno_l gets filled to become Xl matrix (in notation of supplemental materials)
 		for (int i = 0; i < num_l_block; ++i) {
 			vec geno = zeros<vec>(n_ref);
 			double maf = 0.0; 
