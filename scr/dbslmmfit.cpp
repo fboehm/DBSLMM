@@ -31,9 +31,17 @@ using namespace std;
 using namespace arma;
 
 // estimate large and small effect
-int DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<int> idv, string bed_str,
-				 vector <INFO> info_s, vector <INFO> info_l, int thread, 
-                 vector <EFF> &eff_s, vector <EFF> &eff_l){
+int DBSLMMFIT::est(int n_ref, 
+                   int n_obs, 
+                   double sigma_s, 
+                   int num_block, 
+                   vector<int> idv, 
+                   string bed_str,
+                   vector <INFO> info_s, 
+                   vector <INFO> info_l, 
+                   int thread, 
+                   vector <EFF> &eff_s, 
+                   vector <EFF> &eff_l){
 	
 	// get the maximum number of each block
 	int count_s = 0, count_l = 0;
