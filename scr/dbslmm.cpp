@@ -210,7 +210,7 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 	// get sample size of reference panel 
 	char separate[] = "\t";
 	cout << "Reading PLINK FAM file from [" << cPar.r << ".fam]" << endl;
-	int n_ref = cIO.getRow(ref_fam_str);
+	int n_ref = cIO.getRow(ref_fam_str); //n_ref is sample size of reference panel!
 	cout << n_ref << " individuals to be included from reference FAM file." << endl;
 	
 	// get SNP of reference panel
@@ -221,23 +221,25 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 		constr = false; 
 	}
 	cIO.readBim(n_ref, cPar.r, separate, ref_bim, constr);
-	int num_snp_ref = ref_bim.size();
+	int num_snp_ref = ref_bim.size(); //num_snp_ref is number of SNPs in the reference data
 	cout << num_snp_ref << " SNPs to be included from reference BIM file." << endl;
 
 	// input block file
 	vector <BLOCK> block_dat; 
-	cIO.readBlock(cPar.b, separate, block_dat);
+	cIO.readBlock(cPar.b, separate, block_dat); //readBlock is defined in scr/dtpr.cpp 
  
 	// input small effect summary data
 	cout << "Reading summary data of small effect SNPs from [" << cPar.s << "]" << endl;
 	vector <SUMM> summ_s;
-	int n_s = cIO.readSumm(cPar.s, separate, summ_s);
-	vector <POS> inter_s;
+	int n_s = cIO.readSumm(cPar.s, separate, summ_s); //readSumm is defined in scr/dtpr.cpp
+	// What is n_s?? clearly, an integer, but is it the number of small effect snps? or is it a number of subjects, 
+	// like the number of subjects used to get small effect snps?
+	vector <POS> inter_s; // what does POS mean here? I get that it's the class for inter_s, but what exactly does it mean?
 	bool badsnp_s[n_s] = {false}; 
-	cSP.matchRef(summ_s, ref_bim, inter_s, cPar.mafMax, badsnp_s);
+	cSP.matchRef(summ_s, ref_bim, inter_s, cPar.mafMax, badsnp_s); //matchRef is defined in scr/dtpr.cpp
 	cout << "After filtering, " << inter_s.size() << " small effect SNPs are selected." << endl;
 	vector <INFO> info_s; 
-	int num_block_s = cSP.addBlock(inter_s, block_dat, info_s); 
+	int num_block_s = cSP.addBlock(inter_s, block_dat, info_s); //addBlock is defined in scr/dtpr.cpp
 	
 	// output samll effect badsnps 
 	string badsnps_str = cPar.eff + ".badsnps"; 

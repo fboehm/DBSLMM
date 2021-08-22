@@ -238,11 +238,32 @@ int DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<i
 	return 0;
 }
 
+
+
+//' Estimate large and small effects for each block
+//' @param n_ref 
+//' @param n_obs 
+//' @param sigma_s
+//' @param idv 
+//' @param bed_str
+//' @param info_s_block_full
+//' @param info_l_block_full
+//' @param num_s_block
+//' @param num_l_block
+//' @param eff_s_block
+//' @param eff_l_block 
 // estimate large and small effect for each block
-int DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, string bed_str, 
-						vector <INFO> info_s_block_full, vector <INFO> info_l_block_full, 
-						int num_s_block, int num_l_block, 
-						vector <EFF> &eff_s_block, vector <EFF> &eff_l_block){
+int DBSLMMFIT::calcBlock(int n_ref, 
+                         int n_obs, 
+                         double sigma_s, 
+                         vector<int> idv, 
+                         string bed_str, 
+                         vector <INFO> info_s_block_full, 
+                         vector <INFO> info_l_block_full, 
+                         int num_s_block, 
+                         int num_l_block, 
+                         vector <EFF> &eff_s_block, 
+                         vector <EFF> &eff_l_block){
 	SNPPROC cSP;
 	IO cIO; 
 	ifstream bed_in(bed_str.c_str(), ios::binary);

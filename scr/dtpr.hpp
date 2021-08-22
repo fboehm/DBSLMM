@@ -81,7 +81,7 @@ public:
 
 // SUMMC class
 class SUMMC {
-public:
+public: //https://www.cplusplus.com/doc/tutorial/classes/
 	string snp;
 	string a1;
 	double maf; 
