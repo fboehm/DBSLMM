@@ -1,0 +1,76 @@
+---
+title: "Getting started with DBSLMM"
+author: "Frederick Boehm"
+date: "8/23/2021"
+output: html_document
+---
+
+I try to follow the code in Sheng Yang's "Manual.Rmd" file. 
+
+I git cloned my fork of Sheng Yang's DBSLMM code to the file server for the CSG. 
+
+```{bash, eval = FALSE}
+git clone https://github.com/fboehm/DBSLMM.git
+```
+
+I then moved to the `scr` directory and ran the Makefile.
+
+```{bash, eval = FALSE}
+cd DBSLMM/scr
+make
+```
+
+I saw this output printed:
+
+```{bash, eval = FALSE}
+fredboe@mulan ~/research/DBSLMM/scr (master) $ make
+g++ -c main_dbslmm.cpp
+g++ -c dtpr.cpp -static -fopenmp -O3 -std=c++11 -lm -llapacke -llapack -lblas -Wall
+dtpr.cpp: In member function ‘int IO::readSumm(std::__cxx11::string, char*, std::vector<SUMM>&)’:
+dtpr.cpp:176:10: warning: unused variable ‘P’ [-Wunused-variable]
+   double P = atof(snp_summ[10].c_str()); 
+          ^
+dtpr.cpp:177:14: warning: unused variable ‘sei’ [-Wunused-variable]
+   double se, sei;
+              ^~~
+g++ -c dbslmm.cpp  -static -fopenmp -O3 -std=c++11 -lm -llapacke -llapack -lblas -Wall
+dbslmm.cpp: In member function ‘void DBSLMM::BatchRun(PARAM&)’:
+dbslmm.cpp:265:8: warning: unused variable ‘num_block_l’ [-Wunused-variable]
+    int num_block_l = cSP.addBlock(inter_l, block_dat, info_l);
+        ^~~~~~~~~~~
+g++ -c dbslmmfit.cpp -static -fopenmp -O3 -std=c++11 -lm -llapacke -llapack -lblas -Wall
+g++ main_dbslmm.o dtpr.o dbslmm.o dbslmmfit.o -o dbslmm -static -fopenmp -O3 -std=c++11 -lm -llapacke -llapack -lblas -Wall -L /net/mulan/home/yasheng/Cpp/arma/lib
+/usr/lib/gcc/x86_64-linux-gnu/7/libgomp.a(target.o): In function `gomp_target_init':
+(.text+0x8b): warning: Using 'dlopen' in statically linked applications requires at runtime the shared libraries from the glibc version used for linking
+fredboe@mulan ~/research/DBSLMM/scr (master) $ ls
+```
+
+I noted that the executable `dbslmm` was created in the `scr` directory. 
+
+I changed the file permissions for `dbslmm`.
+
+```{bash, eval = FALSE}
+chmod 777 dbslmm
+```
+
+```{bash, eval = FALSE}
+### Parameters for DBSLMM
+mkdir /your/path/DBSLMM/test_dat/out
+let chr=1
+DBSLMM=/your/path/DBSLMM/software/DBSLMM.R
+summf=/your/path/DBSLMM/test_dat/summary_gemma_chr
+outPath=/your/path/DBSLMM/test_dat/out/
+plink=/your/path/plink-1.9
+ref=/your/path/DBSLMM/test_dat/ref_chr
+blockf=/your/path/DBSLMM/test_dat/chr
+m=`cat ${summf}${chr}.assoc.txt | wc -l` 
+h2=0.5
+nobs=`sed -n "2p" ${summf}${chr}.assoc.txt | awk '{print $5}'`
+nmis=`sed -n "2p" ${summf}${chr}.assoc.txt | awk '{print $4}'`
+n=$(echo "${nobs}+${nmis}" | bc -l)
+```
+
+
+I then copied, with appropriate file path fixes, code into a shell script, `example-dbslmm.sh`. 
+
+
