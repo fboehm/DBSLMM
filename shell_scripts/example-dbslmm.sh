@@ -8,7 +8,7 @@ outPath=../test_dat/out/
 plink=/usr/cluster/bin/plink-1.9
 ref=../test_dat/ref_chr
 
-blockf=../test_dat/ref_chr
+blockf=../block_data/EUR/chr
 m=`cat ${summf}${chr}.assoc.txt | wc -l` 
 h2=0.5
 nobs=`sed -n "2p" ${summf}${chr}.assoc.txt | awk '{print $5}'`
