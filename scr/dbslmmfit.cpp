@@ -30,6 +30,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using namespace std;
 using namespace arma;
 
+//' Estimate large and small effects
+//' 
+//' @param n_ref
+//' @param n_obs
+//' @param sigma_s
+//' @param num_block
+//' @param idv
+//' @param bed_str
+//' @param info_s
+//' @param info_l
+//' @param thread 
+//' @param eff_s
+//' @param eff_l
+//' @return zero is returned
 // estimate large and small effect
 int DBSLMMFIT::est(int n_ref, 
                    int n_obs, 
@@ -323,7 +337,7 @@ int DBSLMMFIT::calcBlock(int n_ref,
 		}
 		// estimation
 		vec beta_l = zeros<vec>(num_l_block); 
-		estBlock(n_ref, n_obs, sigma_s, geno_s, geno_l, z_s, z_l, beta_s, beta_l);
+		estBlock(n_ref, n_obs, sigma_s, geno_s, geno_l, z_s, z_l, beta_s, beta_l);//estBlock!
 		// summary 
 		for(int i = 0; i < num_l_block; i++) {
 			EFF eff_l; 
@@ -339,7 +353,7 @@ int DBSLMMFIT::calcBlock(int n_ref,
 	}
 	else{
 		// estimation
-		estBlock(n_ref, n_obs, sigma_s, geno_s, z_s, beta_s);
+		estBlock(n_ref, n_obs, sigma_s, geno_s, z_s, beta_s); // estBlock!
 		eff_l_block[0].snp = eff_pseudo.snp;
 		eff_l_block[0].a1 = eff_pseudo.a1;
 		eff_l_block[0].maf = eff_pseudo.maf;
