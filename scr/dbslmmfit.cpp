@@ -364,7 +364,7 @@ int DBSLMMFIT::calcBlock(int n_ref,
 int DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, string bed_str, 
 						vector <INFO> info_s_block_full, int num_s_block, 
 						vector <EFF> &eff_s_block){
-	SNPPROC cSP;
+	SNPPROC cSP; // declare new SNPPROC object, cSP. Below, we'll need to populate cSP.
 	IO cIO; 
 	ifstream bed_in(bed_str.c_str(), ios::binary);
 	
@@ -381,14 +381,14 @@ int DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, 
 		// z_s(i) = info_s_block[i]->z;
 		z_s(i) = info_s_block[i].z;
 	// small effect genotype matrix
-	mat geno_s = zeros<mat>(n_ref, num_s_block);
+	mat geno_s = zeros<mat>(n_ref, num_s_block);// Is num_s_block the number of blocks with small effects only? Or something else???
 	for (int i = 0; i < num_s_block; ++i) {
 		vec geno = zeros<vec>(n_ref);
 		double maf = 0.0; 
 		// cIO.readSNPIm(info_s_block[i]->pos, n_ref, idv, bed_in, geno, maf);
-		cIO.readSNPIm(info_s_block[i].pos, n_ref, idv, bed_in, geno, maf);
-		cSP.nomalizeVec(geno);
-		geno_s.col(i) = geno;
+		cIO.readSNPIm(info_s_block[i].pos, n_ref, idv, bed_in, geno, maf);// this line populates geno
+		cSP.nomalizeVec(geno); // then, normalize geno
+		geno_s.col(i) = geno; //write geno to geno_s matrix
 	}
 	
 	// estimation
