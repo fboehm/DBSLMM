@@ -5,7 +5,7 @@ let chr=1
 DBSLMM=../software/DBSLMM.R
 summf=../test_dat/summary_gemma_chr
 outPath=../test_dat/out/
-plink=plink-1.9
+plink=/usr/cluster/bin/plink-1.9
 ref=../test_dat/ref_chr
 blockf=../test_dat/chr
 m=`cat ${summf}${chr}.assoc.txt | wc -l` 
@@ -20,7 +20,7 @@ bfilete=../test_dat/test_chr
 est=../test_dat/out/summary_gemma_chr
 InterPred=../test_dat/out/internal_pred_chr
 ## plink 1.9
-plink=plink-1.9
+plink=/usr/cluster/bin/plink-1.9
 ${plink} --bfile ${bfilete}${chr} --score ${est}${chr}.assoc.dbslmm.txt 1 2 4 sum --out ${InterPred}${chr}
 ## plink 2
 plink=plink2
