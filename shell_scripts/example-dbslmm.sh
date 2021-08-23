@@ -7,7 +7,8 @@ summf=../test_dat/summary_gemma_chr
 outPath=../test_dat/out/
 plink=/usr/cluster/bin/plink-1.9
 ref=../test_dat/ref_chr
-blockf=../test_dat/chr
+
+blockf=../test_dat/ref_chr
 m=`cat ${summf}${chr}.assoc.txt | wc -l` 
 h2=0.5
 nobs=`sed -n "2p" ${summf}${chr}.assoc.txt | awk '{print $5}'`
