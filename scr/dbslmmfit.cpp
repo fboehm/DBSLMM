@@ -351,7 +351,7 @@ int DBSLMMFIT::calcBlock(int n_ref,
 			eff_l_block[i] = eff_l;
 		}
 	}
-	else{
+	else{ //case of num_l_block ==0
 		// estimation
 		estBlock(n_ref, n_obs, sigma_s, geno_s, z_s, beta_s); // estBlock!
 		eff_l_block[0].snp = eff_pseudo.snp;
