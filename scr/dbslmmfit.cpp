@@ -52,37 +52,37 @@ int DBSLMMFIT::est(int n_ref,
                    int num_block, 
                    vector<int> idv, 
                    string bed_str,
-                   vector <INFO> info_s, 
-                   vector <INFO> info_l, 
+                   vector <INFO> info_s, // one entry per small effect SNP
+                   vector <INFO> info_l, //one entry per large effect SNP
                    int thread, 
                    vector <EFF> &eff_s, 
                    vector <EFF> &eff_l){
 	
 	// get the maximum number of each block
-	int count_s = 0, count_l = 0;
-	vec num_s = zeros<vec>(num_block), num_l = zeros<vec>(num_block); 
+	int count_s = 0, count_l = 0; //set counters at zero
+	vec num_s = zeros<vec>(num_block), num_l = zeros<vec>(num_block); //num_s & num_l have one entry per block 
 	for (int i = 0; i < num_block; i++) {
 		for (size_t j = count_s; j < info_s.size(); j++) {
 			if(info_s[j].block == i){ 
 				num_s(i) += 1; 
-				count_s++;
+				count_s++; //count_s becomes the number of small effect SNPs in the whole genome
 			}else{
 				break;
 			}
-		}
+		}//loops above populate num_s. Each entry of num_s is the number of small effect SNPs in that block
 		for (size_t j = count_l; j < info_l.size(); j++) {
 			if(info_l[j].block == i){ 
-				num_l(i) += 1; 
-				count_l++;
+				num_l(i) += 1;  //num_l becomes the vector containing per-block counts of large effect SNPs
+				count_l++; //count_l becomes the number of genome-wide large effect SNPs
 			}else{
 				break;
 			}
 		}
-	}
+	}// end of counting and populating num_l and num_s
 	count_l = count_s = 0; // reset
 	
-	double len_l = num_l.max(); 
-	double len_s = num_s.max(); 
+	double len_l = num_l.max(); //len_l is the maximum, across blocks, of the per-block number of large effect SNPs
+	double len_s = num_s.max(); //len_s is the max of the per-block number of small SNPs
 	
 	int B = 0;
 	int B_MAX = 60;
@@ -256,6 +256,7 @@ int DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<i
 
 
 //' Estimate large and small effects for each block
+//' 
 //' @param n_ref 
 //' @param n_obs 
 //' @param sigma_s
@@ -273,8 +274,8 @@ int DBSLMMFIT::calcBlock(int n_ref,
                          double sigma_s, 
                          vector<int> idv, 
                          string bed_str, 
-                         vector <INFO> info_s_block_full, 
-                         vector <INFO> info_l_block_full, 
+                         vector <INFO> info_s_block_full, //small
+                         vector <INFO> info_l_block_full, //large
                          int num_s_block, 
                          int num_l_block, 
                          vector <EFF> &eff_s_block, 
