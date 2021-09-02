@@ -26,6 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dtpr.hpp"
 #include "dbslmmfit.hpp"
+#include "calc_asymptotic_variance.h"
 
 using namespace std;
 using namespace arma;
