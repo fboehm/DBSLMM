@@ -385,8 +385,13 @@ int DBSLMMFIT::calcBlock(int n_ref,
 }
 
 // estimate only small effect for each block
-int DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, string bed_str, 
-						vector <INFO> info_s_block_full, int num_s_block, 
+int DBSLMMFIT::calcBlock(int n_ref, 
+                         int n_obs, 
+                         double sigma_s, 
+                         vector<int> idv, 
+                         string bed_str, 
+						vector <INFO> info_s_block_full, 
+						int num_s_block, 
 						vector <EFF> &eff_s_block){
 	SNPPROC cSP; // declare new SNPPROC object, cSP. Below, we'll need to populate cSP.
 	IO cIO; //declare IO object, cIO
@@ -401,30 +406,31 @@ int DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, 
 		// info_s_block[i] = info_s_block_full[i];
 	vector <INFO> info_s_block(num_s_block);
 	for (int i = 0; i < num_s_block; i++)
-		info_s_block[i] = info_s_block_full[i];
+		info_s_block[i] = info_s_block_full[i];//copy info_s_block_full to info_s_block
 	// z_s
-	vec z_s = zeros<vec>(num_s_block); 
+	vec z_s = zeros<vec>(num_s_block); //init. z_s
 	for (int i = 0; i < num_s_block; i++) 
 		// z_s(i) = info_s_block[i]->z;
-		z_s(i) = info_s_block[i].z;
+		z_s(i) = info_s_block[i].z;//populate z_s with the z values from the INFO object
 	// small effect genotype matrix
 	mat geno_s = zeros<mat>(n_ref, num_s_block);// Is num_s_block the number of blocks with small effects only? Or something else???
+	// num_s_block must be the number of small effect SNPs in the block. n_ref and num_s_block are dimensions for the matrix
 	for (int i = 0; i < num_s_block; ++i) {
-		vec geno = zeros<vec>(n_ref);
-		double maf = 0.0; 
+		vec geno = zeros<vec>(n_ref); //init. geno as arma::vec of length n_ref
+		double maf = 0.0; //initialize maf.
 		// cIO.readSNPIm(info_s_block[i]->pos, n_ref, idv, bed_in, geno, maf);
 		cIO.readSNPIm(info_s_block[i].pos, n_ref, idv, bed_in, geno, maf);// this line populates geno
 		cSP.nomalizeVec(geno); // then, normalize geno
-		geno_s.col(i) = geno; //write geno to geno_s matrix
+		geno_s.col(i) = geno; //write geno to a column of geno_s matrix
 	}
 	
 	// estimation
-	vec beta_s = zeros<vec>(num_s_block); 
+	vec beta_s = zeros<vec>(num_s_block); //num_s_block, ie, the number of small effect SNPs in the block, is the length of beta_s, ie, since every small effect SNP will be represented by one entry in beta_s
 	estBlock(n_ref, n_obs, sigma_s, geno_s, z_s, beta_s);
 	
 	// output small effect
 	for(int i = 0; i < num_s_block; i++) {
-		EFF eff_s; 
+		EFF eff_s; //declare EFF object. Overwrites previous eff_s object as we loop over i. That is, eff_s will be populated but it's overwritten for every value of i.
 		// eff_s.snp = info_s_block[i]->snp;
 		// eff_s.a1 = info_s_block[i]->a1;
 		// eff_s.maf = info_s_block[i]->maf;
@@ -432,7 +438,7 @@ int DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, 
 		eff_s.a1 = info_s_block[i].a1;
 		eff_s.maf = info_s_block[i].maf;
 		eff_s.beta = beta_s(i); 
-		eff_s_block[i] = eff_s;
+		eff_s_block[i] = eff_s;//store eff_s for future use as entry in eff_s_block
 	}
 	return 0; 
 }
