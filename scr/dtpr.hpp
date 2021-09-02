@@ -117,7 +117,7 @@ public:
 	string snp;
 	long ps; // snp position
 	int pos; // bim file position
-	int block;
+	int block; //??block membership??
 	string a1; //?allele 1 identity? 
 	double maf;
 	double z;
