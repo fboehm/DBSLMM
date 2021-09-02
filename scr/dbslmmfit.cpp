@@ -63,30 +63,30 @@ int DBSLMMFIT::est(int n_ref,
 	vec num_s = zeros<vec>(num_block), num_l = zeros<vec>(num_block); //num_s & num_l have one entry per block 
 	for (int i = 0; i < num_block; i++) {
 		for (size_t j = count_s; j < info_s.size(); j++) {
-			if(info_s[j].block == i){ 
+			if(info_s[j].block == i){ //within info_s, block is an integer. I suspect that it indicates block membership for a SNP, ie, if a SNP is in block 10, then this value is 10.
 				num_s(i) += 1; 
 				count_s++; //count_s becomes the number of small effect SNPs in the whole genome
 			}else{
 				break;
 			}
-		}//loops above populate num_s. Each entry of num_s is the number of small effect SNPs in that block
+		}//loop above populates num_s. Each entry of num_s is the number of small effect SNPs in a block
 		for (size_t j = count_l; j < info_l.size(); j++) {
-			if(info_l[j].block == i){ 
+			if(info_l[j].block == i){ //again, I think this indicates block membership
 				num_l(i) += 1;  //num_l becomes the vector containing per-block counts of large effect SNPs
 				count_l++; //count_l becomes the number of genome-wide large effect SNPs
 			}else{
 				break;
 			}
 		}
-	}// end of counting and populating num_l and num_s
+	}// end of counting and populating num_l and num_s, ie, iterates over i
 	count_l = count_s = 0; // reset
 	
 	double len_l = num_l.max(); //len_l is the maximum, across blocks, of the per-block number of large effect SNPs
-	double len_s = num_s.max(); //len_s is the max of the per-block number of small SNPs
+	double len_s = num_s.max(); //len_s is the max of the per-block number of small effect SNPs
 	
 	int B = 0;
 	int B_MAX = 60;
-	if (num_block < 60){
+	if (num_block < 60){ //num_block is the number of blocks across the genome.
 		B_MAX = num_block; 
 	}
 
@@ -103,31 +103,39 @@ int DBSLMMFIT::est(int n_ref,
 	
 	// loop 
 	// vector < vector <INFO*> > info_s_Block(B_MAX, vector <INFO*> ((int)len_s)), info_l_Block(B_MAX, vector <INFO*> ((int)len_l));
-	vector < vector <INFO> > info_s_Block(B_MAX, vector <INFO> ((int)len_s)), info_l_Block(B_MAX, vector <INFO> ((int)len_l));
-	vector < vector <EFF> > eff_s_Block(B_MAX, vector <EFF> ((int)len_s)), eff_l_Block(B_MAX, vector <EFF> ((int)len_l));
-	vector <int> num_s_vec, num_l_vec;
-	for (int i = 0; i < num_block; ++i) {
+	vector < vector <INFO> > info_s_Block(B_MAX, 
+                                       vector <INFO> ((int)len_s)), 
+                           info_l_Block(B_MAX, 
+                                        vector <INFO> ((int)len_l)); //declare info_l_Block & info_s_Block
+	vector < vector <EFF> > eff_s_Block(B_MAX, 
+                                     vector <EFF> ((int)len_s)), 
+                          eff_l_Block(B_MAX, 
+                                      vector <EFF> ((int)len_l)); //declare eff_l_Block & eff_s_Block
+	vector <int> num_s_vec, num_l_vec; //declare num_s_vec & num_l_vec
+	for (int i = 0; i < num_block; ++i) {//iterate over blocks, ie, i indexes block number
 		// small effect SNP information
-		vector <INFO> info_s_block; 
+		vector <INFO> info_s_block; //declare info_s_block
 		for (size_t j = count_s; j < info_s.size(); j++) {
 			if(info_s[j].block == i){ 
-				info_s_block.push_back(info_s[j]);
-				count_s++;
+				info_s_block.push_back(info_s[j]);//appends info_s[j] to info_s_block, ie, does the work to create INFO for the snps in the block of interest, ie because the snp has snpinfo block value matching
+			  //https://www.cplusplus.com/reference/vector/vector/push_back/
+				count_s++; //count_s records the number of small SNPs in the genome. it starts at zero per line above
+				
 			}else{
 				break;
 			}
 		}
 		for (size_t k = 0; k < info_s_block.size(); k++)
 			// info_s_Block[B][k] = &info_s_block[k]; 
-			info_s_Block[B][k] = info_s_block[k]; 
-		num_s_vec.push_back((int)num_s(i));
+			info_s_Block[B][k] = info_s_block[k]; //Organizes the contents of info_s_block into the larger info_s_Block. info_s_Block will hold info for all blocks, it seems
+		num_s_vec.push_back((int)num_s(i)); //num_s was determined in lines 64-67. it's the vector with length equal to the number of blocks and entries equal to the number of small effects snps per block.
 		
 		// large effect SNP information
 		if (num_l(i) == 0){
 			// info_l_Block[B][0] = &info_pseudo;
-			info_l_Block[B][0] = info_pseudo;
-		}else{
-			vector <INFO> info_l_block;
+			info_l_Block[B][0] = info_pseudo; //put the pseudo info object in for those blocks without large effect snps.
+		}else{ //when there is one or more large effect snp in the block
+			vector <INFO> info_l_block;//declare info_l_block
 			for (size_t j = count_l; j < info_l.size(); j++) {
 				if(info_l[j].block == i){ 
 					info_l_block.push_back(info_l[j]);
@@ -142,7 +150,7 @@ int DBSLMMFIT::est(int n_ref,
 		}
 		num_l_vec.push_back((int)num_l(i));
 
-		B++;
+		B++; //increment B 
 		if (B == B_MAX || i + 1 == num_block) { // process the block of SNPs using multi-threading
 			
 			omp_set_num_threads(thread);
@@ -163,13 +171,13 @@ int DBSLMMFIT::est(int n_ref,
 					eff_l.push_back(eff_l_Block[r][l]);
 				}
 			}
-			B = 0;
+			B = 0;// reset B to zero
 			num_l_vec.clear(); 
 			num_s_vec.clear();
-		}
-	}
+		}//end if statement starting on line 154
+	}//end loop for i
 	return 0;
-}
+}//end function
 
 // estimate only small effect
 int DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<int> idv, string bed_str,
@@ -381,9 +389,12 @@ int DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, 
 						vector <INFO> info_s_block_full, int num_s_block, 
 						vector <EFF> &eff_s_block){
 	SNPPROC cSP; // declare new SNPPROC object, cSP. Below, we'll need to populate cSP.
-	IO cIO; 
-	ifstream bed_in(bed_str.c_str(), ios::binary);
-	
+	IO cIO; //declare IO object, cIO
+	ifstream bed_in(bed_str.c_str(), ios::binary);//ios::binary means "open in binary mode". bed_str is an argument to the function, presumably something like the file path??
+	//https://www.cplusplus.com/reference/fstream/ifstream/. ifstream is a class in std, ie, std::ifstream. Used to read from files
+	//https://www.cplusplus.com/doc/tutorial/files/
+	//https://www.cplusplus.com/reference/string/string/c_str/. Get C string equivalent
+	//Returns a pointer to an array that contains a null-terminated sequence of characters (i.e., a C-string) representing the current value of the string object.
 	// INFO small effect SNPs 
 	// vector <INFO*> info_s_block(num_s_block);
 	// for (int i = 0; i < num_s_block; i++)
