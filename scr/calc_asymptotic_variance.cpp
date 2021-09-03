@@ -20,15 +20,15 @@ arma::mat calc_asymptotic_variance(arma::mat Xl_training,
                                    double sigma2_s,
                                    arma::vec y_training){
   arma::mat Hinv = calc_Hinv(Xs_training, sigma2_s);
-  arma::mat var_bl = calc_var_betal(Xl = Xl_training, 
-                                    Hinv = Hinv, 
-                                    y = y_training);
-  arma::mat var_bs = calc_var_betas(Xl = Xl_training, 
-                                    Xs = Xs_training, 
-                                    Hinv = Hinv, 
-                                    sigma2_s = sigma2_s,
-                                    y = y_training, 
-                                    var_bl = var_bl);
+  arma::mat var_bl = calc_var_betal(Xl_training, 
+                                    Hinv, 
+                                    y_training);
+  arma::mat var_bs = calc_var_betas(Xl_training, 
+                                    Xs_training, 
+                                    Hinv, 
+                                    sigma2_s,
+                                    y_training, 
+                                    var_bl);
   arma::mat result = Xl_test.t() * var_bl * Xl_test + Xs_test.t() * var_bs * Xs_test;
   return(result);
 }
