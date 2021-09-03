@@ -294,7 +294,7 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 
 		// output effect 
 		for (size_t i = 0; i < eff_l.size(); ++i) {
-			double beta_l_noscl = eff_l[i].beta / sqrt(2 * eff_l[i].maf * (1-eff_l[i].maf));
+			double beta_l_noscl = eff_l[i].beta / sqrt(2 * eff_l[i].maf * (1-eff_l[i].maf));//this is like "no scaling" for beta
 			if (eff_l[i].snp != "rs" && isinf(beta_l_noscl) == false)
 				effFout << eff_l[i].snp << " " << eff_l[i].a1 << " " << eff_l[i].beta << " " << beta_l_noscl << " " << 1 << endl; 
 		}
@@ -307,15 +307,15 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 		effFout.close();
 	}
 	if (inter_l.size() == 0 || !leffstream){
-		// fit model
-		vector <EFF> eff_s; 
-		vector<int> idv(n_ref);
-		for (int i = 0; i < n_ref; i++) idv[i] = 1; 
+		// fit model, ie, fit for small effects only!
+		vector <EFF> eff_s; //declare eff_s as object with class EFF
+		vector<int> idv(n_ref);//declare idv as a vector of integers with length n_ref
+		for (int i = 0; i < n_ref; i++) idv[i] = 1; //set every entry of idv to value 1 (integer)
 		string bed_str = cPar.r + ".bed";
 		double t_fitting = cIO.getWalltime();
 		double sigma_s = cPar.h / (double)cPar.nsnp;
 		cout << "Fitting model..." << endl;
-		cDBSF.est(n_ref, cPar.n, sigma_s, num_block_s, idv, bed_str, info_s, cPar.t, eff_s); 
+		cDBSF.est(n_ref, cPar.n, sigma_s, num_block_s, idv, bed_str, info_s, cPar.t, eff_s); //call est for small effects only!
 		double time_fitting = cIO.getWalltime() - t_fitting;
 		cout << "Fitting time: " << time_fitting << " seconds." << endl;
 
