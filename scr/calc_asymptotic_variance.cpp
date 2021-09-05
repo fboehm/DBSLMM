@@ -5,12 +5,14 @@
 #include <armadillo>
 #include "calc_asymptotic_variance.h"
 
-//' Calculate the asymptotic variance for the beta hat estimator
+//' Calculate the asymptotic variance for the predicted y values
 //' 
-//' @param Xl genotypes matrix for large effects markers
-//' @param Xs genotypes matrix for small effects markers
+//' @param Xl_training genotypes matrix for large effects markers in training cohort
+//' @param Xs_training genotypes matrix for small effects markers in training cohort
+//' @param Xl_test genotypes matrix for large effects in test cohort
+//' @param Xs_test genotypes matrix for small effects in test cohort
 //' @param sigma2_s estimated value of sigma^2_s
-//' @param y trait values vector
+//' @param y_training trait values vector
 //' @return variance of predicted y values
 
 arma::mat calc_asymptotic_variance(arma::mat Xl_training, 
