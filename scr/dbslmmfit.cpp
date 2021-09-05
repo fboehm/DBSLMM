@@ -174,7 +174,7 @@ int DBSLMMFIT::est(int n_ref,
 			B = 0;// reset B to zero
 			num_l_vec.clear(); 
 			num_s_vec.clear();
-		}//end if statement starting on line 154
+		}//end if statement starting on line 154, if (B == B_MAX...
 	}//end loop for i
 	return 0;
 }//end function
@@ -225,12 +225,12 @@ int DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<i
 	vector <int> num_s_vec;
 	for (int i = 0; i < num_block; ++i) {
 		// small effect SNP information
-		vector <INFO> info_s_block; 
-		for (size_t j = count_s; j < info_s.size(); j++) {
-			if(info_s[j].block == i){ 
+		vector <INFO> info_s_block; // declare object for small effect SNP info
+		for (size_t j = count_s; j < info_s.size(); j++) { //info_s.size is the number of SNPs in info_s
+			if(info_s[j].block == i){ //if jth SNP in info_s is in block i
 				info_s_block.push_back(info_s[j]);
-				count_s++;
-			}else{
+				count_s++; //increase count_s by 1, ie, count of number of small effect SNPs increases by 1
+			}else{ //for SNPs not in block i, just leave the loop
 				break;
 			}
 		}
