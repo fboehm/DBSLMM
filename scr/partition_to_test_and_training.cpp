@@ -5,16 +5,16 @@
 #include <RcppArmadilloExtensions/sample.h>
 
 
-//' (Pseudo-)Randomly sample indices to determine a test set
+//' (Pseudo-)Randomly sample indices, eg., to determine test set membership
 //' 
 //' @param n_obs total number of subjects (test plus training)
 //' @param test_proportion proportion of subjects to place in test set
 //' @return  integers to indicate test set membership
 
-arma::Col<uword> get_test_indices(int n_obs, double test_proportion){
+arma::Col<arma::uword> get_test_indices(int n_obs, double test_proportion){
   // calculate number of subjects to put into test set
   int n_test = floor(test_proportion * n_obs);
-  arma::Col<uword> result = arma::randperm(n_obs, n_test); //randomly sample without replacement from the integers 0,1,...,n_obs - 1 and return n_test of them.
+  arma::Col<arma::uword> result = arma::randperm(n_obs, n_test); //randomly sample without replacement from the integers 0,1,...,n_obs - 1 and return n_test of them.
   return(result);
 }
 
@@ -24,7 +24,7 @@ arma::Col<uword> get_test_indices(int n_obs, double test_proportion){
 //' @param test_indices vector with subject indices to go into test set
 //' @return matrix of genotypes for the subsetted collection of subjects
 
-arma::mat subset(arma::mat matrix, arma::Col<uword> indices){
+arma::mat subset(arma::mat matrix, arma::Col<arma::uword> indices){
   arma::mat result = matrix.rows(indices);
   return(result);
 }
@@ -35,7 +35,7 @@ arma::mat subset(arma::mat matrix, arma::Col<uword> indices){
 //' @param indices arma::vec of indices to indicate which entries to extract 
 //' @return vector of values for the subsetted collection of subjects
 
-arma::vec subset(arma::vec vector, arma::Col<uword> indices){
+arma::vec subset(arma::vec vector, arma::Col<arma::uword> indices){
   arma::vec result = vector.elem(indices);
   return(result);
 }
