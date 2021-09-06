@@ -22,8 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <armadillo>
 #include <string>
-#include <algorithm> //for std::sample
-#include <math.h>       /* floor */
 
 #include "omp.h"
 
