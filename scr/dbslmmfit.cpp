@@ -22,6 +22,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <armadillo>
 #include <string>
+#include <algorithm> //for std::sample
+#include <math.h>       /* floor */
+
 #include "omp.h"
 
 #include "dtpr.hpp"
@@ -57,6 +60,10 @@ int DBSLMMFIT::est(int n_ref,
                    int thread, 
                    vector <EFF> &eff_s, 
                    vector <EFF> &eff_l){
+	// split subjects into training and test sets
+	//specify proportion of n_obs that goes into test set
+	double test_proportion = 0.1;
+  
 	
 	// get the maximum number of each block
 	int count_s = 0, count_l = 0; //set counters at zero
