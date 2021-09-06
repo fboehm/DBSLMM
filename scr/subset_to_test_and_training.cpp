@@ -1,8 +1,5 @@
 #include <armadillo>
-#include <containers>
-#include <algorithm> //for std::sample
 #include <math.h>       /* floor */
-#include <RcppArmadilloExtensions/sample.h>
 
 
 //' (Pseudo-)Randomly sample indices, eg., to determine test set membership
