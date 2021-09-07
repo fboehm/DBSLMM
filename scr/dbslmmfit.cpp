@@ -70,7 +70,7 @@ int DBSLMMFIT::est(int n_ref,
 	for (int i = 0; i < num_block; i++) {
 		for (size_t j = count_s; j < info_s.size(); j++) {
 			if(info_s[j].block == i){ //within info_s, block is an integer. I suspect that it indicates block membership for a SNP, ie, if a SNP is in block 10, then this value is 10.
-				num_s(i) += 1; 
+				num_s(i) += 1; //num_s is a vector with one entry per block. It will contain the number of small effect SNPs in each block.
 				count_s++; //count_s becomes the number of small effect SNPs in the whole genome
 			}else{
 				break;
@@ -152,7 +152,7 @@ int DBSLMMFIT::est(int n_ref,
 			}
 			for (size_t k = 0; k < info_l_block.size(); k++)
 				// info_l_Block[B][k] = &info_l_block[k]; 
-				info_l_Block[B][k] = info_l_block[k]; 
+				info_l_Block[B][k] = info_l_block[k]; //info_l_Block is like a vector of vectors. B, the first index, indexes the blocks, while k indexes the markers within a block
 		}
 		num_l_vec.push_back((int)num_l(i));
 
