@@ -28,7 +28,7 @@ arma::mat subset(arma::mat matrix, arma::Col<arma::uword> indices){
 
 //' Subset a vector by indices
 //' 
-//' @param vector a vector
+//' @param vector a vector, arma::vec
 //' @param indices arma::vec of indices to indicate which entries to extract 
 //' @return vector of values for the subsetted collection of subjects
 

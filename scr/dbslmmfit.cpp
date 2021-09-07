@@ -28,6 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "dtpr.hpp"
 #include "dbslmmfit.hpp"
 #include "calc_asymptotic_variance.h"
+#include "subset_to_test_and_training.h"
 
 using namespace std;
 using namespace arma;
@@ -61,7 +62,7 @@ int DBSLMMFIT::est(int n_ref,
 	// split subjects into training and test sets
 	//specify proportion of n_obs that goes into test set
 	double test_proportion = 0.1;
-  
+  arma::Col<arma::uword> test_indices = get_test_indices(n_obs, test_proportion);
 	
 	// get the maximum number of each block
 	int count_s = 0, count_l = 0; //set counters at zero
@@ -350,6 +351,8 @@ int DBSLMMFIT::calcBlock(int n_ref,
 			cSP.nomalizeVec(geno);
 			geno_l.col(i) = geno;
 		}
+		// calculate var(\hat \beta_s) & var(\hat\beta_l)
+		
 		// estimation
 		vec beta_l = zeros<vec>(num_l_block); 
 		estBlock(n_ref, n_obs, sigma_s, geno_s, geno_l, z_s, z_l, beta_s, beta_l);//estBlock!
@@ -449,7 +452,10 @@ int DBSLMMFIT::calcBlock(int n_ref,
 }
 
 // solve the equation Ax=b, x is a variables
-vec DBSLMMFIT::PCGv(mat A, vec b, size_t maxiter, const double tol){
+vec DBSLMMFIT::PCGv(mat A, 
+                    vec b, 
+                    size_t maxiter, 
+                    const double tol){
 	vec dA = A.diag();
 	// stable checking, using available func to speed up
 	for(size_t i = 0; i< dA.n_elem; i++){
@@ -490,7 +496,7 @@ vec DBSLMMFIT::PCGv(mat A, vec b, size_t maxiter, const double tol){
 	return(x);
 }// end function
 
-mat DBSLMMFIT::PCGm(mat A, mat B, size_t maxiter, const double tol){
+mat DBSLMMFIT::PCGm(mat A, mat B, size_t maxiter, const double tol){//like PCGv but with matrix B
 	
 	size_t n_iter = B.n_cols;
 	mat x = zeros<mat>(A.n_rows, n_iter);
@@ -547,7 +553,12 @@ int DBSLMMFIT::estBlock(int n_ref, int n_obs, double sigma_s, mat geno_s, mat ge
 	return 0; 
 }
 
-int DBSLMMFIT::estBlock(int n_ref, int n_obs, double sigma_s, mat geno_s, vec z_s, vec &beta_s) {
+int DBSLMMFIT::estBlock(int n_ref, 
+                        int n_obs, 
+                        double sigma_s, 
+                        mat geno_s, 
+                        vec z_s, 
+                        vec &beta_s) {
 	
 	// LD matrix 
 	// mat SIGMA_ss = geno_s.t() * geno_s; 
