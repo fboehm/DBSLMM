@@ -5,6 +5,7 @@
 #include <armadillo>
 #include "calc_asymptotic_variance.h"
 
+
 //' Calculate the asymptotic variance for the predicted y values
 //' 
 //' @param Xl_training genotypes matrix for large effects markers in training cohort
@@ -66,7 +67,7 @@ arma::mat calc_var_betal(arma::mat Xl,
   arma::mat result = arg1 * Xl.t() * Hinv * vy * Hinv * Xl * arg1;
   return result;
 }
-  
+
 //' Calculate variance of coefficient estimator for small effects
 //' 
 //' @param Xs matrix of genotypes for small effect markers
@@ -91,3 +92,11 @@ arma::mat calc_var_betas(arma::mat Xl,
   return result;
 }
 
+//' Read pheno data from plink fam file
+//' 
+//' @param file_path
+//' @return phenotype vector
+
+arma::vec read_pheno(std::string file_path){
+  
+}
