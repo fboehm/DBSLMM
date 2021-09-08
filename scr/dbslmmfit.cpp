@@ -195,14 +195,14 @@ int DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<i
 	vec num_s = zeros<vec>(num_block); 
 	for (int i = 0; i < num_block; i++) {
 		for (size_t j = count_s; j < info_s.size(); j++) {
-			if(info_s[j].block == i){ 
+			if(info_s[j].block == i){ //what exactly is structure of info_s???
 				num_s(i) += 1; 
 				count_s++;
 			}else{
 				break;
 			}
 		}
-	}
+	} //end "function1"
 	count_s = 0; // reset
 	
 	double len_s = num_s.max(); 
