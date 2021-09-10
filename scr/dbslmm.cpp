@@ -172,7 +172,7 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 	// cout << "-eff:    " << cPar.eff << endl;
 	
 	// check files
-	string ref_fam_str = cPar.r + ".fam";
+	string ref_fam_str = cPar.r + ".fam"; //next line below declares the ifstream objects, including an ifstream object for reading the fam file! 
 	ifstream seffstream(cPar.s.c_str()), leffstream(cPar.l.c_str()), reffstream(ref_fam_str.c_str()), beffstream(cPar.b.c_str());
 	if (cPar.s.size() == 0) {
 		cerr << "ERROR: -s is no parameter!" << endl;
@@ -220,7 +220,7 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 	if (abs(cPar.mafMax-1.0) < 1e-10){
 		constr = false; 
 	}
-	cIO.readBim(n_ref, cPar.r, separate, ref_bim, constr);
+	cIO.readBim(n_ref, cPar.r, separate, ref_bim, constr); //read BIM for ref data
 	int num_snp_ref = ref_bim.size(); //num_snp_ref is number of SNPs in the reference data
 	cout << num_snp_ref << " SNPs to be included from reference BIM file." << endl;
 
@@ -235,6 +235,7 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 	// What is n_s?? clearly, an integer, but is it the number of small effect snps? or is it a number of subjects, 
 	// like the number of subjects used to get small effect snps?
 	vector <POS> inter_s; // what does POS mean here? I get that it's the class for inter_s, but what exactly does it mean?
+	// see scr/dtpr.hpp for definition of POS class
 	bool badsnp_s[n_s] = {false}; 
 	cSP.matchRef(summ_s, ref_bim, inter_s, cPar.mafMax, badsnp_s); //matchRef is defined in scr/dtpr.cpp
 	cout << "After filtering, " << inter_s.size() << " small effect SNPs are selected." << endl;
