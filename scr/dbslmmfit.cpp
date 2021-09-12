@@ -36,17 +36,18 @@ using namespace arma;
 
 //' Estimate large and small effects
 //' 
-//' @param n_ref
-//' @param n_obs
+//' @param n_ref sample size of the reference panel
+//' @param n_obs sample size of the data
 //' @param sigma_s
-//' @param num_block
-//' @param idv
-//' @param bed_str
-//' @param info_s
-//' @param info_l
-//' @param thread 
-//' @param eff_s
-//' @param eff_l
+//' @param num_block number of blocks in the genome
+//' @param idv 
+//' @param bed_str file path for the plink bed file
+//' @param info_s small effect SNP info object
+//' @param info_l large effect SNP info object
+//' @param thread number of threads to use
+//' @param eff_s small effects SNP effects object
+//' @param eff_l lkarge effects SNP effects object
+//' @param fam_file path to the plink fam file
 //' @return zero is returned
 // estimate large and small effect
 int DBSLMMFIT::est(int n_ref, 
@@ -59,12 +60,16 @@ int DBSLMMFIT::est(int n_ref,
                    vector <INFO> info_l, //one entry per large effect SNP
                    int thread, 
                    vector <EFF> &eff_s, 
-                   vector <EFF> &eff_l){
+                   vector <EFF> &eff_l,
+                   string fam_file){ //Fred added fam_file so that we can read in the phenotype data
 	// split subjects into training and test sets
 	//specify proportion of n_obs that goes into test set
 	double test_proportion = 0.1;
   arma::Col<arma::uword> test_indices = get_test_indices(n_obs, test_proportion);
-	
+  // read phenotype data
+  std::tuple<vector<string>, vector<string> > pheno_struct = read_pheno(fam_file, 6);
+  // extract id and pheno from pheno_struct
+  
 	// get the maximum number of each block
 	int count_s = 0, count_l = 0; //set counters at zero
 	vec num_s = zeros<vec>(num_block), num_l = zeros<vec>(num_block); //num_s & num_l have one entry per block 
@@ -190,7 +195,7 @@ int DBSLMMFIT::est(int n_ref,
 int DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<int> idv, string bed_str,
 				 vector <INFO> info_s, int thread, 
 				 vector <EFF> &eff_s){
-	
+
 	// get the maximum number of each block
 	int count_s = 0;
 	vec num_s = zeros<vec>(num_block); 
@@ -352,10 +357,6 @@ int DBSLMMFIT::calcBlock(int n_ref,
 			cSP.nomalizeVec(geno);
 			geno_l.col(i) = geno;
 		}
-		
-		// read phenotype data
-		std::tuple<vector<string>, vector<string> > pheno_struct = read_pheno("", 6);
-		// extract id and pheno from read data
 		
 		// calculate var(\hat \beta_s) & var(\hat\beta_l)
 		
