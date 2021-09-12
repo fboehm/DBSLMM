@@ -33,7 +33,7 @@ public:
 	// estimate large and small effect
 	int est(int n_ref, int n_obs, double sigma_s, int num_block, vector<int> idv, string bed_str,
 			vector <INFO> info_s, vector <INFO> info_l, int thread, 
-			vector <EFF> &eff_s, vector <EFF> &eff_l);
+			vector <EFF> &eff_s, vector <EFF> &eff_l, string fam_file);
 	// estimate only small effect
 	int est(int n_ref, int n_obs, double sigma_s, int num_block, vector<int> idv, string bed_str,
 			vector <INFO> info_s, int thread, vector <EFF> &eff_s);
