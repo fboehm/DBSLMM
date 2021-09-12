@@ -1,6 +1,6 @@
 #include <armadillo>
 #include <math.h>       /* floor */
-
+#include "subset_to_test_and_training.h"
 
 //' (Pseudo-)Randomly sample indices, eg., to determine test set membership
 //' 
