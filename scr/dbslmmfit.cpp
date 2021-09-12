@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <armadillo>
 #include <string>
+#include <tuple> // std::tuple, std::get, std::tie, std::ignore
 
 #include "omp.h"
 
@@ -351,6 +352,11 @@ int DBSLMMFIT::calcBlock(int n_ref,
 			cSP.nomalizeVec(geno);
 			geno_l.col(i) = geno;
 		}
+		
+		// read phenotype data
+		std::tuple<vector<string>, vector<string> > pheno_struct = read_pheno("", 6);
+		// extract id and pheno from read data
+		
 		// calculate var(\hat \beta_s) & var(\hat\beta_l)
 		
 		// estimation
