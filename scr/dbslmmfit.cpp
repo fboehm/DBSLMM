@@ -22,27 +22,32 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <armadillo>
 #include <string>
+#include <tuple> // std::tuple, std::get, std::tie, std::ignore
+
 #include "omp.h"
 
 #include "dtpr.hpp"
 #include "dbslmmfit.hpp"
+#include "calc_asymptotic_variance.h"
+#include "subset_to_test_and_training.h"
 
 using namespace std;
 using namespace arma;
 
 //' Estimate large and small effects
 //' 
-//' @param n_ref
-//' @param n_obs
+//' @param n_ref sample size of the reference panel
+//' @param n_obs sample size of the data
 //' @param sigma_s
-//' @param num_block
-//' @param idv
-//' @param bed_str
-//' @param info_s
-//' @param info_l
-//' @param thread 
-//' @param eff_s
-//' @param eff_l
+//' @param num_block number of blocks in the genome
+//' @param idv 
+//' @param bed_str file path for the plink bed file
+//' @param info_s small effect SNP info object
+//' @param info_l large effect SNP info object
+//' @param thread number of threads to use
+//' @param eff_s small effects SNP effects object
+//' @param eff_l lkarge effects SNP effects object
+//' @param fam_file path to the plink fam file
 //' @return zero is returned
 // estimate large and small effect
 int DBSLMMFIT::est(int n_ref, 
@@ -51,41 +56,49 @@ int DBSLMMFIT::est(int n_ref,
                    int num_block, 
                    vector<int> idv, 
                    string bed_str,
-                   vector <INFO> info_s, 
-                   vector <INFO> info_l, 
+                   vector <INFO> info_s, // one entry per small effect SNP
+                   vector <INFO> info_l, //one entry per large effect SNP
                    int thread, 
                    vector <EFF> &eff_s, 
-                   vector <EFF> &eff_l){
-	
+                   vector <EFF> &eff_l,
+                   string fam_file){ //Fred added fam_file so that we can read in the phenotype data
+	// split subjects into training and test sets
+	//specify proportion of n_obs that goes into test set
+	double test_proportion = 0.1;
+  arma::Col<arma::uword> test_indices = get_test_indices(n_obs, test_proportion);
+  // read phenotype data
+  std::tuple<vector<string>, vector<string> > pheno_struct = read_pheno(fam_file, 6);
+  // extract id and pheno from pheno_struct
+  
 	// get the maximum number of each block
-	int count_s = 0, count_l = 0;
-	vec num_s = zeros<vec>(num_block), num_l = zeros<vec>(num_block); 
+	int count_s = 0, count_l = 0; //set counters at zero
+	vec num_s = zeros<vec>(num_block), num_l = zeros<vec>(num_block); //num_s & num_l have one entry per block 
 	for (int i = 0; i < num_block; i++) {
 		for (size_t j = count_s; j < info_s.size(); j++) {
-			if(info_s[j].block == i){ 
-				num_s(i) += 1; 
-				count_s++;
+			if(info_s[j].block == i){ //within info_s, block is an integer. I suspect that it indicates block membership for a SNP, ie, if a SNP is in block 10, then this value is 10.
+				num_s(i) += 1; //num_s is a vector with one entry per block. It will contain the number of small effect SNPs in each block.
+				count_s++; //count_s becomes the number of small effect SNPs in the whole genome
 			}else{
 				break;
 			}
-		}
+		}//loop above populates num_s. Each entry of num_s is the number of small effect SNPs in a block
 		for (size_t j = count_l; j < info_l.size(); j++) {
-			if(info_l[j].block == i){ 
-				num_l(i) += 1; 
-				count_l++;
+			if(info_l[j].block == i){ //again, I think this indicates block membership
+				num_l(i) += 1;  //num_l becomes the vector containing per-block counts of large effect SNPs
+				count_l++; //count_l becomes the number of genome-wide large effect SNPs
 			}else{
 				break;
 			}
 		}
-	}
+	}// end of counting and populating num_l and num_s, ie, iterates over i
 	count_l = count_s = 0; // reset
 	
-	double len_l = num_l.max(); 
-	double len_s = num_s.max(); 
+	double len_l = num_l.max(); //len_l is the maximum, across blocks, of the per-block number of large effect SNPs
+	double len_s = num_s.max(); //len_s is the max of the per-block number of small effect SNPs
 	
 	int B = 0;
 	int B_MAX = 60;
-	if (num_block < 60){
+	if (num_block < 60){ //num_block is the number of blocks across the genome.
 		B_MAX = num_block; 
 	}
 
@@ -102,31 +115,39 @@ int DBSLMMFIT::est(int n_ref,
 	
 	// loop 
 	// vector < vector <INFO*> > info_s_Block(B_MAX, vector <INFO*> ((int)len_s)), info_l_Block(B_MAX, vector <INFO*> ((int)len_l));
-	vector < vector <INFO> > info_s_Block(B_MAX, vector <INFO> ((int)len_s)), info_l_Block(B_MAX, vector <INFO> ((int)len_l));
-	vector < vector <EFF> > eff_s_Block(B_MAX, vector <EFF> ((int)len_s)), eff_l_Block(B_MAX, vector <EFF> ((int)len_l));
-	vector <int> num_s_vec, num_l_vec;
-	for (int i = 0; i < num_block; ++i) {
+	vector < vector <INFO> > info_s_Block(B_MAX, 
+                                       vector <INFO> ((int)len_s)), 
+                           info_l_Block(B_MAX, 
+                                        vector <INFO> ((int)len_l)); //declare info_l_Block & info_s_Block
+	vector < vector <EFF> > eff_s_Block(B_MAX, 
+                                     vector <EFF> ((int)len_s)), 
+                          eff_l_Block(B_MAX, 
+                                      vector <EFF> ((int)len_l)); //declare eff_l_Block & eff_s_Block
+	vector <int> num_s_vec, num_l_vec; //declare num_s_vec & num_l_vec
+	for (int i = 0; i < num_block; ++i) {//iterate over blocks, ie, i indexes block number
 		// small effect SNP information
-		vector <INFO> info_s_block; 
+		vector <INFO> info_s_block; //declare info_s_block
 		for (size_t j = count_s; j < info_s.size(); j++) {
 			if(info_s[j].block == i){ 
-				info_s_block.push_back(info_s[j]);
-				count_s++;
+				info_s_block.push_back(info_s[j]);//appends info_s[j] to info_s_block, ie, does the work to create INFO for the snps in the block of interest, ie because the snp has snpinfo block value matching
+			  //https://www.cplusplus.com/reference/vector/vector/push_back/
+				count_s++; //count_s records the number of small SNPs in the genome. it starts at zero per line above
+				
 			}else{
 				break;
 			}
 		}
 		for (size_t k = 0; k < info_s_block.size(); k++)
 			// info_s_Block[B][k] = &info_s_block[k]; 
-			info_s_Block[B][k] = info_s_block[k]; 
-		num_s_vec.push_back((int)num_s(i));
+			info_s_Block[B][k] = info_s_block[k]; //Organizes the contents of info_s_block into the larger info_s_Block. info_s_Block will hold info for all blocks, it seems
+		num_s_vec.push_back((int)num_s(i)); //num_s was determined in lines 64-67. it's the vector with length equal to the number of blocks and entries equal to the number of small effects snps per block.
 		
 		// large effect SNP information
 		if (num_l(i) == 0){
 			// info_l_Block[B][0] = &info_pseudo;
-			info_l_Block[B][0] = info_pseudo;
-		}else{
-			vector <INFO> info_l_block;
+			info_l_Block[B][0] = info_pseudo; //put the pseudo info object in for those blocks without large effect snps.
+		}else{ //when there is one or more large effect snp in the block
+			vector <INFO> info_l_block;//declare info_l_block
 			for (size_t j = count_l; j < info_l.size(); j++) {
 				if(info_l[j].block == i){ 
 					info_l_block.push_back(info_l[j]);
@@ -137,11 +158,11 @@ int DBSLMMFIT::est(int n_ref,
 			}
 			for (size_t k = 0; k < info_l_block.size(); k++)
 				// info_l_Block[B][k] = &info_l_block[k]; 
-				info_l_Block[B][k] = info_l_block[k]; 
+				info_l_Block[B][k] = info_l_block[k]; //info_l_Block is like a vector of vectors. B, the first index, indexes the blocks, while k indexes the markers within a block
 		}
 		num_l_vec.push_back((int)num_l(i));
 
-		B++;
+		B++; //increment B 
 		if (B == B_MAX || i + 1 == num_block) { // process the block of SNPs using multi-threading
 			
 			omp_set_num_threads(thread);
@@ -162,19 +183,19 @@ int DBSLMMFIT::est(int n_ref,
 					eff_l.push_back(eff_l_Block[r][l]);
 				}
 			}
-			B = 0;
+			B = 0;// reset B to zero
 			num_l_vec.clear(); 
 			num_s_vec.clear();
-		}
-	}
+		}//end if statement starting on line 154, if (B == B_MAX...
+	}//end loop for i
 	return 0;
-}
+}//end function
 
 // estimate only small effect
 int DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<int> idv, string bed_str,
 				 vector <INFO> info_s, int thread, 
 				 vector <EFF> &eff_s){
-	
+
 	// get the maximum number of each block
 	int count_s = 0;
 	vec num_s = zeros<vec>(num_block); 
@@ -216,12 +237,12 @@ int DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<i
 	vector <int> num_s_vec;
 	for (int i = 0; i < num_block; ++i) {
 		// small effect SNP information
-		vector <INFO> info_s_block; 
-		for (size_t j = count_s; j < info_s.size(); j++) {
-			if(info_s[j].block == i){ 
+		vector <INFO> info_s_block; // declare object for small effect SNP info
+		for (size_t j = count_s; j < info_s.size(); j++) { //info_s.size is the number of SNPs in info_s
+			if(info_s[j].block == i){ //if jth SNP in info_s is in block i
 				info_s_block.push_back(info_s[j]);
-				count_s++;
-			}else{
+				count_s++; //increase count_s by 1, ie, count of number of small effect SNPs increases by 1
+			}else{ //for SNPs not in block i, just leave the loop
 				break;
 			}
 		}
@@ -255,6 +276,7 @@ int DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<i
 
 
 //' Estimate large and small effects for each block
+//' 
 //' @param n_ref 
 //' @param n_obs 
 //' @param sigma_s
@@ -272,8 +294,8 @@ int DBSLMMFIT::calcBlock(int n_ref,
                          double sigma_s, 
                          vector<int> idv, 
                          string bed_str, 
-                         vector <INFO> info_s_block_full, 
-                         vector <INFO> info_l_block_full, 
+                         vector <INFO> info_s_block_full, //small
+                         vector <INFO> info_l_block_full, //large
                          int num_s_block, 
                          int num_l_block, 
                          vector <EFF> &eff_s_block, 
@@ -335,6 +357,9 @@ int DBSLMMFIT::calcBlock(int n_ref,
 			cSP.nomalizeVec(geno);
 			geno_l.col(i) = geno;
 		}
+		
+		// calculate var(\hat \beta_s) & var(\hat\beta_l)
+		
 		// estimation
 		vec beta_l = zeros<vec>(num_l_block); 
 		estBlock(n_ref, n_obs, sigma_s, geno_s, geno_l, z_s, z_l, beta_s, beta_l);//estBlock!
@@ -351,7 +376,7 @@ int DBSLMMFIT::calcBlock(int n_ref,
 			eff_l_block[i] = eff_l;
 		}
 	}
-	else{
+	else{ //case of num_l_block ==0
 		// estimation
 		estBlock(n_ref, n_obs, sigma_s, geno_s, z_s, beta_s); // estBlock!
 		eff_l_block[0].snp = eff_pseudo.snp;
@@ -375,43 +400,52 @@ int DBSLMMFIT::calcBlock(int n_ref,
 }
 
 // estimate only small effect for each block
-int DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, string bed_str, 
-						vector <INFO> info_s_block_full, int num_s_block, 
+int DBSLMMFIT::calcBlock(int n_ref, 
+                         int n_obs, 
+                         double sigma_s, 
+                         vector<int> idv, 
+                         string bed_str, 
+						vector <INFO> info_s_block_full, 
+						int num_s_block, 
 						vector <EFF> &eff_s_block){
 	SNPPROC cSP; // declare new SNPPROC object, cSP. Below, we'll need to populate cSP.
-	IO cIO; 
-	ifstream bed_in(bed_str.c_str(), ios::binary);
-	
+	IO cIO; //declare IO object, cIO
+	ifstream bed_in(bed_str.c_str(), ios::binary);//ios::binary means "open in binary mode". bed_str is an argument to the function, presumably something like the file path??
+	//https://www.cplusplus.com/reference/fstream/ifstream/. ifstream is a class in std, ie, std::ifstream. Used to read from files
+	//https://www.cplusplus.com/doc/tutorial/files/
+	//https://www.cplusplus.com/reference/string/string/c_str/. Get C string equivalent
+	//Returns a pointer to an array that contains a null-terminated sequence of characters (i.e., a C-string) representing the current value of the string object.
 	// INFO small effect SNPs 
 	// vector <INFO*> info_s_block(num_s_block);
 	// for (int i = 0; i < num_s_block; i++)
 		// info_s_block[i] = info_s_block_full[i];
 	vector <INFO> info_s_block(num_s_block);
 	for (int i = 0; i < num_s_block; i++)
-		info_s_block[i] = info_s_block_full[i];
+		info_s_block[i] = info_s_block_full[i];//copy info_s_block_full to info_s_block
 	// z_s
-	vec z_s = zeros<vec>(num_s_block); 
+	vec z_s = zeros<vec>(num_s_block); //init. z_s
 	for (int i = 0; i < num_s_block; i++) 
 		// z_s(i) = info_s_block[i]->z;
-		z_s(i) = info_s_block[i].z;
+		z_s(i) = info_s_block[i].z;//populate z_s with the z values from the INFO object
 	// small effect genotype matrix
 	mat geno_s = zeros<mat>(n_ref, num_s_block);// Is num_s_block the number of blocks with small effects only? Or something else???
+	// num_s_block must be the number of small effect SNPs in the block. n_ref and num_s_block are dimensions for the matrix
 	for (int i = 0; i < num_s_block; ++i) {
-		vec geno = zeros<vec>(n_ref);
-		double maf = 0.0; 
+		vec geno = zeros<vec>(n_ref); //init. geno as arma::vec of length n_ref
+		double maf = 0.0; //initialize maf.
 		// cIO.readSNPIm(info_s_block[i]->pos, n_ref, idv, bed_in, geno, maf);
 		cIO.readSNPIm(info_s_block[i].pos, n_ref, idv, bed_in, geno, maf);// this line populates geno
 		cSP.nomalizeVec(geno); // then, normalize geno
-		geno_s.col(i) = geno; //write geno to geno_s matrix
+		geno_s.col(i) = geno; //write geno to a column of geno_s matrix
 	}
 	
 	// estimation
-	vec beta_s = zeros<vec>(num_s_block); 
+	vec beta_s = zeros<vec>(num_s_block); //num_s_block, ie, the number of small effect SNPs in the block, is the length of beta_s, ie, since every small effect SNP will be represented by one entry in beta_s
 	estBlock(n_ref, n_obs, sigma_s, geno_s, z_s, beta_s);
 	
 	// output small effect
 	for(int i = 0; i < num_s_block; i++) {
-		EFF eff_s; 
+		EFF eff_s; //declare EFF object. Overwrites previous eff_s object as we loop over i. That is, eff_s will be populated but it's overwritten for every value of i.
 		// eff_s.snp = info_s_block[i]->snp;
 		// eff_s.a1 = info_s_block[i]->a1;
 		// eff_s.maf = info_s_block[i]->maf;
@@ -419,13 +453,16 @@ int DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, 
 		eff_s.a1 = info_s_block[i].a1;
 		eff_s.maf = info_s_block[i].maf;
 		eff_s.beta = beta_s(i); 
-		eff_s_block[i] = eff_s;
+		eff_s_block[i] = eff_s;//store eff_s for future use as entry in eff_s_block
 	}
 	return 0; 
 }
 
 // solve the equation Ax=b, x is a variables
-vec DBSLMMFIT::PCGv(mat A, vec b, size_t maxiter, const double tol){
+vec DBSLMMFIT::PCGv(mat A, 
+                    vec b, 
+                    size_t maxiter, 
+                    const double tol){
 	vec dA = A.diag();
 	// stable checking, using available func to speed up
 	for(size_t i = 0; i< dA.n_elem; i++){
@@ -466,7 +503,7 @@ vec DBSLMMFIT::PCGv(mat A, vec b, size_t maxiter, const double tol){
 	return(x);
 }// end function
 
-mat DBSLMMFIT::PCGm(mat A, mat B, size_t maxiter, const double tol){
+mat DBSLMMFIT::PCGm(mat A, mat B, size_t maxiter, const double tol){//like PCGv but with matrix B
 	
 	size_t n_iter = B.n_cols;
 	mat x = zeros<mat>(A.n_rows, n_iter);
@@ -523,7 +560,12 @@ int DBSLMMFIT::estBlock(int n_ref, int n_obs, double sigma_s, mat geno_s, mat ge
 	return 0; 
 }
 
-int DBSLMMFIT::estBlock(int n_ref, int n_obs, double sigma_s, mat geno_s, vec z_s, vec &beta_s) {
+int DBSLMMFIT::estBlock(int n_ref, 
+                        int n_obs, 
+                        double sigma_s, 
+                        mat geno_s, 
+                        vec z_s, 
+                        vec &beta_s) {
 	
 	// LD matrix 
 	// mat SIGMA_ss = geno_s.t() * geno_s; 

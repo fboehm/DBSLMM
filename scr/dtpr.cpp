@@ -72,7 +72,11 @@ int IO::getRow(string infile){
 }
 
 // input bim data
-int IO::readBim(int n_ref, string ref_str, char *separator, map<string, ALLELE> &bim, bool constr){
+int IO::readBim(int n_ref, 
+                string ref_str, 
+                char *separator, 
+                map<string, ALLELE> &bim, 
+                bool constr){
 	
 	string bed_str = ref_str + ".bed", bim_str = ref_str + ".bim";
 	ifstream bim_stream(bim_str.c_str());
@@ -111,7 +115,11 @@ int IO::readBim(int n_ref, string ref_str, char *separator, map<string, ALLELE> 
 }
 
 // input bim data
-int IO::readBim(int n_ref, string ref_str, char *separator, map<string, ALLELEB> &bim, bool constr){
+int IO::readBim(int n_ref, 
+                string ref_str, 
+                char *separator, 
+                map<string, ALLELEB> &bim, 
+                bool constr){
 	
 	string bed_str = ref_str + ".bed", bim_str = ref_str + ".bim";
 	ifstream bim_stream(bim_str.c_str());

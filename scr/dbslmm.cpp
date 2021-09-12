@@ -172,7 +172,7 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 	// cout << "-eff:    " << cPar.eff << endl;
 	
 	// check files
-	string ref_fam_str = cPar.r + ".fam";
+	string ref_fam_str = cPar.r + ".fam"; //next line below declares the ifstream objects, including an ifstream object for reading the fam file! 
 	ifstream seffstream(cPar.s.c_str()), leffstream(cPar.l.c_str()), reffstream(ref_fam_str.c_str()), beffstream(cPar.b.c_str());
 	if (cPar.s.size() == 0) {
 		cerr << "ERROR: -s is no parameter!" << endl;
@@ -220,7 +220,7 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 	if (abs(cPar.mafMax-1.0) < 1e-10){
 		constr = false; 
 	}
-	cIO.readBim(n_ref, cPar.r, separate, ref_bim, constr);
+	cIO.readBim(n_ref, cPar.r, separate, ref_bim, constr); //read BIM for ref data
 	int num_snp_ref = ref_bim.size(); //num_snp_ref is number of SNPs in the reference data
 	cout << num_snp_ref << " SNPs to be included from reference BIM file." << endl;
 
@@ -235,6 +235,7 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 	// What is n_s?? clearly, an integer, but is it the number of small effect snps? or is it a number of subjects, 
 	// like the number of subjects used to get small effect snps?
 	vector <POS> inter_s; // what does POS mean here? I get that it's the class for inter_s, but what exactly does it mean?
+	// see scr/dtpr.hpp for definition of POS class
 	bool badsnp_s[n_s] = {false}; 
 	cSP.matchRef(summ_s, ref_bim, inter_s, cPar.mafMax, badsnp_s); //matchRef is defined in scr/dtpr.cpp
 	cout << "After filtering, " << inter_s.size() << " small effect SNPs are selected." << endl;
@@ -288,13 +289,14 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 		double t_fitting = cIO.getWalltime();
 		double sigma_s = cPar.h / (double)cPar.nsnp;
 		cout << "Fitting model..." << endl;
-		cDBSF.est(n_ref, cPar.n, sigma_s, num_block_s, idv, bed_str, info_s, info_l, cPar.t, eff_s, eff_l); 
+		string fam_file = "../test_dat/test_chr1.fam";
+		cDBSF.est(n_ref, cPar.n, sigma_s, num_block_s, idv, bed_str, info_s, info_l, cPar.t, eff_s, eff_l, fam_file); 
 		double time_fitting = cIO.getWalltime() - t_fitting;
 		cout << "Fitting time: " << time_fitting << " seconds." << endl;
 
 		// output effect 
 		for (size_t i = 0; i < eff_l.size(); ++i) {
-			double beta_l_noscl = eff_l[i].beta / sqrt(2 * eff_l[i].maf * (1-eff_l[i].maf));
+			double beta_l_noscl = eff_l[i].beta / sqrt(2 * eff_l[i].maf * (1-eff_l[i].maf));//this is like "no scaling" for beta
 			if (eff_l[i].snp != "rs" && isinf(beta_l_noscl) == false)
 				effFout << eff_l[i].snp << " " << eff_l[i].a1 << " " << eff_l[i].beta << " " << beta_l_noscl << " " << 1 << endl; 
 		}
@@ -307,15 +309,15 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 		effFout.close();
 	}
 	if (inter_l.size() == 0 || !leffstream){
-		// fit model
-		vector <EFF> eff_s; 
-		vector<int> idv(n_ref);
-		for (int i = 0; i < n_ref; i++) idv[i] = 1; 
+		// fit model, ie, fit for small effects only!
+		vector <EFF> eff_s; //declare eff_s as object with class EFF
+		vector<int> idv(n_ref);//declare idv as a vector of integers with length n_ref
+		for (int i = 0; i < n_ref; i++) idv[i] = 1; //set every entry of idv to value 1 (integer)
 		string bed_str = cPar.r + ".bed";
 		double t_fitting = cIO.getWalltime();
 		double sigma_s = cPar.h / (double)cPar.nsnp;
 		cout << "Fitting model..." << endl;
-		cDBSF.est(n_ref, cPar.n, sigma_s, num_block_s, idv, bed_str, info_s, cPar.t, eff_s); 
+		cDBSF.est(n_ref, cPar.n, sigma_s, num_block_s, idv, bed_str, info_s, cPar.t, eff_s); //call est for small effects only!
 		double time_fitting = cIO.getWalltime() - t_fitting;
 		cout << "Fitting time: " << time_fitting << " seconds." << endl;
 
