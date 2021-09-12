@@ -289,7 +289,8 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 		double t_fitting = cIO.getWalltime();
 		double sigma_s = cPar.h / (double)cPar.nsnp;
 		cout << "Fitting model..." << endl;
-		cDBSF.est(n_ref, cPar.n, sigma_s, num_block_s, idv, bed_str, info_s, info_l, cPar.t, eff_s, eff_l); 
+		string fam_file = "../test_dat/test_chr1.fam";
+		cDBSF.est(n_ref, cPar.n, sigma_s, num_block_s, idv, bed_str, info_s, info_l, cPar.t, eff_s, eff_l, fam_file); 
 		double time_fitting = cIO.getWalltime() - t_fitting;
 		cout << "Fitting time: " << time_fitting << " seconds." << endl;
 
