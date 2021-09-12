@@ -69,7 +69,12 @@ int DBSLMMFIT::est(int n_ref,
   // read phenotype data
   std::tuple<vector<string>, vector<string> > pheno_struct = read_pheno(fam_file, 6);
   // extract id and pheno from pheno_struct
-  
+  std::vector<string> id = std::get<0>(pheno_struct);
+  std::vector<string> pheno_string = std::get<1>(pheno_struct);
+  //convert pheno to numeric vector
+  std::vector<double> pheno_numeric = convert_string_vector_to_double_vector(pheno_string);
+  //mean center pheno
+  std::vector<double> y = pheno_numeric - mean(pheno_numeric);
 	// get the maximum number of each block
 	int count_s = 0, count_l = 0; //set counters at zero
 	vec num_s = zeros<vec>(num_block), num_l = zeros<vec>(num_block); //num_s & num_l have one entry per block 

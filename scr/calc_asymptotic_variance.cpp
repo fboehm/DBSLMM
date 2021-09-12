@@ -125,7 +125,7 @@ std::tuple<vector<string>, vector<string> > read_pheno(std::string file_path,
 //' Convert a string vector containing doubles, as strings, into a numeric vector
 //' 
 //' @param string_vector a vector containing numeric entries as strings
-//' @return armadillo numeric vector
+//' @return numeric vector
 
 std::vector<double> convert_string_vector_to_double_vector(vector<string> string_vector){
   std::vector<double> double_vector(string_vector.size());
@@ -139,5 +139,7 @@ std::vector<double> convert_string_vector_to_double_vector(vector<string> string
 //http://arma.sourceforge.net/docs.html#conv_to conv_to for converting between 
 // std::vector and arma::vec
 
-
+//' Calculate mean of a vector
+//' 
+//' @param 
 
