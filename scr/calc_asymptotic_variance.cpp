@@ -139,7 +139,13 @@ std::vector<double> convert_string_vector_to_double_vector(vector<string> string
 //http://arma.sourceforge.net/docs.html#conv_to conv_to for converting between 
 // std::vector and arma::vec
 
-//' Calculate mean of a vector
+//' Mean-center a vector
 //' 
-//' @param 
+//' @param vector
+//' @return mean-centered vector
+
+arma::vec center_vector(arma::vec vector){
+  arma::vec result = vector - arma::mean(vector);
+  return result;
+}
 
