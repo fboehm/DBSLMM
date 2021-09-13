@@ -10,20 +10,28 @@ ARMALIB = /net/mulan/home/yasheng/Cpp/arma/lib
 
 # Put C++ complier 
 CXX = g++
+#CXX = clang++-11
 
 # Set complier flags 
 CXXFLAG = -static -fopenmp -O3 -std=c++11 -lm -llapacke -llapack -lblas -Wall
 all: $(OUTPUTD)
-$(OUTPUTD): main_dbslmm.o dtpr.o dbslmm.o dbslmmfit.o
-	$(CXX) main_dbslmm.o dtpr.o dbslmm.o dbslmmfit.o -o $(OUTPUTD) $(CXXFLAG) -L $(ARMALIB)
+$(OUTPUTD): main_dbslmm.o dtpr.o dbslmm.o dbslmmfit.o calc_asymptotic_variance.o subset_to_test_and_training.o
+	$(CXX) main_dbslmm.o dtpr.o dbslmm.o dbslmmfit.o calc_asymptotic_variance.o subset_to_test_and_training.o -o $(OUTPUTD) $(CXXFLAG) -L $(ARMALIB)
 main_dbslmm.o: main_dbslmm.cpp
 	$(CXX) -c main_dbslmm.cpp
 dbslmm.o: dbslmm.cpp dbslmm.hpp
 	$(CXX) -c dbslmm.cpp  $(CXXFLAG)
-dbslmmfit.o: dbslmmfit.cpp dbslmmfit.hpp
+dbslmmfit.o: dbslmmfit.cpp dbslmmfit.hpp calc_asymptotic_variance.h subset_to_test_and_training.h
 	$(CXX) -c dbslmmfit.cpp $(CXXFLAG)
 dtpr.o: dtpr.cpp dtpr.hpp 
 	$(CXX) -c dtpr.cpp $(CXXFLAG)
+
+calc_asymptotic_variance.o: calc_asymptotic_variance.cpp calc_asymptotic_variance.h 
+	$(CXX) -c calc_asymptotic_variance.cpp $(CXXFLAG)
+subset_to_test_and_training.o: subset_to_test_and_training.cpp subset_to_test_and_training.h 
+	$(CXX) -c subset_to_test_and_training.cpp $(CXXFLAG)
+
+
 
 clean:
 	rm -f *.o  dbslmm valid

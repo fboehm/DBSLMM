@@ -9,6 +9,7 @@
 #include <tuple> // std::tuple, std::get, std::tie, std::ignore
 
 #include "calc_asymptotic_variance.h"
+#include "subset_to_test_and_training.h"
 
 using namespace std;
 
