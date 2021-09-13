@@ -66,6 +66,7 @@ int DBSLMMFIT::est(int n_ref,
 	//specify proportion of n_obs that goes into test set
 	double test_proportion = 0.1;
   arma::Col<arma::uword> test_indices = get_test_indices(n_obs, test_proportion);
+  arma::Col<arma::uword> training_indices = get_training_indices(test_indices, n_obs);
   // read phenotype data
   std::tuple<vector<string>, vector<string> > pheno_struct = read_pheno(fam_file, 6);
   // extract id and pheno from pheno_struct
