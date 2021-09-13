@@ -6,6 +6,7 @@
 #include <string>
 #include <boost/algorithm/string.hpp> // split
 #include <tuple> // std::tuple, std::get, std::tie, std::ignore
+#include <algorithm>
 
 using namespace std;
 
