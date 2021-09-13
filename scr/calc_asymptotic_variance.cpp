@@ -102,19 +102,19 @@ arma::mat calc_var_betas(arma::mat Xl,
 //' Read pheno data from plink fam file
 //' 
 //' @param file_path path to plink fam file
-//' @param column_number column number in fam file. Default value is 6
+//' @param col_number column number in fam file. Default value is 6
 //' @return tuple of two string vectors. First is the ids and second is the phenotype, as a string.
 //' @references https://techoverflow.net/2020/01/30/how-to-read-tsv-tab-separated-values-in-c/ https://gist.github.com/jbwashington/8b53a7f561322e827c59
 
 std::tuple<vector<string>, vector<string> > read_pheno(std::string file_path, 
-                                                       int column_number = 6){
+                                                       int col_number){
   ifstream fin(file_path);
   string line;
   vector<string> id, pheno;
   while (getline(fin, line)) {
     vector<string> parts;
     boost::algorithm::split(parts, line, boost::algorithm::is_any_of("\t"));
-    pheno.push_back(parts[column_number - 1]); // - 1 since indexing starts with zero
+    pheno.push_back(parts[col_number - 1]); // - 1 since indexing starts with zero
     id.push_back(parts[0]);
   }
   //put id and pheno into a single object
