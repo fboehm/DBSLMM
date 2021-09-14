@@ -38,7 +38,7 @@ using namespace arma;
 //' 
 //' @param n_ref sample size of the reference panel
 //' @param n_obs sample size of the data
-//' @param sigma_s
+//' @param sigma_s the estimate for sigma_s^2
 //' @param num_block number of blocks in the genome
 //' @param idv 
 //' @param bed_str file path for the plink bed file
@@ -66,10 +66,19 @@ int DBSLMMFIT::est(int n_ref,
 	//specify proportion of n_obs that goes into test set
 	double test_proportion = 0.1;
   arma::Col<arma::uword> test_indices = get_test_indices(n_obs, test_proportion);
+  arma::Col<arma::uword> training_indices = get_training_indices(test_indices, n_obs);
   // read phenotype data
   std::tuple<vector<string>, vector<string> > pheno_struct = read_pheno(fam_file, 6);
   // extract id and pheno from pheno_struct
-  
+  std::vector<string> id = std::get<0>(pheno_struct);
+  std::vector<string> pheno_string = std::get<1>(pheno_struct);
+  //convert pheno to numeric vector
+  std::vector<double> pheno_numeric = convert_string_vector_to_double_vector(pheno_string);
+  // convert to arma::vec
+  arma::vec pheno_arma = arma::conv_to<arma::vec>::from(pheno_numeric);
+  //mean center pheno
+  arma::vec y = center_vector(pheno_arma);
+  //return to Sheng's code
 	// get the maximum number of each block
 	int count_s = 0, count_l = 0; //set counters at zero
 	vec num_s = zeros<vec>(num_block), num_l = zeros<vec>(num_block); //num_s & num_l have one entry per block 
@@ -513,7 +522,22 @@ mat DBSLMMFIT::PCGm(mat A, mat B, size_t maxiter, const double tol){//like PCGv 
 	return(x);
 }// end function
 
-int DBSLMMFIT::estBlock(int n_ref, int n_obs, double sigma_s, mat geno_s, mat geno_l, vec z_s, vec z_l, vec &beta_s, vec &beta_l) {
+
+//' Calculate coefficient estimates for one block of SNPs
+//' 
+//' @param n_ref sample size for reference panel
+//' @param n_obs sample size for data
+//' @param sigma_s 
+
+int DBSLMMFIT::estBlock(int n_ref, 
+                        int n_obs, 
+                        double sigma_s, 
+                        mat geno_s, 
+                        mat geno_l, 
+                        vec z_s, 
+                        vec z_l, 
+                        vec &beta_s, 
+                        vec &beta_l) {
 	
 	// LD matrix 
 	// mat SIGMA_ls = geno_l.t() * geno_s; 

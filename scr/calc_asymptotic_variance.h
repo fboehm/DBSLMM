@@ -6,7 +6,9 @@
 #include <string>
 #include <boost/algorithm/string.hpp> // split
 #include <tuple> // std::tuple, std::get, std::tie, std::ignore
+#include <algorithm>
 
+using namespace std;
 
 arma::mat calc_asymptotic_variance(arma::mat Xl_training, 
                                    arma::mat Xs_training, 
@@ -34,3 +36,4 @@ std::tuple<vector<string>, vector<string> > read_pheno(std::string file_path,
 
 std::vector<double> convert_string_vector_to_double_vector(vector<string> string_vector);
 
+arma::vec center_vector(arma::vec vector);
