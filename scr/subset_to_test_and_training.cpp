@@ -3,6 +3,9 @@
 #include <algorithm> /* std::sort, std::set_difference */
 #include "subset_to_test_and_training.h"
 
+using namespace arma;
+using namespace std;
+
 //' (Pseudo-)Randomly sample indices, eg., to determine test set membership
 //' 
 //' @param n_obs total number of subjects (test plus training)
@@ -12,7 +15,7 @@
 arma::Col<arma::uword> get_test_indices(int n_obs, double test_proportion){
   // calculate number of subjects to put into test set
   int n_test = floor(test_proportion * n_obs);
-  arma::Col<arma::uword> result = arma::randperm(n_obs, n_test); //randomly sample without replacement from the integers 0,1,...,n_obs - 1 and return n_test of them.
+  arma::Col<arma::uword> result = randperm(n_obs, n_test); //randomly sample without replacement from the integers 0,1,...,n_obs - 1 and return n_test of them.
   return(result);
 }
 
