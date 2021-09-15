@@ -15,7 +15,7 @@ using namespace std;
 arma::Col<arma::uword> get_test_indices(int n_obs, double test_proportion){
   // calculate number of subjects to put into test set
   int n_test = floor(test_proportion * n_obs);
-  arma::Col<arma::uword> result = randperm(n_obs, n_test); //randomly sample without replacement from the integers 0,1,...,n_obs - 1 and return n_test of them.
+  arma::Col<arma::uword> result = arma::randperm(n_obs, n_test); //randomly sample without replacement from the integers 0,1,...,n_obs - 1 and return n_test of them.
   return(result);
 }
 
