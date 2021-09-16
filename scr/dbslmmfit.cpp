@@ -385,6 +385,10 @@ int DBSLMMFIT::calcBlock(int n_ref,
                                                        sigma_s,
                                                        y_training);
     // asymptotic_var should be n_test by n_test symmetric psd matrix, ie covar matrix
+    //output diagonal elements of asymptotic_var, asymptotic_var.diag()
+    arma::vec avar_diag = asymptotic_var.diag();
+    
+    avar_diag.save(, arma_ascii); // do I want to include y_test in the outputted file???
     
 		/* END OF FRED CODE */
 		// estimation
