@@ -309,6 +309,7 @@ int DBSLMMFIT::calcBlock(int n_ref,
                          int num_l_block, 
                          vector <EFF> &eff_s_block, 
                          vector <EFF> &eff_l_block,
+                         arma::vec y,
                          arma::Col<arma::uword> training_indices, arma::Col<arma::uword> test_indices){
 	SNPPROC cSP;
 	IO cIO; 
@@ -374,12 +375,17 @@ int DBSLMMFIT::calcBlock(int n_ref,
 		arma::mat geno_s_training = subset(geno_s, training_indices);
 		arma::mat geno_s_test = subset(geno_l, test_indices);
 		arma::vec y_training = subset(y, training_indices);
-		arma::vec y_test = subset(y, training_indices);
+		arma::vec y_test = subset(y, test_indices);
 		
 		// calculate var(\hat \beta_s) & var(\hat\beta_l)
-		calc_asymptotic_variance()
-		
-		/* END OF MY CODE */
+		arma::mat asymptotic_var = calc_asymptotic_variance(geno_l_training, 
+                                                       geno_s_training, 
+                                                       geno_l_test,
+                                                       geno_s_test,
+                                                       sigma_s,
+                                                       y_training);
+                          		
+		/* END OF FRED CODE */
 		// estimation
 		vec beta_l = zeros<vec>(num_l_block); 
 		estBlock(n_ref, n_obs, sigma_s, geno_s, geno_l, z_s, z_l, beta_s, beta_l);//estBlock!
