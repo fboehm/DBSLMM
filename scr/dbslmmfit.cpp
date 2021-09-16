@@ -377,14 +377,15 @@ int DBSLMMFIT::calcBlock(int n_ref,
 		arma::vec y_training = subset(y, training_indices);
 		arma::vec y_test = subset(y, test_indices);
 		
-		// calculate var(\hat \beta_s) & var(\hat\beta_l)
+		// calculate var(\hat\tilde y)
 		arma::mat asymptotic_var = calc_asymptotic_variance(geno_l_training, 
                                                        geno_s_training, 
                                                        geno_l_test,
                                                        geno_s_test,
                                                        sigma_s,
                                                        y_training);
-                          		
+    // asymptotic_var should be n_test by n_test symmetric psd matrix, ie covar matrix
+    
 		/* END OF FRED CODE */
 		// estimation
 		vec beta_l = zeros<vec>(num_l_block); 
