@@ -7,6 +7,7 @@ OUTPUTD = dbslmm
 
 # Set the path of library
 ARMALIB = /net/mulan/home/yasheng/Cpp/arma/lib
+#ARMALIB = /net/mulan/home/fredboe/armadillo-10.6.2
 
 # Put C++ complier 
 CXX = g++
