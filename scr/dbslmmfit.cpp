@@ -308,7 +308,8 @@ int DBSLMMFIT::calcBlock(int n_ref,
                          int num_s_block, 
                          int num_l_block, 
                          vector <EFF> &eff_s_block, 
-                         vector <EFF> &eff_l_block){
+                         vector <EFF> &eff_l_block,
+                         arma::Col<arma::uword> training_indices, arma::Col<arma::uword> test_indices){
 	SNPPROC cSP;
 	IO cIO; 
 	ifstream bed_in(bed_str.c_str(), ios::binary);
@@ -366,9 +367,19 @@ int DBSLMMFIT::calcBlock(int n_ref,
 			cSP.nomalizeVec(geno);
 			geno_l.col(i) = geno;
 		}
+		/* INSERT MY ASYMPTOTIC VAR CALC HERE*/
+		//split into training and test sets
+		arma::mat geno_l_training = subset(geno_l, training_indices);
+		arma::mat geno_l_test = subset(geno_l, test_indices);
+		arma::mat geno_s_training = subset(geno_s, training_indices);
+		arma::mat geno_s_test = subset(geno_l, test_indices);
+		arma::vec y_training = subset(y, training_indices);
+		arma::vec y_test = subset(y, training_indices);
 		
 		// calculate var(\hat \beta_s) & var(\hat\beta_l)
+		calc_asymptotic_variance()
 		
+		/* END OF MY CODE */
 		// estimation
 		vec beta_l = zeros<vec>(num_l_block); 
 		estBlock(n_ref, n_obs, sigma_s, geno_s, geno_l, z_s, z_l, beta_s, beta_l);//estBlock!
@@ -523,11 +534,17 @@ mat DBSLMMFIT::PCGm(mat A, mat B, size_t maxiter, const double tol){//like PCGv 
 }// end function
 
 
-//' Calculate coefficient estimates for one block of SNPs
+//' Calculate coefficient estimates for one block of SNPs, with both large and small effects
 //' 
 //' @param n_ref sample size for reference panel
 //' @param n_obs sample size for data
-//' @param sigma_s 
+//' @param sigma_s estimate of sigma_s^2
+//' @param geno_s genotypes matrix for small effect SNPs in this block
+//' @param geno_l genotypes matrix for large effect SNPs in this block
+//' @param z_s z for small effect SNPs in this block
+//' @param z_l z for large effect SNPs in this block
+//' @param beta_s coefficient estimates for small effect SNPs in this block
+//' @param beta_l coefficient estimates for large effect SNPs in this block 
 
 int DBSLMMFIT::estBlock(int n_ref, 
                         int n_obs, 
