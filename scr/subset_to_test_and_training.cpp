@@ -6,6 +6,35 @@
 using namespace arma;
 using namespace std;
 
+//' Fisher-Yates shuffle algorithm for a permutation of integers
+//' 
+//' @param size number of samples to draw
+//' @param max_size number of possible objects
+//' @param gen for pseudorandomness
+//' @references https://ideone.com/KvvCda
+
+std::vector<int> fisher_yates_shuffle(std::size_t size, 
+                                      std::size_t max_size, 
+                                      std::mt19937& gen)
+{
+  assert(size < max_size);
+  std::vector<int> res(size);
+  
+  for(std::size_t i = 0; i != max_size; ++i) {
+    std::uniform_int_distribution<> dis(0, i);
+    std::size_t j = dis(gen);
+    if (j < res.size()) {
+      if (i < res.size()) {
+        res[i] = res[j];
+      }
+      res[j] = i;
+    }
+  }
+  return res;
+}
+
+
+
 //' (Pseudo-)Randomly sample indices, eg., to determine test set membership
 //' 
 //' @param n_obs total number of subjects (test plus training)
@@ -15,8 +44,12 @@ using namespace std;
 arma::Col<arma::uword> get_test_indices(int n_obs, double test_proportion){
   // calculate number of subjects to put into test set
   int n_test = floor(test_proportion * n_obs);
+  // pseudo-random stuff (Mersenne twister)
+  std::random_device rd;
+  std::mt19937 gen(rd());
   //randomly sample without replacement from the integers 0,1,...,n_obs - 1 and return n_test of them.
-  arma::Col<arma::uword> result = arma::randperm(n_obs, n_test); 
+  std::vector<int> sampled = fisher_yates_shuffle(n_test, n_obs, gen);
+  arma::Col<arma::uword> result = arma::conv_to< arma::Col<arma::uword> >::from(sampled);
   return(result);
 }
 
