@@ -17,7 +17,7 @@ std::vector<int> fisher_yates_shuffle(std::size_t size,
                                       std::size_t max_size, 
                                       std::mt19937& gen)
 {
-  assert(size < max_size);
+  //assert(size < max_size);
   std::vector<int> res(size);
   
   for(std::size_t i = 0; i != max_size; ++i) {
