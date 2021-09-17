@@ -195,7 +195,7 @@ int DBSLMMFIT::est(int n_ref,
               eff_l_Block[b],
               y, 
               training_indices, 
-              test_indices);
+              test_indices, i);
 			}
 			// eff of small effect SNPs
 			for (int r = 0; r < B; r++) {
@@ -328,7 +328,8 @@ int DBSLMMFIT::calcBlock(int n_ref,
                          vector <EFF> &eff_l_block,
                          arma::vec y,
                          arma::Col<arma::uword> training_indices, 
-                         arma::Col<arma::uword> test_indices){
+                         arma::Col<arma::uword> test_indices, 
+                         int iter_number){
 	SNPPROC cSP;
 	IO cIO; 
 	ifstream bed_in(bed_str.c_str(), ios::binary);
@@ -403,10 +404,11 @@ int DBSLMMFIT::calcBlock(int n_ref,
                                                        sigma_s,
                                                        y_training);
     // asymptotic_var should be n_test by n_test symmetric psd matrix, ie covar matrix
-    //output diagonal elements of asymptotic_var, asymptotic_var.diag()
+    //store only diagonal elements of asymptotic_var, asymptotic_var.diag()
     arma::vec avar_diag = asymptotic_var.diag();
     // define outfile
-    
+    std::string iter_number_string = to_string(iter_number);
+    std::string outfile = iter_number_string + ".csv";
     //save as csv
     avar_diag.save(outfile, arma_ascii); // ???do I want to include y_test in the outputted file???
     
