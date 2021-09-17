@@ -182,8 +182,20 @@ int DBSLMMFIT::est(int n_ref,
 			omp_set_num_threads(thread);
 #pragma omp parallel for schedule(dynamic)
 			for (int b = 0; b < B; b++){
-				calcBlock(n_ref, n_obs, sigma_s, idv, bed_str, info_s_Block[b], info_l_Block[b],
-						  num_s_vec[b], num_l_vec[b], eff_s_Block[b], eff_l_Block[b]);
+				calcBlock(n_ref, 
+              n_obs, 
+              sigma_s, 
+              idv, 
+              bed_str, 
+              info_s_Block[b], 
+              info_l_Block[b],
+						  num_s_vec[b], 
+              num_l_vec[b], 
+              eff_s_Block[b], 
+              eff_l_Block[b],
+              y, 
+              training_indices, 
+              test_indices);
 			}
 			// eff of small effect SNPs
 			for (int r = 0; r < B; r++) {
