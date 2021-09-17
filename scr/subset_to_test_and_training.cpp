@@ -39,14 +39,18 @@ std::vector<int> fisher_yates_shuffle(std::size_t size,
 //' 
 //' @param n_obs total number of subjects (test plus training)
 //' @param test_proportion proportion of subjects to place in test set
+//' @param seed a positive integer seed for the pseudo-RNG
 //' @return  integers to indicate test set membership
 
-arma::Col<arma::uword> get_test_indices(int n_obs, double test_proportion){
+arma::Col<arma::uword> get_test_indices(int n_obs, 
+                                        double test_proportion, 
+                                        unsigned int seed){
   // calculate number of subjects to put into test set
   int n_test = floor(test_proportion * n_obs);
   // pseudo-random stuff (Mersenne twister)
   std::random_device rd;
   std::mt19937 gen(rd());
+  gen.seed(seed);
   //randomly sample without replacement from the integers 0,1,...,n_obs - 1 and return n_test of them.
   std::vector<int> sampled = fisher_yates_shuffle(n_test, n_obs, gen);
   arma::Col<arma::uword> result = arma::conv_to< arma::Col<arma::uword> >::from(sampled);

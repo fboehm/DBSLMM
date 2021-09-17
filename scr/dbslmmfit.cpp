@@ -65,8 +65,11 @@ int DBSLMMFIT::est(int n_ref,
 	// split subjects into training and test sets
 	//specify proportion of n_obs that goes into test set
 	double test_proportion = 0.1;
-  arma::Col<arma::uword> test_indices = get_test_indices(n_obs, test_proportion);
-  arma::Col<arma::uword> training_indices = get_training_indices(test_indices, n_obs);
+  arma::Col<arma::uword> test_indices = get_test_indices(n_obs, 
+                                                         test_proportion,
+                                                         715341);
+  arma::Col<arma::uword> training_indices = get_training_indices(test_indices, 
+                                                                 n_obs);
   // read phenotype data
   std::tuple<vector<string>, vector<string> > pheno_struct = read_pheno(fam_file, 6);
   // extract id and pheno from pheno_struct
@@ -310,7 +313,8 @@ int DBSLMMFIT::calcBlock(int n_ref,
                          vector <EFF> &eff_s_block, 
                          vector <EFF> &eff_l_block,
                          arma::vec y,
-                         arma::Col<arma::uword> training_indices, arma::Col<arma::uword> test_indices){
+                         arma::Col<arma::uword> training_indices, 
+                         arma::Col<arma::uword> test_indices){
 	SNPPROC cSP;
 	IO cIO; 
 	ifstream bed_in(bed_str.c_str(), ios::binary);
@@ -387,10 +391,12 @@ int DBSLMMFIT::calcBlock(int n_ref,
     // asymptotic_var should be n_test by n_test symmetric psd matrix, ie covar matrix
     //output diagonal elements of asymptotic_var, asymptotic_var.diag()
     arma::vec avar_diag = asymptotic_var.diag();
+    // define outfile
     
-    avar_diag.save(, arma_ascii); // do I want to include y_test in the outputted file???
+    //save as csv
+    avar_diag.save(outfile, arma_ascii); // ???do I want to include y_test in the outputted file???
     
-		/* END OF FRED CODE */
+		/* END OF FRED ASYMPTOTIC VAR CALC CODE */
 		// estimation
 		vec beta_l = zeros<vec>(num_l_block); 
 		estBlock(n_ref, n_obs, sigma_s, geno_s, geno_l, z_s, z_l, beta_s, beta_l);//estBlock!
