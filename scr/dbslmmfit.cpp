@@ -48,6 +48,7 @@ using namespace arma;
 //' @param eff_s small effects SNP effects object
 //' @param eff_l lkarge effects SNP effects object
 //' @param fam_file path to the plink fam file
+//' @param seed a seed (positive integer) for the pseudo RNG
 //' @return zero is returned
 // estimate large and small effect
 int DBSLMMFIT::est(int n_ref, 
@@ -61,13 +62,14 @@ int DBSLMMFIT::est(int n_ref,
                    int thread, 
                    vector <EFF> &eff_s, 
                    vector <EFF> &eff_l,
-                   string fam_file){ //Fred added fam_file so that we can read in the phenotype data
+                   string fam_file,
+                   unsigned int seed){ //Fred added fam_file so that we can read in the phenotype data
 	// split subjects into training and test sets
 	//specify proportion of n_obs that goes into test set
 	double test_proportion = 0.1;
   arma::Col<arma::uword> test_indices = get_test_indices(n_obs, 
                                                          test_proportion,
-                                                         715341);
+                                                         seed);
   arma::Col<arma::uword> training_indices = get_training_indices(test_indices, 
                                                                  n_obs);
   // read phenotype data
