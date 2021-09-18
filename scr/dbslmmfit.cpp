@@ -224,8 +224,14 @@ int DBSLMMFIT::est(int n_ref,
 }//end function
 
 // estimate only small effect
-int DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<int> idv, string bed_str,
-				 vector <INFO> info_s, int thread, 
+int DBSLMMFIT::est(int n_ref, 
+                   int n_obs, 
+                   double sigma_s, 
+                   int num_block, 
+                   vector<int> idv, 
+                   string bed_str,
+				 vector <INFO> info_s, 
+				 int thread, 
 				 vector <EFF> &eff_s, 
 				 string fam_file,
 				 unsigned int seed){
@@ -251,8 +257,7 @@ int DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<i
   arma::vec y_training = subset(y, training_indices);
   arma::vec y_test = subset(y, test_indices);
   //save y_test as csv
-  y_test.save("y_test.csv", arma_ascii);
-  
+//  y_test.save("y_test.csv", arma_ascii);
   //return to Sheng's code
   
 	// get the maximum number of each block

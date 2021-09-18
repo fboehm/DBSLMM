@@ -41,14 +41,16 @@ public:
 	// estimate large and small effect for each block
 	int calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, string bed_str, 
 				  vector <INFO> info_s_block_full, vector <INFO> info_l_block_full, int num_s_block, int num_l_block, 
-				  vector <EFF> &eff_s_block, vector <EFF> &eff_l_block, arma::vec y_training,
+				  vector <EFF> &eff_s_block, vector <EFF> &eff_l_block, 
+				  arma::vec y_training,
 				  arma::Col<arma::uword> training_indices, 
 				  arma::Col<arma::uword> test_indices,
 				  int iter_number);
 	// estimate only small effect for each block
 	int calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, string bed_str, 
 				  vector <INFO> info_s_block_full, int num_s_block, 
-				  vector <EFF> &eff_s_block, arma::vec y_training,
+				  vector <EFF> &eff_s_block, 
+				  arma::vec y_training,
 				  arma::Col<arma::uword> training_indices, 
 				  arma::Col<arma::uword> test_indices,
 				  int iter_number);
