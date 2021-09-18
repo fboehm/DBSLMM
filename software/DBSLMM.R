@@ -225,7 +225,7 @@ if (opt$model == "DBSLMM"){
     system(paste0("rm ", opt$outPath, "s_", prefix_file, "*"))
   }
   system(paste0("rm ", opt$outPath, "plink_", prefix_file, ".txt"))
-}
+} # end if opt$model == "DBSLMM"
 
 if (opt$model == "LMM"){
   system(paste0(opt$dbslmm,
