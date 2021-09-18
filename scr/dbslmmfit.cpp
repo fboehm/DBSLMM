@@ -226,8 +226,35 @@ int DBSLMMFIT::est(int n_ref,
 // estimate only small effect
 int DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<int> idv, string bed_str,
 				 vector <INFO> info_s, int thread, 
-				 vector <EFF> &eff_s){
-
+				 vector <EFF> &eff_s, 
+				 string fam_file,
+				 unsigned int seed){
+  // split subjects into training and test sets
+  //specify proportion of n_obs that goes into test set
+  double test_proportion = 0.1;
+  arma::Col<arma::uword> test_indices = get_test_indices(n_obs, 
+                                                         test_proportion,
+                                                         seed);
+  arma::Col<arma::uword> training_indices = get_training_indices(test_indices, 
+                                                                 n_obs);
+  // read phenotype data
+  std::tuple<vector<string>, vector<string> > pheno_struct = read_pheno(fam_file, 6);
+  // extract id and pheno from pheno_struct
+  std::vector<string> id = std::get<0>(pheno_struct);
+  std::vector<string> pheno_string = std::get<1>(pheno_struct);
+  //convert pheno to numeric vector
+  std::vector<double> pheno_numeric = convert_string_vector_to_double_vector(pheno_string);
+  // convert to arma::vec
+  arma::vec pheno_arma = arma::conv_to<arma::vec>::from(pheno_numeric);
+  //mean center pheno
+  arma::vec y = center_vector(pheno_arma);
+  arma::vec y_training = subset(y, training_indices);
+  arma::vec y_test = subset(y, test_indices);
+  //save y_test as csv
+  y_test.save("y_test.csv", arma_ascii);
+  
+  //return to Sheng's code
+  
 	// get the maximum number of each block
 	int count_s = 0;
 	vec num_s = zeros<vec>(num_block); 
@@ -289,8 +316,18 @@ int DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<i
 			omp_set_num_threads(thread);
 #pragma omp parallel for schedule(dynamic)
 			for (int b = 0; b < B; b++){
-				calcBlock(n_ref, n_obs, sigma_s, idv, bed_str, info_s_Block[b],
-						  num_s_vec[b], eff_s_Block[b]);
+				calcBlock(n_ref, 
+              n_obs, 
+              sigma_s, 
+              idv, 
+              bed_str, 
+              info_s_Block[b],
+						  num_s_vec[b], 
+              eff_s_Block[b], 
+              y_training, 
+              training_indices, 
+              test_indices, 
+              i);
 			}
 			// eff of small effect SNPs
 			for (int r = 0; r < B; r++) {
