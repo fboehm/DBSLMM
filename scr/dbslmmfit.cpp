@@ -83,6 +83,7 @@ int DBSLMMFIT::est(int n_ref,
   arma::vec pheno_arma = arma::conv_to<arma::vec>::from(pheno_numeric);
   //mean center pheno
   arma::vec y = center_vector(pheno_arma);
+  
   //return to Sheng's code
 	// get the maximum number of each block
 	int count_s = 0, count_l = 0; //set counters at zero
@@ -395,6 +396,8 @@ int DBSLMMFIT::calcBlock(int n_ref,
 		arma::mat geno_s_test = subset(geno_l, test_indices);
 		arma::vec y_training = subset(y, training_indices);
 		arma::vec y_test = subset(y, test_indices);
+		//save y_test as csv
+		y_test.save("y_test.csv", arma_ascii);
 		
 		// calculate var(\hat\tilde y)
 		arma::mat asymptotic_var = calc_asymptotic_variance(geno_l_training, 
@@ -410,9 +413,9 @@ int DBSLMMFIT::calcBlock(int n_ref,
     std::string iter_number_string = to_string(iter_number);
     std::string outfile = iter_number_string + ".csv";
     //save as csv
-    avar_diag.save(outfile, arma_ascii); // ???do I want to include y_test in the outputted file???
+    avar_diag.save(outfile, arma_ascii); 
     
-		/* END OF FRED ASYMPTOTIC VAR CALC CODE */
+		/* END OF FREDS ASYMPTOTIC VAR CALC CODE */
 		// estimation
 		vec beta_l = zeros<vec>(num_l_block); 
 		estBlock(n_ref, n_obs, sigma_s, geno_s, geno_l, z_s, z_l, beta_s, beta_l);//estBlock!
