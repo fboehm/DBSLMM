@@ -237,7 +237,7 @@ int DBSLMMFIT::est(int n_ref,
 				 unsigned int seed){
   // split subjects into training and test sets
   //specify proportion of n_obs that goes into test set
-/*  double test_proportion = 0.1;
+  double test_proportion = 0.1;
   arma::Col<arma::uword> test_indices = get_test_indices(n_obs, 
                                                          test_proportion,
                                                          seed);
@@ -257,8 +257,7 @@ int DBSLMMFIT::est(int n_ref,
   arma::vec y_training = subset(y, training_indices);
   arma::vec y_test = subset(y, test_indices);
   //save y_test as csv
-  y_test.save("y_test.csv", arma_ascii);
-*/  
+//  y_test.save("y_test.csv", arma_ascii);
   //return to Sheng's code
   
 	// get the maximum number of each block
