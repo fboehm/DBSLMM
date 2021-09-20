@@ -40,10 +40,10 @@ using namespace arma;
 // input block information
 //' Read block information
 //' 
-//' @param infile 
-//' @param separator
-//' @param block
-//' @return 
+//' @param infile file name (ie, path)
+//' @param separator field separator for infile, ie delimiter
+//' @param block BLOCK object
+//' @return zero
 int IO::readBlock(string infile, 
                   char *separator, 
                   vector <BLOCK> &block){
