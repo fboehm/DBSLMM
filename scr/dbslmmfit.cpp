@@ -230,11 +230,11 @@ int DBSLMMFIT::est(int n_ref,
                    int num_block, 
                    vector<int> idv, 
                    string bed_str,
-				 vector <INFO> info_s, 
-				 int thread, 
-				 vector <EFF> &eff_s, 
-				 string fam_file,
-				 unsigned int seed){
+          				 vector <INFO> info_s, 
+          				 int thread, 
+          				 vector <EFF> &eff_s, 
+          				 string fam_file,
+          				 unsigned int seed){
   // split subjects into training and test sets
   //specify proportion of n_obs that goes into test set
   double test_proportion = 0.1;
