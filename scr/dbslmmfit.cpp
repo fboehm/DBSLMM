@@ -63,10 +63,10 @@ int DBSLMMFIT::est(int n_ref,
                    vector <EFF> &eff_s, 
                    vector <EFF> &eff_l,
                    string fam_file,
-                   unsigned int seed){ //Fred added fam_file so that we can read in the phenotype data
+                   unsigned int seed,
+                   double test_proportion){ //Fred added fam_file so that we can read in the phenotype data
 	// split subjects into training and test sets
 	//specify proportion of n_obs that goes into test set
-	double test_proportion = 0.1;
   arma::Col<arma::uword> test_indices = get_test_indices(n_obs, 
                                                          test_proportion,
                                                          seed);
@@ -116,7 +116,7 @@ int DBSLMMFIT::est(int n_ref,
 	double len_s = num_s.max(); //len_s is the max of the per-block number of small effect SNPs
 	
 	int B = 0;
-	int B_MAX = 60;
+	int B_MAX = 60; // number of blocks to batch at one time
 	if (num_block < 60){ //num_block is the number of blocks across the genome.
 		B_MAX = num_block; 
 	}
@@ -167,7 +167,7 @@ int DBSLMMFIT::est(int n_ref,
 			info_l_Block[B][0] = info_pseudo; //put the pseudo info object in for those blocks without large effect snps.
 		}else{ //when there is one or more large effect snp in the block
 			vector <INFO> info_l_block;//declare info_l_block
-			for (size_t j = count_l; j < info_l.size(); j++) {
+			for (size_t j = count_l; j < info_l.size(); j++) {//count_l keeps a tally of genomewide number of large effect SNPs
 				if(info_l[j].block == i){ 
 					info_l_block.push_back(info_l[j]);
 					count_l++;
@@ -234,10 +234,10 @@ int DBSLMMFIT::est(int n_ref,
           				 int thread, 
           				 vector <EFF> &eff_s, 
           				 string fam_file,
-          				 unsigned int seed){
+          				 unsigned int seed,
+          				 double test_proportion){
   // split subjects into training and test sets
   //specify proportion of n_obs that goes into test set
-  double test_proportion = 0.1;
   arma::Col<arma::uword> test_indices = get_test_indices(n_obs, 
                                                          test_proportion,
                                                          seed);
