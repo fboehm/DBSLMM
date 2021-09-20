@@ -144,8 +144,12 @@ public:
 				map<string, ALLELEB> &bim, bool constr);                                 // input bim file for external validation
 	double calP(double beta, double se, int sampleSize);                                 // calculate P value from GEMMA output
 	int readSumm(string summ_str, char *separator, vector<SUMM> &summ);                  // input gemma summary data
-	void readSNPIm(const int pos, int ni_test, const vector<int> &indicator_idv, 
-	               ifstream &infile, vec &geno, double &maf);                            // input genotype data
+	void readSNPIm(const int pos, 
+                int ni_test, 
+                const vector<int> &indicator_idv, 
+	               ifstream &infile, 
+	               vec &geno, 
+	               double &maf);                            // input genotype data
 	int readDBSLMM(string summ_str, char *separator, vector<SUMMS> &summ);               // input DBSLMM result 
 	int readExt(string summ_str, char *separator, map<string, SUMMS> &summ);             // input external result (summary statistics) 
 	double getWalltime();                                                                // get wall time 

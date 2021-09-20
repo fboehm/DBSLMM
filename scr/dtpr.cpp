@@ -38,10 +38,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using namespace std;
 using namespace arma;
 // input block information
-int IO::readBlock(string infile, char *separator, vector <BLOCK> &block){
+//' Read block information
+//' 
+//' @param infile 
+//' @param separator
+//' @param block
+//' @return 
+int IO::readBlock(string infile, 
+                  char *separator, 
+                  vector <BLOCK> &block){
 
-	int block_num = getRow(infile);
-	block.resize(block_num);
+	int block_num = getRow(infile); //get number of rows for the infile
+	block.resize(block_num); //what does resize do??
 	string oneblock, element;
 	ifstream file_stream(infile.c_str());
 	int block_count = 0; 
@@ -80,7 +88,7 @@ int IO::readBim(int n_ref,
 	
 	string bed_str = ref_str + ".bed", bim_str = ref_str + ".bim";
 	ifstream bim_stream(bim_str.c_str());
-	int n_snp = getRow(bim_str);
+	int n_snp = getRow(bim_str); //?? get number of rows?? ie, number of SNPs
 	vec maf = zeros<vec>(n_snp); 
 	if (constr == true){
 		ifstream bed_stream(bed_str);
@@ -263,7 +271,21 @@ int IO::readExt(string summ_str, char *separator, map<string, SUMMS> &summ){
 
 // input genotype data
 // modify from GEMMA, Xiang Zhou et al.
-void IO::readSNPIm(const int pos, int ni_test, const vector<int> &indicator_idv, ifstream &infile, vec &geno, double &maf) {
+//' Read genotype data from plink bed file
+//' 
+//' @param pos 
+//' @param ni_test 
+//' @param indicator_idv
+//' @param infile ifstream object for reading bim file
+//' @param geno
+//' @param maf minor allele frequency
+
+void IO::readSNPIm(const int pos, //??position within the bed file
+                   int ni_test, 
+                   const vector<int> &indicator_idv, 
+                   ifstream &infile, 
+                   vec &geno, 
+                   double &maf) {
 
 	// debug_msg("entered");
 	size_t ni_total = indicator_idv.size(), n_bit;
@@ -275,7 +297,8 @@ void IO::readSNPIm(const int pos, int ni_test, const vector<int> &indicator_idv,
 	}
 
 	// n_bit, and 3 is the number of magic numbers.
-	infile.seekg(pos * n_bit + 3);
+	infile.seekg(pos * n_bit + 3);//what is seekg? Sets the position of the next character to be extracted from the input stream.
+	//seekg takes an object of ifstream class
 
 	// Read genotypes.
 	char ch[1];
