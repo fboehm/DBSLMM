@@ -273,12 +273,13 @@ int IO::readExt(string summ_str, char *separator, map<string, SUMMS> &summ){
 // modify from GEMMA, Xiang Zhou et al.
 //' Read genotype data from plink bed file
 //' 
-//' @param pos 
-//' @param ni_test 
-//' @param indicator_idv
+//' @param pos position in binary bed file
+//' @param ni_test number of subjects in analysis
+//' @param indicator_idv indicator vector of which individuals to include in analysis
 //' @param infile ifstream object for reading bim file
-//' @param geno
+//' @param geno genotype vector, size is ni_test
 //' @param maf minor allele frequency
+//' @return 
 
 void IO::readSNPIm(const int pos, //??position within the bed file
                    int ni_test, 
