@@ -279,7 +279,7 @@ int IO::readExt(string summ_str, char *separator, map<string, SUMMS> &summ){
 //' @param infile ifstream object for reading bim file
 //' @param geno genotype vector, size is ni_test
 //' @param maf minor allele frequency
-//' @return 
+//' @return
 
 void IO::readSNPIm(const int pos, //??position within the bed file
                    int ni_test, 
