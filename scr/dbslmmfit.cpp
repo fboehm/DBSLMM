@@ -46,7 +46,7 @@ using namespace arma;
 //' @param info_l large effect SNP info object
 //' @param thread number of threads to use
 //' @param eff_s small effects SNP effects object
-//' @param eff_l lkarge effects SNP effects object
+//' @param eff_l large effects SNP effects object
 //' @param fam_file path to the plink fam file
 //' @param seed a seed (positive integer) for the pseudo RNG
 //' @return zero is returned
