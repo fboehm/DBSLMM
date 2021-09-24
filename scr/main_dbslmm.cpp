@@ -26,7 +26,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace std;
 
-int main(int argc, char * argv[])
+int main(int argc, //??length of argv??
+         char * argv[])//
 {
 	DBSLMM cDB;
 	PARAM cPar;
