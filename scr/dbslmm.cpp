@@ -226,8 +226,10 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 
 	// input block file
 	vector <BLOCK> block_dat; 
-	cIO.readBlock(cPar.b, separate, block_dat); //readBlock is defined in scr/dtpr.cpp 
- 
+	cIO.readBlock(cPar.b, separate, block_dat); //readBlock is defined in scr/dtpr.cpp. It reads the files that contain the blocking information 
+  //cPar.b is the --block option, ie, the file containing the blocking information, ie, the bed file for the reference data. 
+  //--block ${BLOCK}.bed, ie, file path to a bed file in, eg., block_data/EUR/
+  
 	// input small effect summary data
 	cout << "Reading summary data of small effect SNPs from [" << cPar.s << "]" << endl;
 	vector <SUMM> summ_s;

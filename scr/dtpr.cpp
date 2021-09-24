@@ -67,7 +67,7 @@ int IO::readBlock(string infile,
 	return 0;
 }
 
-// get row number
+// get row number, ie, number of rows in a file
 int IO::getRow(string infile){
 	
 	int n_row = 0;
