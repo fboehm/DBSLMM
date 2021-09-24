@@ -154,7 +154,7 @@ void DBSLMM::Assign(int argc, char ** argv, PARAM &cPar) {
 
 void DBSLMM::BatchRun(PARAM &cPar) {
 
-	SNPPROC cSP;
+	SNPPROC cSP; //declare objects, prefixed with "c"
 	IO cIO;
 	DBSLMMFIT cDBSF;
 

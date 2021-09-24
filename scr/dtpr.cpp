@@ -49,7 +49,7 @@ int IO::readBlock(string infile,
                   vector <BLOCK> &block){
 
 	int block_num = getRow(infile); //get number of rows for the infile
-	block.resize(block_num); //what does resize do??
+	block.resize(block_num); //what does resize do??. Sets the container size to block_num
 	string oneblock, element;
 	ifstream file_stream(infile.c_str());
 	int block_count = 0; 
