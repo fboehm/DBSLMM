@@ -171,7 +171,8 @@ if (opt$model == "DBSLMM"){
                       " -b ",      opt$block,
                       " -mafMax ", opt$mafMax,      
                       " -t ",      opt$thread,
-                      " -eff ",    opt$outPath, prefix_file, "_h2f", hh, ".dbslmm"))
+                      " -eff ",    opt$outPath, prefix_file, "_h2f", hh, ".dbslmm",
+		      " -outfile ", opt$outfile))
       }
     }
   } else {
