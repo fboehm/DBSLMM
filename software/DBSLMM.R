@@ -151,7 +151,8 @@ if (opt$model == "DBSLMM"){
                            " -b ",      opt$block,
                            " -mafMax ", opt$mafMax,      
                            " -t ",      opt$thread,
-                           " -eff ",    opt$outPath, prefix_file, ".dbslmm"))
+                           " -eff ",    opt$outPath, prefix_file, ".dbslmm",
+                    "-outfile ", opt$outfile))
   
     } else {
       h2_vec <- as.numeric(unlist(strsplit(opt$h2f, ",")))
@@ -201,7 +202,8 @@ if (opt$model == "DBSLMM"){
                     " -b ",      opt$block,
                     " -h ",      opt$h2,
                     " -t ",      opt$thread,
-                    " -eff ",    opt$outPath, prefix_file, ".dbslmm"))
+                    " -eff ",    opt$outPath, prefix_file, ".dbslmm",
+                    " -outfile ", opt$outfile))
     
     } else {
       h2_vec <- as.numeric(unlist(strsplit(opt$h2f, ",")))
