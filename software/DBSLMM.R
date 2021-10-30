@@ -53,6 +53,9 @@ args_list <- list(
               metavar = "character"),
   make_option("--thread", type = "character", default = "5",
               help = "INPUT: the number of threads (default: 5)", 
+              metavar = "character"),
+  make_option("--outfile", type = "character", default = "out.dat", 
+              help = "INPUT: The path and file name for the outputted armadillo field",
               metavar = "character")
 )
 
