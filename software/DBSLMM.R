@@ -54,8 +54,8 @@ args_list <- list(
   make_option("--thread", type = "character", default = "5",
               help = "INPUT: the number of threads (default: 5)", 
               metavar = "character"),
-  make_option("--outfile", type = "character", default = "out.dat", 
-              help = "INPUT: The path and file name for the outputted armadillo field",
+  make_option("--number_of_autosome_pairs", type = "character", default = "22", 
+              help = "INPUT: Number of pairs of autosomes, 22 for humans",
               metavar = "character")
 )
 
@@ -172,7 +172,7 @@ if (opt$model == "DBSLMM"){
                       " -mafMax ", opt$mafMax,      
                       " -t ",      opt$thread,
                       " -eff ",    opt$outPath, prefix_file, "_h2f", hh, ".dbslmm",
-		      " -outfile ", opt$outfile))
+		      " -number_of_autosome_pairs ", opt$number_of_autosome_pairs))
       }
     }
   } else {
@@ -199,7 +199,7 @@ if (opt$model == "DBSLMM"){
     if(opt$type == "auto"){
       system(paste0(opt$dbslmm,
                     
-                    " -outfile ", opt$outfile,          
+                    " -number_of_autosome_pairs ", opt$number_of_autosome_pairs,          
                     " -s ",      opt$outPath, "s_", prefix_file, ".txt",
                     " -l ",      opt$outPath, "l_", prefix_file, ".txt",
                     " -r ",      opt$ref,
