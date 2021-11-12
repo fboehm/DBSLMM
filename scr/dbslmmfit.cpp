@@ -61,33 +61,7 @@ int DBSLMMFIT::est(int n_ref,
                    vector <INFO> info_l, //one entry per large effect SNP
                    int thread, 
                    vector <EFF> &eff_s, 
-                   vector <EFF> &eff_l,
-                   string fam_file,
-                   unsigned int seed,
-                   double test_proportion){ //Fred added fam_file so that we can read in the phenotype data
-	// split subjects into training and test sets
-	//specify proportion of n_obs that goes into test set
-  arma::Col<arma::uword> test_indices = get_test_indices(n_obs, 
-                                                         test_proportion,
-                                                         seed);
-  arma::Col<arma::uword> training_indices = get_training_indices(test_indices, 
-                                                                 n_obs);
-  // read phenotype data
-  std::tuple<vector<string>, vector<string> > pheno_struct = read_pheno(fam_file, 6);
-  // extract id and pheno from pheno_struct
-  std::vector<string> id = std::get<0>(pheno_struct);
-  std::vector<string> pheno_string = std::get<1>(pheno_struct);
-  //convert pheno to numeric vector
-  std::vector<double> pheno_numeric = convert_string_vector_to_double_vector(pheno_string);
-  // convert to arma::vec
-  arma::vec pheno_arma = arma::conv_to<arma::vec>::from(pheno_numeric);
-  //mean center pheno
-  arma::vec y = center_vector(pheno_arma);
-  arma::vec y_training = subset(y, training_indices);
-  arma::vec y_test = subset(y, test_indices);
-  //save y_test as csv
-  y_test.save("y_test.csv", arma_ascii);
-  
+                   vector <EFF> &eff_l){ 
   //return to Sheng's code
 	// get the maximum number of each block
 	int count_s = 0, count_l = 0; //set counters at zero
