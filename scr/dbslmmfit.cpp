@@ -206,10 +206,7 @@ int DBSLMMFIT::est(int n_ref,
                    string bed_str,
           				 vector <INFO> info_s, 
           				 int thread, 
-          				 vector <EFF> &eff_s, 
-          				 string fam_file,
-          				 unsigned int seed,
-          				 double test_proportion){
+          				 vector <EFF> &eff_s){
   //return to Sheng's code
   
 	// get the maximum number of each block
@@ -325,11 +322,7 @@ int DBSLMMFIT::calcBlock(int n_ref,
                          int num_s_block, 
                          int num_l_block, 
                          vector <EFF> &eff_s_block, 
-                         vector <EFF> &eff_l_block,
-                         arma::vec y_training,
-                         arma::Col<arma::uword> training_indices, 
-                         arma::Col<arma::uword> test_indices, 
-                         int iter_number){
+                         vector <EFF> &eff_l_block){
 	SNPPROC cSP;
 	IO cIO; 
 	ifstream bed_in(bed_str.c_str(), ios::binary);
