@@ -171,11 +171,7 @@ int DBSLMMFIT::est(int n_ref,
 						  num_s_vec[b], 
               num_l_vec[b], 
               eff_s_Block[b], 
-              eff_l_Block[b],
-              y_training, 
-              training_indices, 
-              test_indices, 
-              i);
+              eff_l_Block[b]);
 			}
 			// eff of small effect SNPs
 			for (int r = 0; r < B; r++) {
@@ -277,11 +273,7 @@ int DBSLMMFIT::est(int n_ref,
               bed_str, 
               info_s_Block[b],
 						  num_s_vec[b], 
-              eff_s_Block[b], 
-              y_training, 
-              training_indices, 
-              test_indices, 
-              i);
+              eff_s_Block[b]);
 			}
 			// eff of small effect SNPs
 			for (int r = 0; r < B; r++) {
@@ -325,7 +317,11 @@ int DBSLMMFIT::calcBlock(int n_ref,
                          vector <EFF> &eff_l_block){
 	SNPPROC cSP;
 	IO cIO; 
-	ifstream bed_in(bed_str.c_str(), ios::binary);
+	ifstream bed_in
+	  // vector <INFO*> info_s_block(num_s_block);
+	  // for (int i = 0; i < num_s_block; i++)
+	  // info_s_block[i] = info_s_block_full[i];
+	  vector <INFO> info_s_block(num_s_block);(bed_str.c_str(), ios::binary);
 	
 	// INFO small effect SNPs 
 	// vector <INFO*> info_s_block(num_s_block);
