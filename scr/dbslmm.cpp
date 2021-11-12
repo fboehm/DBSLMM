@@ -291,7 +291,6 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 		double t_fitting = cIO.getWalltime();
 		double sigma_s = cPar.h / (double)cPar.nsnp; // this tells us that sigma_s *is* $\hat\sigma_s^2$!
 		cout << "Fitting model..." << endl;
-		string fam_file = "../test_dat/test_chr1.fam";
 		cDBSF.est(n_ref, 
             cPar.n, 
             sigma_s, 
@@ -302,9 +301,7 @@ void DBSLMM::BatchRun(PARAM &cPar) {
             info_l, 
             cPar.t, 
             eff_s, 
-            eff_l, 
-            fam_file, 
-            715341); 
+            eff_l); 
 		double time_fitting = cIO.getWalltime() - t_fitting;
 		cout << "Fitting time: " << time_fitting << " seconds." << endl;
 
@@ -340,9 +337,7 @@ void DBSLMM::BatchRun(PARAM &cPar) {
             bed_str, 
             info_s, 
             cPar.t, 
-            eff_s, 
-            fam_file, 
-            715341
+            eff_s
             ); //call est for small effects only!
 		double time_fitting = cIO.getWalltime() - t_fitting;
 		cout << "Fitting time: " << time_fitting << " seconds." << endl;
