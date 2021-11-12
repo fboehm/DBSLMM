@@ -317,11 +317,7 @@ int DBSLMMFIT::calcBlock(int n_ref,
                          vector <EFF> &eff_l_block){
 	SNPPROC cSP;
 	IO cIO; 
-	ifstream bed_in
-	  // vector <INFO*> info_s_block(num_s_block);
-	  // for (int i = 0; i < num_s_block; i++)
-	  // info_s_block[i] = info_s_block_full[i];
-	  vector <INFO> info_s_block(num_s_block);(bed_str.c_str(), ios::binary);
+	ifstream bed_in(bed_str.c_str(), ios::binary);
 	
 	// INFO small effect SNPs 
 	// vector <INFO*> info_s_block(num_s_block);
@@ -423,7 +419,11 @@ int DBSLMMFIT::calcBlock(int n_ref,
                          string bed_str, 
               					 vector <INFO> info_s_block_full, 
             						 int num_s_block, 
-            						 vector <EFF> &eff_s_block
+            						 vector <EFF> &eff_s_block,
+            						 arma::vec y_training,
+            						 arma::Col<arma::uword> training_indices, 
+            						 arma::Col<arma::uword> test_indices, 
+            						 int iter_number
             						 ){
 	SNPPROC cSP; // declare new SNPPROC object, cSP. Below, we'll need to populate cSP.
 	IO cIO; //declare IO object, cIO
