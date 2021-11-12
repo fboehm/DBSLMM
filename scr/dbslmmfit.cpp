@@ -419,11 +419,7 @@ int DBSLMMFIT::calcBlock(int n_ref,
                          string bed_str, 
               					 vector <INFO> info_s_block_full, 
             						 int num_s_block, 
-            						 vector <EFF> &eff_s_block,
-            						 arma::vec y_training,
-            						 arma::Col<arma::uword> training_indices, 
-            						 arma::Col<arma::uword> test_indices, 
-            						 int iter_number
+            						 vector <EFF> &eff_s_block
             						 ){
 	SNPPROC cSP; // declare new SNPPROC object, cSP. Below, we'll need to populate cSP.
 	IO cIO; //declare IO object, cIO
