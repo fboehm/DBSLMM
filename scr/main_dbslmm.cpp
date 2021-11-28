@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <armadillo>
 
 #include "dbslmm.hpp"
 
@@ -40,6 +41,7 @@ int main(int argc, char * argv[])
 		return EXIT_SUCCESS;
 	}
 	cDB.Assign(argc, argv, cPar);
-	cDB.BatchRun(cPar);
+	arma::field <arma::mat> out = cDB.BatchRun(cPar);
+	out.save("corr_mats.bin", arma_binary);
 	return EXIT_SUCCESS;
 }
