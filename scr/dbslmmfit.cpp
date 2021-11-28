@@ -31,7 +31,7 @@ using namespace std;
 using namespace arma;
 
 // estimate large and small effect
-int DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<int> idv, string bed_str,
+arma::field <arma::mat>  DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<int> idv, string bed_str,
 				 vector <INFO> info_s, vector <INFO> info_l, int thread, 
                  vector <EFF> &eff_s, vector <EFF> &eff_l){
 	
@@ -83,6 +83,8 @@ int DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<i
 	vector < vector <INFO> > info_s_Block(B_MAX, vector <INFO> ((int)len_s)), info_l_Block(B_MAX, vector <INFO> ((int)len_l));
 	vector < vector <EFF> > eff_s_Block(B_MAX, vector <EFF> ((int)len_s)), eff_l_Block(B_MAX, vector <EFF> ((int)len_l));
 	vector <int> num_s_vec, num_l_vec;
+	arma::field <arma::mat> result(num_block, 5);
+	
 	for (int i = 0; i < num_block; ++i) {
 		// small effect SNP information
 		vector <INFO> info_s_block; 
@@ -125,8 +127,15 @@ int DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<i
 			omp_set_num_threads(thread);
 #pragma omp parallel for schedule(dynamic)
 			for (int b = 0; b < B; b++){
-				calcBlock(n_ref, n_obs, sigma_s, idv, bed_str, info_s_Block[b], info_l_Block[b],
+			  arma::field< arma::mat > out = calcBlock(n_ref, n_obs, sigma_s, idv, bed_str, info_s_Block[b], info_l_Block[b],
 						  num_s_vec[b], num_l_vec[b], eff_s_Block[b], eff_l_Block[b]);
+			  int index = floor(i / B_MAX) * B_MAX + b;
+			  //transfer 'out' into the 5 entries
+			  result(index, 0) = out(0);// is this the correct index value?? YES!
+			  result(index, 1) = out(1);
+			  result(index, 2) = out(2);
+			  result(index, 3) = out(3);
+			  result(index, 4) = out(4);
 			}
 			// eff of small effect SNPs
 			for (int r = 0; r < B; r++) {
@@ -145,11 +154,11 @@ int DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<i
 			num_s_vec.clear();
 		}
 	}
-	return 0;
+	return result;
 }
 
 // estimate only small effect
-int DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<int> idv, string bed_str,
+arma::field <arma::mat>  DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<int> idv, string bed_str,
 				 vector <INFO> info_s, int thread, 
 				 vector <EFF> &eff_s){
 	
@@ -192,6 +201,8 @@ int DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<i
 	vector < vector <INFO> > info_s_Block(B_MAX, vector <INFO> ((int)len_s));
 	vector < vector <EFF> > eff_s_Block(B_MAX, vector <EFF> ((int)len_s));
 	vector <int> num_s_vec;
+	arma::field <arma::mat> result(num_block, 5);
+	
 	for (int i = 0; i < num_block; ++i) {
 		// small effect SNP information
 		vector <INFO> info_s_block; 
@@ -214,8 +225,13 @@ int DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<i
 			omp_set_num_threads(thread);
 #pragma omp parallel for schedule(dynamic)
 			for (int b = 0; b < B; b++){
-				calcBlock(n_ref, n_obs, sigma_s, idv, bed_str, info_s_Block[b],
+			  arma::field<arma::mat> out = calcBlock(n_ref, n_obs, sigma_s, idv, bed_str, info_s_Block[b],
 						  num_s_vec[b], eff_s_Block[b]);
+			  int index = floor(i / B_MAX) * B_MAX + b;
+			  //cout <<"index: " << index << endl; 
+			  result(index, 0) = out(0);
+			  result(index, 3) = out(3);
+			  
 			}
 			// eff of small effect SNPs
 			for (int r = 0; r < B; r++) {
@@ -227,7 +243,7 @@ int DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<i
 			num_s_vec.clear();
 		}
 	}
-	return 0;
+	return result;
 }
 
 // estimate large and small effect for each block
@@ -269,6 +285,7 @@ int DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, 
 	eff_pseudo.beta = 0.0; 
 	
 	vec beta_s = zeros<vec>(num_s_block); 
+	arma::field <arma::mat> result(5);
 	// INFO large effect SNPs 
 	if (num_l_block != 0){
 		// vector <INFO*> info_l_block(num_l_block);
@@ -294,7 +311,13 @@ int DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, 
 		}
 		// estimation
 		vec beta_l = zeros<vec>(num_l_block); 
-		estBlock(n_ref, n_obs, sigma_s, geno_s, geno_l, z_s, z_l, beta_s, beta_l);
+		arma::field <arma::mat> out = estBlock(n_ref, n_obs, sigma_s, geno_s, geno_l, z_s, z_l, beta_s, beta_l);
+		result(0) = out(0);
+		result(1) = out(1);
+		result(2) = out(2);
+		result(3) = geno_s;
+		result(4) = geno_l;
+		
 		// summary 
 		for(int i = 0; i < num_l_block; i++) {
 			EFF eff_l; 
@@ -310,7 +333,9 @@ int DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, 
 	}
 	else{
 		// estimation
-		estBlock(n_ref, n_obs, sigma_s, geno_s, z_s, beta_s);
+		arma::field <arma::mat> out = estBlock(n_ref, n_obs, sigma_s, geno_s, z_s, beta_s);
+	  result(0) = out(0);
+	  result(3) = geno_s;
 		eff_l_block[0].snp = eff_pseudo.snp;
 		eff_l_block[0].a1 = eff_pseudo.a1;
 		eff_l_block[0].maf = eff_pseudo.maf;
@@ -328,11 +353,11 @@ int DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, 
 		eff_s.beta = beta_s(i); 
 		eff_s_block[i] = eff_s;
 	}
-	return 0; 
+	return result; 
 }
 
 // estimate only small effect for each block
-int DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, string bed_str, 
+arma::field < arma::mat > DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, string bed_str, 
 						vector <INFO> info_s_block_full, int num_s_block, 
 						vector <EFF> &eff_s_block){
 	SNPPROC cSP;
@@ -364,7 +389,10 @@ int DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, 
 	
 	// estimation
 	vec beta_s = zeros<vec>(num_s_block); 
-	estBlock(n_ref, n_obs, sigma_s, geno_s, z_s, beta_s);
+	arma::field <arma::mat> out = estBlock(n_ref, n_obs, sigma_s, geno_s, z_s, beta_s);
+	arma::field <arma::mat> result(5);
+	result(0) = out(0);
+	result(3) = geno_s;
 	
 	// output small effect
 	for(int i = 0; i < num_s_block; i++) {
@@ -378,7 +406,7 @@ int DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, 
 		eff_s.beta = beta_s(i); 
 		eff_s_block[i] = eff_s;
 	}
-	return 0; 
+	return result; 
 }
 
 // solve the equation Ax=b, x is a variables
@@ -433,7 +461,7 @@ mat DBSLMMFIT::PCGm(mat A, mat B, size_t maxiter, const double tol){
 	return(x);
 }// end function
 
-int DBSLMMFIT::estBlock(int n_ref, int n_obs, double sigma_s, mat geno_s, mat geno_l, vec z_s, vec z_l, vec &beta_s, vec &beta_l) {
+arma::field< arma::mat > DBSLMMFIT::estBlock(int n_ref, int n_obs, double sigma_s, mat geno_s, mat geno_l, vec z_s, vec z_l, vec &beta_s, vec &beta_l) {
 	
 	// LD matrix 
 	// mat SIGMA_ls = geno_l.t() * geno_s; 
@@ -476,11 +504,15 @@ int DBSLMMFIT::estBlock(int n_ref, int n_obs, double sigma_s, mat geno_s, mat ge
 	vec SIGMA_ss_z_s_SIGMA_sl_beta_l = SIGMA_ss * SIGMA_ss_inv_z_s_SIGMA_sl_beta_l; 
 	beta_s = sqrt(n_obs) * z_s - (double)n_obs * SIGMA_ls.t() * beta_l - SIGMA_ss_z_s_SIGMA_sl_beta_l; 
 	beta_s *= sigma_s;
+	arma::field<arma::mat> result(3);
+	result(0) = SIGMA_ss;
+	result(1) = arma::trans(SIGMA_ls);
+	result(2) = SIGMA_ll;
 	
-	return 0; 
+	return result; 
 }
 
-int DBSLMMFIT::estBlock(int n_ref, int n_obs, double sigma_s, mat geno_s, vec z_s, vec &beta_s) {
+arma::field <arma::mat> DBSLMMFIT::estBlock(int n_ref, int n_obs, double sigma_s, mat geno_s, vec z_s, vec &beta_s) {
 	
 	// LD matrix 
 	// mat SIGMA_ss = geno_s.t() * geno_s; 
@@ -501,5 +533,9 @@ int DBSLMMFIT::estBlock(int n_ref, int n_obs, double sigma_s, mat geno_s, vec z_
 	vec z_s_SIGMA_ss_SIGMA_ss_inv_SIGMA_sl = z_s - SIGMA_ss_SIGMA_ss_inv_z_s; 
 	beta_s = sqrt(n_obs) * sigma_s * z_s_SIGMA_ss_SIGMA_ss_inv_SIGMA_sl; 
 	
-	return 0; 
+	arma::field <arma::mat> result(3);
+	result(0) = SIGMA_ss;
+	
+	
+	return result; 
 }
