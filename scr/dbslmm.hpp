@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <string>
 #include <iostream>
+#include <armadillo>
 
 #include "dtpr.hpp"
 
@@ -54,7 +55,7 @@ public:
 	void printHeader(void);
 	void printHelp(void);
 	void Assign(int argc, char ** argv, PARAM &cPar);
-	void BatchRun(PARAM &cPar);
+	arma::field <arma::mat> BatchRun(PARAM &cPar);
 };
 
 
