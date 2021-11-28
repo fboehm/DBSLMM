@@ -26,6 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "dbslmm.hpp"
 
 using namespace std;
+using namespace arma;
 
 int main(int argc, char * argv[])
 {
