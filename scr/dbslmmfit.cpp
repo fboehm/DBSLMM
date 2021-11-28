@@ -247,7 +247,7 @@ arma::field <arma::mat>  DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, in
 }
 
 // estimate large and small effect for each block
-int DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, string bed_str, 
+arma::field <arma::mat> DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, string bed_str, 
 						vector <INFO> info_s_block_full, vector <INFO> info_l_block_full, 
 						int num_s_block, int num_l_block, 
 						vector <EFF> &eff_s_block, vector <EFF> &eff_l_block){
