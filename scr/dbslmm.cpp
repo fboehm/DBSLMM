@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "dtpr.hpp"
 #include "dbslmmfit.hpp"
 #include "dbslmm.hpp"
+#include "tobool.h"
 
 using namespace std;
 
@@ -148,6 +149,15 @@ void DBSLMM::Assign(int argc, char ** argv, PARAM &cPar) {
 			str.assign(argv[i]);
 			cPar.eff = str;
 		}
+		else if (strcmp(argv[i], "--training") == 0 || strcmp(argv[i], "-training") == 0) {
+		  
+		  if (argv[i + 1] == NULL || argv[i + 1][0] == '-') { continue; }
+		  ++i;
+		  str.clear();
+		  str.assign(argv[i]);
+		  cPar.training = to_bool(str);
+		}
+		
 	}
 	return;
 }

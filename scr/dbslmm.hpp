@@ -39,6 +39,7 @@ public:
 	double h;
 	int t;
 	string eff;
+	bool training;
 };
 
 class DBSLMM {
