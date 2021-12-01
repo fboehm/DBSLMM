@@ -128,7 +128,7 @@ arma::field <arma::mat>  DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, in
 #pragma omp parallel for schedule(dynamic)
 			for (int b = 0; b < B; b++){
 			  arma::field< arma::mat > out = calcBlock(n_ref, n_obs, sigma_s, idv, bed_str, info_s_Block[b], info_l_Block[b],
-						  num_s_vec[b], num_l_vec[b], eff_s_Block[b], eff_l_Block[b]);
+						  num_s_vec[b], num_l_vec[b], eff_s_Block[b], eff_l_Block[b], training);
 			  int index = floor(i / B_MAX) * B_MAX + b;
 			  //transfer 'out' into the 5 entries
 			  result(index, 0) = out(0);// is this the correct index value?? YES!
@@ -226,7 +226,7 @@ arma::field <arma::mat>  DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, in
 #pragma omp parallel for schedule(dynamic)
 			for (int b = 0; b < B; b++){
 			  arma::field<arma::mat> out = calcBlock(n_ref, n_obs, sigma_s, idv, bed_str, info_s_Block[b],
-						  num_s_vec[b], eff_s_Block[b]);
+						  num_s_vec[b], eff_s_Block[b], training);
 			  int index = floor(i / B_MAX) * B_MAX + b;
 			  //cout <<"index: " << index << endl; 
 			  result(index, 0) = out(0);
