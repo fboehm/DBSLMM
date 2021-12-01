@@ -53,6 +53,9 @@ args_list <- list(
               metavar = "character"),
   make_option("--thread", type = "character", default = "5",
               help = "INPUT: the number of threads (default: 5)", 
+              metavar = "character"),
+  make_option("--training", type = "character", default = "true", 
+              help = "INPUT: training (true) or test (false) set", 
               metavar = "character")
 )
 
@@ -151,7 +154,9 @@ if (opt$model == "DBSLMM"){
                            " -b ",      opt$block,
                            " -mafMax ", opt$mafMax,      
                            " -t ",      opt$thread,
-                           " -eff ",    opt$outPath, prefix_file, ".dbslmm"))
+                           " -eff ",    opt$outPath, prefix_file, ".dbslmm",
+                            " -training ", opt$training
+                    ))
   
     } else {
       h2_vec <- as.numeric(unlist(strsplit(opt$h2f, ",")))
@@ -201,7 +206,8 @@ if (opt$model == "DBSLMM"){
                     " -b ",      opt$block,
                     " -h ",      opt$h2,
                     " -t ",      opt$thread,
-                    " -eff ",    opt$outPath, prefix_file, ".dbslmm"))
+                    " -eff ",    opt$outPath, prefix_file, ".dbslmm",
+                    " -training ", opt$training))
     
     } else {
       h2_vec <- as.numeric(unlist(strsplit(opt$h2f, ",")))
