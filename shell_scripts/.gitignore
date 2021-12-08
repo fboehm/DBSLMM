@@ -1,4 +1,6 @@
+
 example.out
 *.out
 core
+*.bin
 

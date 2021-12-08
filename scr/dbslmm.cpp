@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "dtpr.hpp"
 #include "dbslmmfit.hpp"
 #include "dbslmm.hpp"
+#include "tobool.h"
 
 using namespace std;
 
@@ -148,13 +149,22 @@ void DBSLMM::Assign(int argc, char ** argv, PARAM &cPar) {
 			str.assign(argv[i]);
 			cPar.eff = str;
 		}
+		else if (strcmp(argv[i], "--training") == 0 || strcmp(argv[i], "-training") == 0) {
+		  
+		  if (argv[i + 1] == NULL || argv[i + 1][0] == '-') { continue; }
+		  ++i;
+		  str.clear();
+		  str.assign(argv[i]);
+		  cPar.training = to_bool(str);
+		}
+		
 	}
 	return;
 }
 
-void DBSLMM::BatchRun(PARAM &cPar) {
+arma::field <arma::mat> DBSLMM::BatchRun(PARAM &cPar) {
 
-	SNPPROC cSP; //declare objects, prefixed with "c"
+	SNPPROC cSP;
 	IO cIO;
 	DBSLMMFIT cDBSF;
 
@@ -171,7 +181,6 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 	// cout << "-t:      " << cPar.t << endl;
 	// cout << "-eff:    " << cPar.eff << endl;
 	
-	// check files
 	string ref_fam_str = cPar.r + ".fam"; //next line below declares the ifstream objects, including an ifstream object for reading the fam file! 
 	ifstream seffstream(cPar.s.c_str()), leffstream(cPar.l.c_str()), reffstream(ref_fam_str.c_str()), beffstream(cPar.b.c_str());
 	if (cPar.s.size() == 0) {
@@ -243,7 +252,6 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 	cout << "After filtering, " << inter_s.size() << " small effect SNPs are selected." << endl;
 	vector <INFO> info_s; 
 	int num_block_s = cSP.addBlock(inter_s, block_dat, info_s); //addBlock is defined in scr/dtpr.cpp
-	
 	// output samll effect badsnps 
 	string badsnps_str = cPar.eff + ".badsnps"; 
 	ofstream badsnpsFout(badsnps_str.c_str());
@@ -278,7 +286,7 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 		}
 		clearVector(summ_l);
 	}
-
+	arma::field < arma::mat> out;
 	// output stream
 	string eff_str = cPar.eff + ".txt"; 
 	ofstream effFout(eff_str.c_str());
@@ -289,22 +297,9 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 		for (int i = 0; i < n_ref; i++) idv[i] = 1; 
 		string bed_str = cPar.r + ".bed";
 		double t_fitting = cIO.getWalltime();
-		double sigma_s = cPar.h / (double)cPar.nsnp; // this tells us that sigma_s *is* $\hat\sigma_s^2$!
+		double sigma_s = cPar.h / (double)cPar.nsnp;
 		cout << "Fitting model..." << endl;
-		string fam_file = "../test_dat/test_chr1.fam";
-		cDBSF.est(n_ref, 
-            cPar.n, 
-            sigma_s, 
-            num_block_s, 
-            idv, 
-            bed_str, 
-            info_s, 
-            info_l, 
-            cPar.t, 
-            eff_s, 
-            eff_l, 
-            fam_file, 
-            715341); 
+		out = cDBSF.est(n_ref, cPar.n, sigma_s, num_block_s, idv, bed_str, info_s, info_l, cPar.t, eff_s, eff_l, cPar.training); 
 		double time_fitting = cIO.getWalltime() - t_fitting;
 		cout << "Fitting time: " << time_fitting << " seconds." << endl;
 
@@ -323,27 +318,15 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 		effFout.close();
 	}
 	if (inter_l.size() == 0 || !leffstream){
-		// fit model, ie, fit for small effects only!
-		vector <EFF> eff_s; //declare eff_s as object with class EFF
-		vector<int> idv(n_ref);//declare idv as a vector of integers with length n_ref
-		for (int i = 0; i < n_ref; i++) idv[i] = 1; //set every entry of idv to value 1 (integer)
+		// fit model
+		vector <EFF> eff_s; 
+		vector<int> idv(n_ref);
+		for (int i = 0; i < n_ref; i++) idv[i] = 1; 
 		string bed_str = cPar.r + ".bed";
 		double t_fitting = cIO.getWalltime();
 		double sigma_s = cPar.h / (double)cPar.nsnp;
 		cout << "Fitting model..." << endl;
-		string fam_file = "../test_dat/test_chr1.fam";
-		cDBSF.est(n_ref, 
-            cPar.n, 
-            sigma_s, 
-            num_block_s, 
-            idv, 
-            bed_str, 
-            info_s, 
-            cPar.t, 
-            eff_s, 
-            fam_file, 
-            715341
-            ); //call est for small effects only!
+		out = cDBSF.est(n_ref, cPar.n, sigma_s, num_block_s, idv, bed_str, info_s, cPar.t, eff_s, cPar.training); 
 		double time_fitting = cIO.getWalltime() - t_fitting;
 		cout << "Fitting time: " << time_fitting << " seconds." << endl;
 
@@ -354,5 +337,5 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 				effFout << eff_s[i].snp << " " << eff_s[i].a1 << " " << eff_s[i].beta << " " << beta_s_noscl << " " << 0 << endl; 
 		}
 	}
-	return;
+	return out;
 }

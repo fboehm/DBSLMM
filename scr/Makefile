@@ -7,11 +7,11 @@ OUTPUTD = dbslmm
 
 # Set the path of library
 ARMALIB = /net/mulan/home/yasheng/Cpp/arma/lib
-#ARMALIB = /net/mulan/home/fredboe/armadillo-10.6.2
 
 # Put C++ complier 
 CXX = g++
 #CXX = clang++-11
+
 
 # Set complier flags 
 CXXFLAG = -static -fopenmp -O3 -std=c++11 -lm -llapacke -llapack -lblas -Wall
@@ -31,8 +31,8 @@ calc_asymptotic_variance.o: calc_asymptotic_variance.cpp calc_asymptotic_varianc
 	$(CXX) -c calc_asymptotic_variance.cpp $(CXXFLAG)
 subset_to_test_and_training.o: subset_to_test_and_training.cpp subset_to_test_and_training.h 
 	$(CXX) -c subset_to_test_and_training.cpp $(CXXFLAG)
-
-
+tobool.o: tobool.cpp tobool.h
+	$(CXX) -c tobool.cpp $(CXXFLAG)
 
 clean:
 	rm -f *.o  dbslmm valid

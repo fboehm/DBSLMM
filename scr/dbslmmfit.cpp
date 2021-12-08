@@ -22,18 +22,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <armadillo>
 #include <string>
-#include <tuple> // std::tuple, std::get, std::tie, std::ignore
-
+>>>>>>> add-training-parameter
 #include "omp.h"
 
 #include "dtpr.hpp"
 #include "dbslmmfit.hpp"
-#include "calc_asymptotic_variance.h"
-#include "subset_to_test_and_training.h"
+>>>>>>> add-training-parameter
 
 using namespace std;
 using namespace arma;
 
+<<<<<<< HEAD
 //' Estimate large and small effects
 //' 
 //' @param n_ref sample size of the reference panel
@@ -51,60 +50,27 @@ using namespace arma;
 //' @param seed a seed (positive integer) for the pseudo RNG
 //' @return zero is returned
 // estimate large and small effect
-int DBSLMMFIT::est(int n_ref, 
-                   int n_obs, 
-                   double sigma_s, 
-                   int num_block, 
-                   vector<int> idv, 
-                   string bed_str,
-                   vector <INFO> info_s, // one entry per small effect SNP
-                   vector <INFO> info_l, //one entry per large effect SNP
-                   int thread, 
-                   vector <EFF> &eff_s, 
-                   vector <EFF> &eff_l,
-                   string fam_file,
-                   unsigned int seed,
-                   double test_proportion){ //Fred added fam_file so that we can read in the phenotype data
-	// split subjects into training and test sets
-	//specify proportion of n_obs that goes into test set
-  arma::Col<arma::uword> test_indices = get_test_indices(n_obs, 
-                                                         test_proportion,
-                                                         seed);
-  arma::Col<arma::uword> training_indices = get_training_indices(test_indices, 
-                                                                 n_obs);
-  // read phenotype data
-  std::tuple<vector<string>, vector<string> > pheno_struct = read_pheno(fam_file, 6);
-  // extract id and pheno from pheno_struct
-  std::vector<string> id = std::get<0>(pheno_struct);
-  std::vector<string> pheno_string = std::get<1>(pheno_struct);
-  //convert pheno to numeric vector
-  std::vector<double> pheno_numeric = convert_string_vector_to_double_vector(pheno_string);
-  // convert to arma::vec
-  arma::vec pheno_arma = arma::conv_to<arma::vec>::from(pheno_numeric);
-  //mean center pheno
-  arma::vec y = center_vector(pheno_arma);
-  arma::vec y_training = subset(y, training_indices);
-  arma::vec y_test = subset(y, test_indices);
-  //save y_test as csv
-  y_test.save("y_test.csv", arma_ascii);
-  
-  //return to Sheng's code
+arma::field <arma::mat>  DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<int> idv, string bed_str,
+				 vector <INFO> info_s, vector <INFO> info_l, int thread, 
+                 vector <EFF> &eff_s, vector <EFF> &eff_l, bool training){
+	
 	// get the maximum number of each block
-	int count_s = 0, count_l = 0; //set counters at zero
-	vec num_s = zeros<vec>(num_block), num_l = zeros<vec>(num_block); //num_s & num_l have one entry per block 
+	int count_s = 0, count_l = 0;
+	vec num_s = zeros<vec>(num_block), num_l = zeros<vec>(num_block); 
 	for (int i = 0; i < num_block; i++) {
 		for (size_t j = count_s; j < info_s.size(); j++) {
-			if(info_s[j].block == i){ //within info_s, block is an integer. I suspect that it indicates block membership for a SNP, ie, if a SNP is in block 10, then this value is 10.
-				num_s(i) += 1; //num_s is a vector with one entry per block. It will contain the number of small effect SNPs in each block.
-				count_s++; //count_s becomes the number of small effect SNPs in the whole genome
+			if(info_s[j].block == i){ 
+				num_s(i) += 1; 
+				count_s++;
 			}else{
 				break;
 			}
-		}//loop above populates num_s. Each entry of num_s is the number of small effect SNPs in a block
+		}
 		for (size_t j = count_l; j < info_l.size(); j++) {
-			if(info_l[j].block == i){ //again, I think this indicates block membership
-				num_l(i) += 1;  //num_l becomes the vector containing per-block counts of large effect SNPs
-				count_l++; //count_l becomes the number of genome-wide large effect SNPs
+			if(info_l[j].block == i){ 
+				num_l(i) += 1; 
+				count_l++;
+>>>>>>> add-training-parameter
 			}else{
 				break;
 			}
@@ -134,40 +100,35 @@ int DBSLMMFIT::est(int n_ref,
 	
 	// loop 
 	// vector < vector <INFO*> > info_s_Block(B_MAX, vector <INFO*> ((int)len_s)), info_l_Block(B_MAX, vector <INFO*> ((int)len_l));
-	vector < vector <INFO> > info_s_Block(B_MAX, 
-                                       vector <INFO> ((int)len_s)), 
-                           info_l_Block(B_MAX, 
-                                        vector <INFO> ((int)len_l)); //declare info_l_Block & info_s_Block
-	vector < vector <EFF> > eff_s_Block(B_MAX, 
-                                     vector <EFF> ((int)len_s)), 
-                          eff_l_Block(B_MAX, 
-                                      vector <EFF> ((int)len_l)); //declare eff_l_Block & eff_s_Block
-	vector <int> num_s_vec, num_l_vec; //declare num_s_vec & num_l_vec
-	for (int i = 0; i < num_block; ++i) {//iterate over blocks, ie, i indexes block number
+
+	vector < vector <INFO> > info_s_Block(B_MAX, vector <INFO> ((int)len_s)), info_l_Block(B_MAX, vector <INFO> ((int)len_l));
+	vector < vector <EFF> > eff_s_Block(B_MAX, vector <EFF> ((int)len_s)), eff_l_Block(B_MAX, vector <EFF> ((int)len_l));
+	vector <int> num_s_vec, num_l_vec;
+	arma::field <arma::mat> result(num_block, 5);
+	
+	for (int i = 0; i < num_block; ++i) {
 		// small effect SNP information
-		vector <INFO> info_s_block; //declare info_s_block
+		vector <INFO> info_s_block; 
 		for (size_t j = count_s; j < info_s.size(); j++) {
 			if(info_s[j].block == i){ 
-				info_s_block.push_back(info_s[j]);//appends info_s[j] to info_s_block, ie, does the work to create INFO for the snps in the block of interest, ie because the snp has snpinfo block value matching
-			  //https://www.cplusplus.com/reference/vector/vector/push_back/
-				count_s++; //count_s records the number of small SNPs in the genome. it starts at zero per line above
-				
+				info_s_block.push_back(info_s[j]);
+				count_s++;
+>>>>>>> add-training-parameter
 			}else{
 				break;
 			}
 		}
 		for (size_t k = 0; k < info_s_block.size(); k++)
 			// info_s_Block[B][k] = &info_s_block[k]; 
-			info_s_Block[B][k] = info_s_block[k]; //Organizes the contents of info_s_block into the larger info_s_Block. info_s_Block will hold info for all blocks, it seems
-		num_s_vec.push_back((int)num_s(i)); //num_s was determined in lines 64-67. it's the vector with length equal to the number of blocks and entries equal to the number of small effects snps per block.
-		
+			info_s_Block[B][k] = info_s_block[k]; 
+		num_s_vec.push_back((int)num_s(i));
 		// large effect SNP information
 		if (num_l(i) == 0){
 			// info_l_Block[B][0] = &info_pseudo;
-			info_l_Block[B][0] = info_pseudo; //put the pseudo info object in for those blocks without large effect snps.
-		}else{ //when there is one or more large effect snp in the block
-			vector <INFO> info_l_block;//declare info_l_block
-			for (size_t j = count_l; j < info_l.size(); j++) {//count_l keeps a tally of genomewide number of large effect SNPs
+			info_l_Block[B][0] = info_pseudo;
+		}else{
+			vector <INFO> info_l_block;
+			for (size_t j = count_l; j < info_l.size(); j++) {
 				if(info_l[j].block == i){ 
 					info_l_block.push_back(info_l[j]);
 					count_l++;
@@ -177,31 +138,25 @@ int DBSLMMFIT::est(int n_ref,
 			}
 			for (size_t k = 0; k < info_l_block.size(); k++)
 				// info_l_Block[B][k] = &info_l_block[k]; 
-				info_l_Block[B][k] = info_l_block[k]; //info_l_Block is like a vector of vectors. B, the first index, indexes the blocks, while k indexes the markers within a block
+				info_l_Block[B][k] = info_l_block[k]; 
 		}
 		num_l_vec.push_back((int)num_l(i));
 
-		B++; //increment B 
+		B++;
 		if (B == B_MAX || i + 1 == num_block) { // process the block of SNPs using multi-threading
 			
 			omp_set_num_threads(thread);
 #pragma omp parallel for schedule(dynamic)
 			for (int b = 0; b < B; b++){
-				calcBlock(n_ref, 
-              n_obs, 
-              sigma_s, 
-              idv, 
-              bed_str, 
-              info_s_Block[b], 
-              info_l_Block[b],
-						  num_s_vec[b], 
-              num_l_vec[b], 
-              eff_s_Block[b], 
-              eff_l_Block[b],
-              y_training, 
-              training_indices, 
-              test_indices, 
-              i);
+			  arma::field< arma::mat > out = calcBlock(n_ref, n_obs, sigma_s, idv, bed_str, info_s_Block[b], info_l_Block[b],
+						  num_s_vec[b], num_l_vec[b], eff_s_Block[b], eff_l_Block[b], training);
+			  int index = floor(i / B_MAX) * B_MAX + b;
+			  //transfer 'out' into the 5 entries
+			  result(index, 0) = out(0);// is this the correct index value?? YES!
+			  result(index, 1) = out(1);
+			  result(index, 2) = out(2);
+			  result(index, 3) = out(3);
+			  result(index, 4) = out(4);
 			}
 			// eff of small effect SNPs
 			for (int r = 0; r < B; r++) {
@@ -215,51 +170,19 @@ int DBSLMMFIT::est(int n_ref,
 					eff_l.push_back(eff_l_Block[r][l]);
 				}
 			}
-			B = 0;// reset B to zero
+			B = 0;
 			num_l_vec.clear(); 
 			num_s_vec.clear();
-		}//end if statement starting on line 154, if (B == B_MAX...
-	}//end loop for i
-	return 0;
-}//end function
+		}
+	}
+	return result;
+}
 
 // estimate only small effect
-int DBSLMMFIT::est(int n_ref, 
-                   int n_obs, 
-                   double sigma_s, 
-                   int num_block, 
-                   vector<int> idv, 
-                   string bed_str,
-          				 vector <INFO> info_s, 
-          				 int thread, 
-          				 vector <EFF> &eff_s, 
-          				 string fam_file,
-          				 unsigned int seed,
-          				 double test_proportion){
-  // split subjects into training and test sets
-  //specify proportion of n_obs that goes into test set
-  arma::Col<arma::uword> test_indices = get_test_indices(n_obs, 
-                                                         test_proportion,
-                                                         seed);
-  arma::Col<arma::uword> training_indices = get_training_indices(test_indices, 
-                                                                 n_obs);
-  // read phenotype data
-  std::tuple<vector<string>, vector<string> > pheno_struct = read_pheno(fam_file, 6);
-  // extract id and pheno from pheno_struct
-  std::vector<string> id = std::get<0>(pheno_struct);
-  std::vector<string> pheno_string = std::get<1>(pheno_struct);
-  //convert pheno to numeric vector
-  std::vector<double> pheno_numeric = convert_string_vector_to_double_vector(pheno_string);
-  // convert to arma::vec
-  arma::vec pheno_arma = arma::conv_to<arma::vec>::from(pheno_numeric);
-  //mean center pheno
-  arma::vec y = center_vector(pheno_arma);
-  arma::vec y_training = subset(y, training_indices);
-  arma::vec y_test = subset(y, test_indices);
-  //save y_test as csv
-//  y_test.save("y_test.csv", arma_ascii);
-  //return to Sheng's code
-  
+arma::field <arma::mat>  DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<int> idv, string bed_str,
+				 vector <INFO> info_s, int thread, 
+				 vector <EFF> &eff_s, bool training){
+	
 	// get the maximum number of each block
 	int count_s = 0;
 	vec num_s = zeros<vec>(num_block); 
@@ -299,14 +222,16 @@ int DBSLMMFIT::est(int n_ref,
 	vector < vector <INFO> > info_s_Block(B_MAX, vector <INFO> ((int)len_s));
 	vector < vector <EFF> > eff_s_Block(B_MAX, vector <EFF> ((int)len_s));
 	vector <int> num_s_vec;
+	arma::field <arma::mat> result(num_block, 5);
+	
 	for (int i = 0; i < num_block; ++i) {
 		// small effect SNP information
-		vector <INFO> info_s_block; // declare object for small effect SNP info
-		for (size_t j = count_s; j < info_s.size(); j++) { //info_s.size is the number of SNPs in info_s
-			if(info_s[j].block == i){ //if jth SNP in info_s is in block i
+		vector <INFO> info_s_block; 
+		for (size_t j = count_s; j < info_s.size(); j++) {
+			if(info_s[j].block == i){ 
 				info_s_block.push_back(info_s[j]);
-				count_s++; //increase count_s by 1, ie, count of number of small effect SNPs increases by 1
-			}else{ //for SNPs not in block i, just leave the loop
+				count_s++;
+			}else{
 				break;
 			}
 		}
@@ -321,18 +246,13 @@ int DBSLMMFIT::est(int n_ref,
 			omp_set_num_threads(thread);
 #pragma omp parallel for schedule(dynamic)
 			for (int b = 0; b < B; b++){
-				calcBlock(n_ref, 
-              n_obs, 
-              sigma_s, 
-              idv, 
-              bed_str, 
-              info_s_Block[b],
-						  num_s_vec[b], 
-              eff_s_Block[b], 
-              y_training, 
-              training_indices, 
-              test_indices, 
-              i);
+			  arma::field<arma::mat> out = calcBlock(n_ref, n_obs, sigma_s, idv, bed_str, info_s_Block[b],
+						  num_s_vec[b], eff_s_Block[b], training);
+			  int index = floor(i / B_MAX) * B_MAX + b;
+			  //cout <<"index: " << index << endl; 
+			  result(index, 0) = out(0);
+			  result(index, 3) = out(3);
+			  
 			}
 			// eff of small effect SNPs
 			for (int r = 0; r < B; r++) {
@@ -344,40 +264,14 @@ int DBSLMMFIT::est(int n_ref,
 			num_s_vec.clear();
 		}
 	}
-	return 0;
+	return result;
 }
 
-
-
-//' Estimate large and small effects for each block
-//' 
-//' @param n_ref sample size of reference panel
-//' @param n_obs sample size of data
-//' @param sigma_s estimate of $sigma^2_s$
-//' @param idv 
-//' @param bed_str filename for bed file
-//' @param info_s_block_full info object for small effects
-//' @param info_l_block_full info object for large effects
-//' @param num_s_block
-//' @param num_l_block
-//' @param eff_s_block effects object for small effects per block? 
-//' @param eff_l_block effects object for large effects per block?
 // estimate large and small effect for each block
-int DBSLMMFIT::calcBlock(int n_ref, 
-                         int n_obs, 
-                         double sigma_s, 
-                         vector<int> idv, 
-                         string bed_str, 
-                         vector <INFO> info_s_block_full, //small
-                         vector <INFO> info_l_block_full, //large
-                         int num_s_block, 
-                         int num_l_block, 
-                         vector <EFF> &eff_s_block, 
-                         vector <EFF> &eff_l_block,
-                         arma::vec y_training,
-                         arma::Col<arma::uword> training_indices, 
-                         arma::Col<arma::uword> test_indices, 
-                         int iter_number){
+arma::field <arma::mat> DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, string bed_str, 
+						vector <INFO> info_s_block_full, vector <INFO> info_l_block_full, 
+						int num_s_block, int num_l_block, 
+						vector <EFF> &eff_s_block, vector <EFF> &eff_l_block, bool training){
 	SNPPROC cSP;
 	IO cIO; 
 	ifstream bed_in(bed_str.c_str(), ios::binary);
@@ -395,7 +289,7 @@ int DBSLMMFIT::calcBlock(int n_ref,
 		// z_s(i) = info_s_block[i]->z;
 		z_s(i) = info_s_block[i].z;
 	// small effect genotype matrix
-	mat geno_s = zeros<mat>(n_ref, num_s_block); //geno_s gets filled to become the matrix Xs
+	mat geno_s = zeros<mat>(n_ref, num_s_block);
 	for (int i = 0; i < num_s_block; ++i) {
 		vec geno = zeros<vec>(n_ref);
 		double maf = 0.0; 
@@ -412,6 +306,7 @@ int DBSLMMFIT::calcBlock(int n_ref,
 	eff_pseudo.beta = 0.0; 
 	
 	vec beta_s = zeros<vec>(num_s_block); 
+	arma::field <arma::mat> result(5);
 	// INFO large effect SNPs 
 	if (num_l_block != 0){
 		// vector <INFO*> info_l_block(num_l_block);
@@ -426,7 +321,7 @@ int DBSLMMFIT::calcBlock(int n_ref,
 
 
 		// large effect matrix
-		mat geno_l = zeros<mat>(n_ref, num_l_block); //geno_l gets filled to become Xl matrix (in notation of supplemental materials)
+		mat geno_l = zeros<mat>(n_ref, num_l_block);
 		for (int i = 0; i < num_l_block; ++i) {
 			vec geno = zeros<vec>(n_ref);
 			double maf = 0.0; 
@@ -435,33 +330,18 @@ int DBSLMMFIT::calcBlock(int n_ref,
 			cSP.nomalizeVec(geno);
 			geno_l.col(i) = geno;
 		}
-		/* INSERT MY ASYMPTOTIC VAR CALC HERE*/
-		//split geno_l and geno_s into training and test sets
-		arma::mat geno_l_training = subset(geno_l, training_indices);
-		arma::mat geno_l_test = subset(geno_l, test_indices);
-		arma::mat geno_s_training = subset(geno_s, training_indices);
-		arma::mat geno_s_test = subset(geno_s, test_indices);
-		
-		// calculate var(\hat\tilde y)
-		arma::mat asymptotic_var = calc_asymptotic_variance(geno_l_training, 
-                                                       geno_s_training, 
-                                                       geno_l_test,
-                                                       geno_s_test,
-                                                       sigma_s,
-                                                       y_training);
-    // asymptotic_var should be n_test by n_test symmetric psd matrix, ie covar matrix
-    //store only diagonal elements of asymptotic_var, asymptotic_var.diag()
-    arma::vec avar_diag = asymptotic_var.diag();
-    // define outfile
-    std::string iter_number_string = to_string(iter_number);
-    std::string outfile = iter_number_string + ".csv";
-    //save diagonal as csv
-    avar_diag.save(outfile, arma_ascii); 
-    
-		/* END OF FREDS ASYMPTOTIC VAR CALC CODE */
 		// estimation
 		vec beta_l = zeros<vec>(num_l_block); 
-		estBlock(n_ref, n_obs, sigma_s, geno_s, geno_l, z_s, z_l, beta_s, beta_l);//estBlock!
+		arma::field <arma::mat> out = estBlock(n_ref, n_obs, sigma_s, geno_s, geno_l, z_s, z_l, beta_s, beta_l);
+		if (training){
+		  result(0) = out(0);
+		  result(1) = out(1);
+		  result(2) = out(2);
+		} else {
+		  result(3) = geno_s;
+		  result(4) = geno_l;
+		}
+		
 		// summary 
 		for(int i = 0; i < num_l_block; i++) {
 			EFF eff_l; 
@@ -475,9 +355,15 @@ int DBSLMMFIT::calcBlock(int n_ref,
 			eff_l_block[i] = eff_l;
 		}
 	}
-	else{ //case of num_l_block ==0
+	else{
 		// estimation
-		estBlock(n_ref, n_obs, sigma_s, geno_s, z_s, beta_s); // estBlock!
+		
+		arma::field <arma::mat> out = estBlock(n_ref, n_obs, sigma_s, geno_s, z_s, beta_s);
+	  if (training){
+	    result(0) = out(0);
+	  } else {
+	    result(3) = geno_s;
+	  }
 		eff_l_block[0].snp = eff_pseudo.snp;
 		eff_l_block[0].a1 = eff_pseudo.a1;
 		eff_l_block[0].maf = eff_pseudo.maf;
@@ -495,87 +381,53 @@ int DBSLMMFIT::calcBlock(int n_ref,
 		eff_s.beta = beta_s(i); 
 		eff_s_block[i] = eff_s;
 	}
-	return 0; 
+	return result; 
 }
 
 // estimate only small effect for each block
-int DBSLMMFIT::calcBlock(int n_ref, 
-                         int n_obs, 
-                         double sigma_s, 
-                         vector<int> idv, 
-                         string bed_str, 
-              					 vector <INFO> info_s_block_full, 
-            						 int num_s_block, 
-            						 vector <EFF> &eff_s_block,
-            						 arma::vec y_training,
-            						 arma::Col<arma::uword> training_indices, 
-            						 arma::Col<arma::uword> test_indices, 
-            						 int iter_number
-            						 ){
-	SNPPROC cSP; // declare new SNPPROC object, cSP. Below, we'll need to populate cSP.
-	IO cIO; //declare IO object, cIO
-	ifstream bed_in(bed_str.c_str(), ios::binary);//ios::binary means "open in binary mode". bed_str is an argument to the function, presumably something like the file path??
-	//https://www.cplusplus.com/reference/fstream/ifstream/. ifstream is a class in std, ie, std::ifstream. Used to read from files
-	//https://www.cplusplus.com/doc/tutorial/files/
-	//https://www.cplusplus.com/reference/string/string/c_str/. Get C string equivalent
-	//Returns a pointer to an array that contains a null-terminated sequence of characters (i.e., a C-string) representing the current value of the string object.
+arma::field < arma::mat > DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, string bed_str, 
+						vector <INFO> info_s_block_full, int num_s_block, 
+						vector <EFF> &eff_s_block, bool training){
+	SNPPROC cSP;
+	IO cIO; 
+	ifstream bed_in(bed_str.c_str(), ios::binary);
+	
 	// INFO small effect SNPs 
 	// vector <INFO*> info_s_block(num_s_block);
 	// for (int i = 0; i < num_s_block; i++)
 		// info_s_block[i] = info_s_block_full[i];
 	vector <INFO> info_s_block(num_s_block);
 	for (int i = 0; i < num_s_block; i++)
-		info_s_block[i] = info_s_block_full[i];//copy info_s_block_full to info_s_block
+		info_s_block[i] = info_s_block_full[i];
 	// z_s
-	vec z_s = zeros<vec>(num_s_block); //init. z_s
+	vec z_s = zeros<vec>(num_s_block); 
 	for (int i = 0; i < num_s_block; i++) 
 		// z_s(i) = info_s_block[i]->z;
-		z_s(i) = info_s_block[i].z;//populate z_s with the z values from the INFO object
+		z_s(i) = info_s_block[i].z;
 	// small effect genotype matrix
-	mat geno_s = zeros<mat>(n_ref, num_s_block);// Is num_s_block the number of blocks with small effects only? Or something else???
-	// num_s_block must be the number of small effect SNPs in the block. n_ref and num_s_block are dimensions for the matrix
+	mat geno_s = zeros<mat>(n_ref, num_s_block);
 	for (int i = 0; i < num_s_block; ++i) {
-		vec geno = zeros<vec>(n_ref); //init. geno as arma::vec of length n_ref
-		double maf = 0.0; //initialize maf.
+		vec geno = zeros<vec>(n_ref);
+		double maf = 0.0; 
 		// cIO.readSNPIm(info_s_block[i]->pos, n_ref, idv, bed_in, geno, maf);
-		cIO.readSNPIm(info_s_block[i].pos, n_ref, idv, bed_in, geno, maf);// this line populates geno
-		cSP.nomalizeVec(geno); // then, normalize geno
-		geno_s.col(i) = geno; //write geno to a column of geno_s matrix
+		cIO.readSNPIm(info_s_block[i].pos, n_ref, idv, bed_in, geno, maf);
+		cSP.nomalizeVec(geno);
+		geno_s.col(i) = geno;
 	}
-	/* INSERT ASYMPTOTIC VARIANCE CALCS HERE */
-	//split geno_l and geno_s into training and test sets
-	arma::mat geno_s_training = subset(geno_s, training_indices);
-	arma::mat geno_s_test = subset(geno_s, test_indices);
 	
-	// calculate var(\hat\tilde y)
-/*	arma::mat asymptotic_var = calc_asymptotic_variance(geno_l_training, 
-                                                     geno_s_training, 
-                                                     geno_l_test,
-                                                     geno_s_test,
-                                                     sigma_s,
-                                                     y_training);
-
-	// asymptotic_var should be n_test by n_test symmetric psd matrix, ie covar matrix
-	//store only diagonal elements of asymptotic_var, asymptotic_var.diag()
-	arma::vec avar_diag = asymptotic_var.diag();
-	// define outfile
-	std::string iter_number_string = to_string(iter_number);
-	std::string outfile = iter_number_string + ".csv";
-	//save diagonal as csv
-	avar_diag.save(outfile, arma_ascii); 
-NEED METHODS FOR calculating asymptotic var when a block has no large effects */ 
-
-
-	
-	
-	/* END ASYMPTOTIC VAR CALCS */
 	// estimation
-	vec beta_s = zeros<vec>(num_s_block); //num_s_block, ie, the number of small effect SNPs in the block, is the length of beta_s, ie, since every small effect SNP will be represented by one entry in beta_s
-	estBlock(n_ref, n_obs, sigma_s, geno_s, z_s, beta_s);
+	vec beta_s = zeros<vec>(num_s_block); 
+	arma::field <arma::mat> out = estBlock(n_ref, n_obs, sigma_s, geno_s, z_s, beta_s);
+	arma::field <arma::mat> result(5);
+  if (training){
+    result(0) = out(0);
+  } else {
+    result(3) = geno_s;
+  }
 	
 	// output small effect
 	for(int i = 0; i < num_s_block; i++) {
-		EFF eff_s; //declare EFF object. Overwrites previous eff_s object as we loop over i. That is, eff_s will be populated but it's overwritten for every value of i.
+		EFF eff_s; 
 		// eff_s.snp = info_s_block[i]->snp;
 		// eff_s.a1 = info_s_block[i]->a1;
 		// eff_s.maf = info_s_block[i]->maf;
@@ -583,16 +435,13 @@ NEED METHODS FOR calculating asymptotic var when a block has no large effects */
 		eff_s.a1 = info_s_block[i].a1;
 		eff_s.maf = info_s_block[i].maf;
 		eff_s.beta = beta_s(i); 
-		eff_s_block[i] = eff_s;//store eff_s for future use as entry in eff_s_block
+		eff_s_block[i] = eff_s;
 	}
-	return 0; 
+	return result; 
 }
 
 // solve the equation Ax=b, x is a variables
-vec DBSLMMFIT::PCGv(mat A, 
-                    vec b, 
-                    size_t maxiter, 
-                    const double tol){
+vec DBSLMMFIT::PCGv(mat A, vec b, size_t maxiter, const double tol){
 	vec dA = A.diag();
 	// stable checking, using available func to speed up
 	for(size_t i = 0; i< dA.n_elem; i++){
@@ -633,8 +482,8 @@ vec DBSLMMFIT::PCGv(mat A,
 	return(x);
 }// end function
 
-mat DBSLMMFIT::PCGm(mat A, mat B, size_t maxiter, const double tol){//like PCGv but with matrix B
-	
+mat DBSLMMFIT::PCGm(mat A, mat B, size_t maxiter, const double tol){
+
 	size_t n_iter = B.n_cols;
 	mat x = zeros<mat>(A.n_rows, n_iter);
 	for (size_t i = 0; i < n_iter; i++){
@@ -643,29 +492,8 @@ mat DBSLMMFIT::PCGm(mat A, mat B, size_t maxiter, const double tol){//like PCGv 
 	return(x);
 }// end function
 
+arma::field< arma::mat > DBSLMMFIT::estBlock(int n_ref, int n_obs, double sigma_s, mat geno_s, mat geno_l, vec z_s, vec z_l, vec &beta_s, vec &beta_l) {
 
-//' Calculate coefficient estimates for one block of SNPs, with both large and small effects
-//' 
-//' @param n_ref sample size for reference panel
-//' @param n_obs sample size for data
-//' @param sigma_s estimate of sigma_s^2
-//' @param geno_s genotypes matrix for small effect SNPs in this block
-//' @param geno_l genotypes matrix for large effect SNPs in this block
-//' @param z_s z for small effect SNPs in this block
-//' @param z_l z for large effect SNPs in this block
-//' @param beta_s coefficient estimates for small effect SNPs in this block
-//' @param beta_l coefficient estimates for large effect SNPs in this block 
-
-int DBSLMMFIT::estBlock(int n_ref, 
-                        int n_obs, 
-                        double sigma_s, 
-                        mat geno_s, 
-                        mat geno_l, 
-                        vec z_s, 
-                        vec z_l, 
-                        vec &beta_s, 
-                        vec &beta_l) {
-	
 	// LD matrix 
 	// mat SIGMA_ls = geno_l.t() * geno_s; 
 	// SIGMA_ls /= (double)n_ref; 
@@ -707,17 +535,16 @@ int DBSLMMFIT::estBlock(int n_ref,
 	vec SIGMA_ss_z_s_SIGMA_sl_beta_l = SIGMA_ss * SIGMA_ss_inv_z_s_SIGMA_sl_beta_l; 
 	beta_s = sqrt(n_obs) * z_s - (double)n_obs * SIGMA_ls.t() * beta_l - SIGMA_ss_z_s_SIGMA_sl_beta_l; 
 	beta_s *= sigma_s;
+	arma::field<arma::mat> result(3);
+	result(0) = SIGMA_ss;
+	result(1) = arma::trans(SIGMA_ls);
+	result(2) = SIGMA_ll;
 	
-	return 0; 
+	return result; 
 }
 
-int DBSLMMFIT::estBlock(int n_ref, 
-                        int n_obs, 
-                        double sigma_s, 
-                        mat geno_s, 
-                        vec z_s, 
-                        vec &beta_s) {
-	
+arma::field <arma::mat> DBSLMMFIT::estBlock(int n_ref, int n_obs, double sigma_s, mat geno_s, vec z_s, vec &beta_s) {
+
 	// LD matrix 
 	// mat SIGMA_ss = geno_s.t() * geno_s; 
 	// SIGMA_ss /= (double)n_ref;
@@ -737,5 +564,9 @@ int DBSLMMFIT::estBlock(int n_ref,
 	vec z_s_SIGMA_ss_SIGMA_ss_inv_SIGMA_sl = z_s - SIGMA_ss_SIGMA_ss_inv_z_s; 
 	beta_s = sqrt(n_obs) * sigma_s * z_s_SIGMA_ss_SIGMA_ss_inv_SIGMA_sl; 
 	
-	return 0; 
+	arma::field <arma::mat> result(3);
+	result(0) = SIGMA_ss;
+	
+	
+	return result; 
 }

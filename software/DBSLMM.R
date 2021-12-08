@@ -54,8 +54,8 @@ args_list <- list(
   make_option("--thread", type = "character", default = "5",
               help = "INPUT: the number of threads (default: 5)", 
               metavar = "character"),
-  make_option("--number_of_autosome_pairs", type = "character", default = "22", 
-              help = "INPUT: Number of pairs of autosomes, 22 for humans",
+  make_option("--training", type = "character", default = "true", 
+              help = "INPUT: training (true) or test (false) set", 
               metavar = "character")
 )
 
@@ -119,7 +119,7 @@ prefix_file <- strsplit(s, "\\.")[[1]]
 len_prefix_file <- length(prefix_file)
 prefix_file <- paste(prefix_file[-c((len_prefix_file-1):len_prefix_file)], collapse = ".")
 
-if (opt$model == "DBSLMM"){
+
 
   ## summary statistics
   summstats <- fread2(opt$summ)
@@ -146,8 +146,7 @@ if (opt$model == "DBSLMM"){
     ## dbslmm
     if (opt$type == "auto"){
       system(paste0(opt$dbslmm,
-                    " -outfile ", opt$outfile,
-                    " -s ",      opt$summ,
+                           " -s ",      opt$summ,
                            " -r ",      opt$ref,
                            " -nsnp ",   opt$nsnp,
                            " -n ",      opt$n,
@@ -155,24 +154,9 @@ if (opt$model == "DBSLMM"){
                            " -b ",      opt$block,
                            " -mafMax ", opt$mafMax,      
                            " -t ",      opt$thread,
-                           " -eff ",    opt$outPath, prefix_file, ".dbslmm"
-))
-  
-    } else {
-      h2_vec <- as.numeric(unlist(strsplit(opt$h2f, ",")))
-      for (hh in h2_vec) {
-        h2d <- opt$h2*hh
-        system(paste0(opt$dbslmm,
-                      " -s ",      opt$summ,
-                      " -r ",      opt$ref,
-                      " -nsnp ",   opt$nsnp,
-                      " -n ",      opt$n,
-                      " -h ",      h2d,
-                      " -b ",      opt$block,
-                      " -mafMax ", opt$mafMax,      
-                      " -t ",      opt$thread,
-                      " -eff ",    opt$outPath, prefix_file, "_h2f", hh, ".dbslmm",
-		      " -number_of_autosome_pairs ", opt$number_of_autosome_pairs))
+                           " -eff ",    opt$outPath, prefix_file, ".dbslmm",
+                            " -training ", opt$training
+                    ))
       }
     }
   } else {
@@ -198,8 +182,6 @@ if (opt$model == "DBSLMM"){
     ## dbslmm
     if(opt$type == "auto"){
       system(paste0(opt$dbslmm,
-                    
-                    " -number_of_autosome_pairs ", opt$number_of_autosome_pairs,          
                     " -s ",      opt$outPath, "s_", prefix_file, ".txt",
                     " -l ",      opt$outPath, "l_", prefix_file, ".txt",
                     " -r ",      opt$ref,
@@ -209,8 +191,9 @@ if (opt$model == "DBSLMM"){
                     " -b ",      opt$block,
                     " -h ",      opt$h2,
                     " -t ",      opt$thread,
-                    " -eff ",    opt$outPath, prefix_file, ".dbslmm"))
-    
+                    " -eff ",    opt$outPath, prefix_file, ".dbslmm",
+                    " -training ", opt$training))
+
     } else {
       h2_vec <- as.numeric(unlist(strsplit(opt$h2f, ",")))
       for (hh in h2_vec) {
@@ -233,17 +216,3 @@ if (opt$model == "DBSLMM"){
     system(paste0("rm ", opt$outPath, "s_", prefix_file, "*"))
   }
   system(paste0("rm ", opt$outPath, "plink_", prefix_file, ".txt"))
-} # end if opt$model == "DBSLMM"
-
-if (opt$model == "LMM"){
-  system(paste0(opt$dbslmm,
-                " -s ",      opt$summ,
-                " -r ",      opt$ref,
-                " -nsnp ",   opt$nsnp,
-                " -n ",      opt$n,
-                " -h ",      opt$h2,
-                " -b ",      opt$block,
-                " -mafMax ", opt$mafMax,      
-                " -t ",      opt$thread,
-                " -eff ",    opt$outPath, prefix_file, ".dbslmm"))
-}
