@@ -22,17 +22,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <armadillo>
 #include <string>
->>>>>>> add-training-parameter
 #include "omp.h"
 
 #include "dtpr.hpp"
 #include "dbslmmfit.hpp"
->>>>>>> add-training-parameter
 
 using namespace std;
 using namespace arma;
 
-<<<<<<< HEAD
 //' Estimate large and small effects
 //' 
 //' @param n_ref sample size of the reference panel
@@ -46,8 +43,7 @@ using namespace arma;
 //' @param thread number of threads to use
 //' @param eff_s small effects SNP effects object
 //' @param eff_l large effects SNP effects object
-//' @param fam_file path to the plink fam file
-//' @param seed a seed (positive integer) for the pseudo RNG
+//' @param training a boolean indicating whether the analysis is for a training set (true) or not (false)
 //' @return zero is returned
 // estimate large and small effect
 arma::field <arma::mat>  DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<int> idv, string bed_str,
@@ -70,7 +66,6 @@ arma::field <arma::mat>  DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, in
 			if(info_l[j].block == i){ 
 				num_l(i) += 1; 
 				count_l++;
->>>>>>> add-training-parameter
 			}else{
 				break;
 			}
@@ -113,7 +108,6 @@ arma::field <arma::mat>  DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, in
 			if(info_s[j].block == i){ 
 				info_s_block.push_back(info_s[j]);
 				count_s++;
->>>>>>> add-training-parameter
 			}else{
 				break;
 			}
