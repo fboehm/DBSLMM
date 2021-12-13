@@ -16,19 +16,17 @@ CXX = g++
 # Set complier flags 
 CXXFLAG = -static -fopenmp -O3 -std=c++11 -lm -llapacke -llapack -lblas -Wall
 all: $(OUTPUTD)
-$(OUTPUTD): main_dbslmm.o dtpr.o dbslmm.o dbslmmfit.o calc_asymptotic_variance.o tobool.o
-	$(CXX) main_dbslmm.o dtpr.o dbslmm.o dbslmmfit.o calc_asymptotic_variance.o tobool.o -o $(OUTPUTD) $(CXXFLAG) -L $(ARMALIB)
+$(OUTPUTD): main_dbslmm.o dtpr.o dbslmm.o dbslmmfit.o tobool.o
+	$(CXX) main_dbslmm.o dtpr.o dbslmm.o dbslmmfit.o tobool.o -o $(OUTPUTD) $(CXXFLAG) -L $(ARMALIB)
 main_dbslmm.o: main_dbslmm.cpp
 	$(CXX) -c main_dbslmm.cpp
 dbslmm.o: dbslmm.cpp dbslmm.hpp
 	$(CXX) -c dbslmm.cpp  $(CXXFLAG)
-dbslmmfit.o: dbslmmfit.cpp dbslmmfit.hpp calc_asymptotic_variance.h subset_to_test_and_training.h
+dbslmmfit.o: dbslmmfit.cpp dbslmmfit.hpp
 	$(CXX) -c dbslmmfit.cpp $(CXXFLAG)
 dtpr.o: dtpr.cpp dtpr.hpp 
 	$(CXX) -c dtpr.cpp $(CXXFLAG)
 
-calc_asymptotic_variance.o: calc_asymptotic_variance.cpp calc_asymptotic_variance.h 
-	$(CXX) -c calc_asymptotic_variance.cpp $(CXXFLAG)
 tobool.o: tobool.cpp tobool.h
 	$(CXX) -c tobool.cpp $(CXXFLAG)
 
