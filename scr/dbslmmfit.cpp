@@ -33,7 +33,7 @@ using namespace arma;
 //' Estimate large and small effects
 //' 
 //' @param n_ref sample size of the reference panel
-//' @param n_obs sample size of the data
+//' @param n_obs sample size of the observed data
 //' @param sigma_s the estimate for sigma_s^2
 //' @param num_block number of blocks in the genome
 //' @param idv 
