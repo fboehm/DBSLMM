@@ -45,7 +45,7 @@ using namespace arma;
 //' @param eff_l large effects SNP effects object
 //' @return zero is returned
 // estimate large and small effect
-arma::field <arma::mat>  DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<int> idv, string bed_str,
+int  DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<int> idv, string bed_str,
 				 vector <INFO> info_s, vector <INFO> info_l, int thread, 
                  vector <EFF> &eff_s, vector <EFF> &eff_l){
 	
@@ -144,12 +144,7 @@ arma::field <arma::mat>  DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, in
 			  arma::field< arma::mat > out = calcBlock(n_ref, n_obs, sigma_s, idv, bed_str, info_s_Block[b], info_l_Block[b],
 						  num_s_vec[b], num_l_vec[b], eff_s_Block[b], eff_l_Block[b], training);
 			  int index = floor(i / B_MAX) * B_MAX + b;
-			  //transfer 'out' into the 5 entries
-			  result(index, 0) = out(0);// is this the correct index value?? YES!
-			  result(index, 1) = out(1);
-			  result(index, 2) = out(2);
-			  result(index, 3) = out(3);
-			  result(index, 4) = out(4);
+
 			}
 			// eff of small effect SNPs
 			for (int r = 0; r < B; r++) {
@@ -168,11 +163,11 @@ arma::field <arma::mat>  DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, in
 			num_s_vec.clear();
 		}
 	}
-	return result;
+	return 0;
 }
 
 // estimate only small effect
-arma::field <arma::mat>  DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<int> idv, string bed_str,
+int DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<int> idv, string bed_str,
 				 vector <INFO> info_s, int thread, 
 				 vector <EFF> &eff_s){
 	
@@ -215,8 +210,7 @@ arma::field <arma::mat>  DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, in
 	vector < vector <INFO> > info_s_Block(B_MAX, vector <INFO> ((int)len_s));
 	vector < vector <EFF> > eff_s_Block(B_MAX, vector <EFF> ((int)len_s));
 	vector <int> num_s_vec;
-	arma::field <arma::mat> result(num_block, 5);
-	
+  
 	for (int i = 0; i < num_block; ++i) {
 		// small effect SNP information
 		vector <INFO> info_s_block; 
@@ -239,13 +233,9 @@ arma::field <arma::mat>  DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, in
 			omp_set_num_threads(thread);
 #pragma omp parallel for schedule(dynamic)
 			for (int b = 0; b < B; b++){
-			  arma::field<arma::mat> out = calcBlock(n_ref, n_obs, sigma_s, idv, bed_str, info_s_Block[b],
+			  arma::vec out = calcBlock(n_ref, n_obs, sigma_s, idv, bed_str, info_s_Block[b],
 						  num_s_vec[b], eff_s_Block[b], training);
-			  int index = floor(i / B_MAX) * B_MAX + b;
 			  //cout <<"index: " << index << endl; 
-			  result(index, 0) = out(0);
-			  result(index, 3) = out(3);
-			  
 			}
 			// eff of small effect SNPs
 			for (int r = 0; r < B; r++) {
@@ -257,11 +247,11 @@ arma::field <arma::mat>  DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, in
 			num_s_vec.clear();
 		}
 	}
-	return result;
+	return 0;
 }
 
 // estimate large and small effect for each block
-arma::field <arma::mat> DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, string bed_str, 
+arma::vec DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, string bed_str, 
 						vector <INFO> info_s_block_full, vector <INFO> info_l_block_full, 
 						int num_s_block, int num_l_block, 
 						vector <EFF> &eff_s_block, vector <EFF> &eff_l_block){
@@ -326,14 +316,14 @@ arma::field <arma::mat> DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_
 		// estimation
 		vec beta_l = zeros<vec>(num_l_block); 
 		arma::field <arma::mat> out = estBlock(n_ref, n_obs, sigma_s, geno_s, geno_l, z_s, z_l, beta_s, beta_l);
-		if (training){
+/*		if (training){
 		  result(0) = out(0);
 		  result(1) = out(1);
 		  result(2) = out(2);
 		} else {
 		  result(3) = geno_s;
 		  result(4) = geno_l;
-		}
+		} */
 		
 		// summary 
 		for(int i = 0; i < num_l_block; i++) {
