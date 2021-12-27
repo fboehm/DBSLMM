@@ -43,12 +43,11 @@ using namespace arma;
 //' @param thread number of threads to use
 //' @param eff_s small effects SNP effects object
 //' @param eff_l large effects SNP effects object
-//' @param training a boolean indicating whether the analysis is for a training set (true) or not (false)
 //' @return zero is returned
 // estimate large and small effect
 arma::field <arma::mat>  DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<int> idv, string bed_str,
 				 vector <INFO> info_s, vector <INFO> info_l, int thread, 
-                 vector <EFF> &eff_s, vector <EFF> &eff_l, bool training){
+                 vector <EFF> &eff_s, vector <EFF> &eff_l){
 	
 	// get the maximum number of each block
 	int count_s = 0, count_l = 0;
@@ -175,7 +174,7 @@ arma::field <arma::mat>  DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, in
 // estimate only small effect
 arma::field <arma::mat>  DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<int> idv, string bed_str,
 				 vector <INFO> info_s, int thread, 
-				 vector <EFF> &eff_s, bool training){
+				 vector <EFF> &eff_s){
 	
 	// get the maximum number of each block
 	int count_s = 0;
@@ -265,7 +264,7 @@ arma::field <arma::mat>  DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, in
 arma::field <arma::mat> DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, string bed_str, 
 						vector <INFO> info_s_block_full, vector <INFO> info_l_block_full, 
 						int num_s_block, int num_l_block, 
-						vector <EFF> &eff_s_block, vector <EFF> &eff_l_block, bool training){
+						vector <EFF> &eff_s_block, vector <EFF> &eff_l_block){
 	SNPPROC cSP;
 	IO cIO; 
 	ifstream bed_in(bed_str.c_str(), ios::binary);
@@ -381,7 +380,7 @@ arma::field <arma::mat> DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_
 // estimate only small effect for each block
 arma::field < arma::mat > DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, string bed_str, 
 						vector <INFO> info_s_block_full, int num_s_block, 
-						vector <EFF> &eff_s_block, bool training){
+						vector <EFF> &eff_s_block){
 	SNPPROC cSP;
 	IO cIO; 
 	ifstream bed_in(bed_str.c_str(), ios::binary);
