@@ -162,7 +162,7 @@ void DBSLMM::Assign(int argc, char ** argv, PARAM &cPar) {
 	return;
 }
 
-arma::field <arma::mat> DBSLMM::BatchRun(PARAM &cPar) {
+void DBSLMM::BatchRun(PARAM &cPar) {
 
 	SNPPROC cSP;
 	IO cIO;
@@ -286,7 +286,6 @@ arma::field <arma::mat> DBSLMM::BatchRun(PARAM &cPar) {
 		}
 		clearVector(summ_l);
 	}
-	arma::field < arma::mat> out;
 	// output stream
 	string eff_str = cPar.eff + ".txt"; 
 	ofstream effFout(eff_str.c_str());
@@ -299,7 +298,7 @@ arma::field <arma::mat> DBSLMM::BatchRun(PARAM &cPar) {
 		double t_fitting = cIO.getWalltime();
 		double sigma_s = cPar.h / (double)cPar.nsnp;
 		cout << "Fitting model..." << endl;
-		out = cDBSF.est(n_ref, cPar.n, sigma_s, num_block_s, idv, bed_str, info_s, info_l, cPar.t, eff_s, eff_l, cPar.training); 
+		cDBSF.est(n_ref, cPar.n, sigma_s, num_block_s, idv, bed_str, info_s, info_l, cPar.t, eff_s, eff_l, cPar.training); 
 		double time_fitting = cIO.getWalltime() - t_fitting;
 		cout << "Fitting time: " << time_fitting << " seconds." << endl;
 
@@ -326,7 +325,7 @@ arma::field <arma::mat> DBSLMM::BatchRun(PARAM &cPar) {
 		double t_fitting = cIO.getWalltime();
 		double sigma_s = cPar.h / (double)cPar.nsnp;
 		cout << "Fitting model..." << endl;
-		out = cDBSF.est(n_ref, cPar.n, sigma_s, num_block_s, idv, bed_str, info_s, cPar.t, eff_s, cPar.training); 
+		cDBSF.est(n_ref, cPar.n, sigma_s, num_block_s, idv, bed_str, info_s, cPar.t, eff_s, cPar.training); 
 		double time_fitting = cIO.getWalltime() - t_fitting;
 		cout << "Fitting time: " << time_fitting << " seconds." << endl;
 
@@ -337,5 +336,5 @@ arma::field <arma::mat> DBSLMM::BatchRun(PARAM &cPar) {
 				effFout << eff_s[i].snp << " " << eff_s[i].a1 << " " << eff_s[i].beta << " " << beta_s_noscl << " " << 0 << endl; 
 		}
 	}
-	return out;
+	return ;
 }
