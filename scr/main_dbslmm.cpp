@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using namespace std;
 using namespace arma;
 
-int main(int argc, //??length of argv??
+int main(int argc, //??length of argv?? YES!
          char * argv[])//
 {
 	DBSLMM cDB;
@@ -43,7 +43,6 @@ int main(int argc, //??length of argv??
 		return EXIT_SUCCESS;
 	}
 	cDB.Assign(argc, argv, cPar);
-	arma::field <arma::mat> out = cDB.BatchRun(cPar);
-	out.save("corr_mats.bin", arma_binary);
+	cDB.BatchRun(cPar);
 	return EXIT_SUCCESS;
 }
