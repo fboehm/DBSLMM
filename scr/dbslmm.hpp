@@ -56,7 +56,7 @@ public:
 	void printHeader(void);
 	void printHelp(void);
 	void Assign(int argc, char ** argv, PARAM &cPar);
-	arma::field <arma::mat> BatchRun(PARAM &cPar);
+	void BatchRun(PARAM &cPar);
 };
 
 
