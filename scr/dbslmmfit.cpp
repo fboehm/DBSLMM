@@ -368,7 +368,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int>
 }
 
 // estimate only small effect for each block
-arma::field < arma::mat > DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, string bed_str, 
+arma::vec DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, string bed_str, 
 						vector <INFO> info_s_block_full, int num_s_block, 
 						vector <EFF> &eff_s_block){
 	SNPPROC cSP;
@@ -402,12 +402,7 @@ arma::field < arma::mat > DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigm
 	vec beta_s = zeros<vec>(num_s_block); 
 	arma::field <arma::mat> out = estBlock(n_ref, n_obs, sigma_s, geno_s, z_s, beta_s);
 	arma::field <arma::mat> result(5);
-  if (training){
-    result(0) = out(0);
-  } else {
-    result(3) = geno_s;
-  }
-	
+
 	// output small effect
 	for(int i = 0; i < num_s_block; i++) {
 		EFF eff_s; 
@@ -520,7 +515,7 @@ arma::field< arma::mat > DBSLMMFIT::estBlock(int n_ref, int n_obs, double sigma_
 	beta_s *= sigma_s;
 	arma::field<arma::mat> result(3);
 	result(0) = SIGMA_ss;
-	result(1) = arma::trans(SIGMA_ls);
+	result(1) = arma::trans(SIGMA_ls);//ie, Sigma_sl
 	result(2) = SIGMA_ll;
 	
 	return result; 
@@ -549,7 +544,6 @@ arma::field <arma::mat> DBSLMMFIT::estBlock(int n_ref, int n_obs, double sigma_s
 	
 	arma::field <arma::mat> result(3);
 	result(0) = SIGMA_ss;
-	
-	
+
 	return result; 
 }
