@@ -39,6 +39,20 @@ arma::mat calc_nt_by_nt_matrix(arma::mat Sigma_ll,
 }
 
 
+// for blocks without large effects, via C++ "overloading" 
+arma::mat calc_nt_by_nt_matrix(arma::mat Sigma_ss,
+                               double sigma2_s, 
+                               unsigned int n_training,
+                               arma::mat Xs_test){
+  arma::mat Ainv = calc_A_inverse(Sigma_ss, sigma2_s, n_training);
+  arma::mat var_bs = calc_var_betas(Sigma_ss, 
+                                    Ainv,
+                                    sigma2_s,
+                                    n_training);
+  arma::mat result = Xs_test * var_bs * arma::trans(Xs_test);
+  return(result);
+}
+
 
 //' Calculate A inverse matrix
 //' 
@@ -71,7 +85,7 @@ arma::mat calc_var_betal(arma::mat Sigma_ll,
                          arma::mat A_inverse,
                          unsigned int n){
 
-  //calculate second matrix
+  //calculate big matrix
   arma::mat big = Sigma_ll - Sigma_ls * A_inverse * arma::trans(Sigma_ls);
   //invert and divide by n
   arma::mat result = arma::inv_sympd(big) / n; // we invert a ml by ml matrix - no problem!
@@ -99,3 +113,16 @@ arma::mat calc_var_betas(arma::field <arma::mat> Sigma_ss,
   arma::mat result = n * sigma2_s * sigma2_s * (mat1 + mat2 * n * var_bl * arma::trans(mat2));
   return (result);
 }
+
+// for LD blocks without large effects:
+arma::mat calc_var_betas(arma::field <arma::mat> Sigma_ss, 
+                         
+                         arma::field <arma::mat> A_inverse,
+                         double sigma2_s,
+                         unsigned int n
+                         ){
+  arma::mat mat1 = Sigma_ss - Sigma_ss * A_inverse * Sigma_ss;
+  arma::mat result = n * sigma2_s * sigma2_s * mat1;
+  return (result);
+}
+
