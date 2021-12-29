@@ -316,14 +316,10 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int>
 		// estimation
 		vec beta_l = zeros<vec>(num_l_block); 
 		arma::field <arma::mat> out = estBlock(n_ref, n_obs, sigma_s, geno_s, geno_l, z_s, z_l, beta_s, beta_l);
-/*		if (training){
-		  result(0) = out(0);
-		  result(1) = out(1);
-		  result(2) = out(2);
-		} else {
-		  result(3) = geno_s;
-		  result(4) = geno_l;
-		} */
+		// need to partition into training and test sets! Do this BEFORE the estimation step!
+		//variance calcs
+		arma::mat result = calc_nt_by_nt_matrix(Sigma_ss, sigma_s, n_training, geno_s_test);
+		
 		
 		// summary 
 		for(int i = 0; i < num_l_block; i++) {
@@ -342,11 +338,8 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int>
 		// estimation
 		
 		arma::field <arma::mat> out = estBlock(n_ref, n_obs, sigma_s, geno_s, z_s, beta_s);
-	  if (training){
-	    result(0) = out(0);
-	  } else {
-	    result(3) = geno_s;
-	  }
+
+	  
 		eff_l_block[0].snp = eff_pseudo.snp;
 		eff_l_block[0].a1 = eff_pseudo.a1;
 		eff_l_block[0].maf = eff_pseudo.maf;
@@ -401,8 +394,10 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int>
 	// estimation
 	vec beta_s = zeros<vec>(num_s_block); 
 	arma::field <arma::mat> out = estBlock(n_ref, n_obs, sigma_s, geno_s, z_s, beta_s);
-	arma::field <arma::mat> result(5);
-
+	// need to partition into training and test sets! Do this BEFORE the estimation step!
+  //variance calcs
+  arma::mat result = calc_nt_by_nt_matrix(Sigma_ss, sigma_s, n_training, geno_s_test);
+	
 	// output small effect
 	for(int i = 0; i < num_s_block; i++) {
 		EFF eff_s; 
@@ -415,7 +410,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int>
 		eff_s.beta = beta_s(i); 
 		eff_s_block[i] = eff_s;
 	}
-	return result; 
+	return result.diag(); 
 }
 
 // solve the equation Ax=b, x is a variables
