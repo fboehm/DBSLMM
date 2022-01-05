@@ -62,7 +62,7 @@ arma::mat calc_nt_by_nt_matrix(arma::mat Sigma_ss,
 //' @param n sample size
 //' @return an Armadillo matrix, the inverse of A
 
-arma::mat calc_A_inverse(Sigma_ss, 
+arma::mat calc_A_inverse(arma::mat Sigma_ss, 
                          double sigma2_s, 
                          unsigned int n)
 {
