@@ -141,8 +141,8 @@ int  DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<
 			omp_set_num_threads(thread);
 #pragma omp parallel for schedule(dynamic)
 			for (int b = 0; b < B; b++){
-			  arma::field< arma::mat > out = calcBlock(n_ref, n_obs, sigma_s, idv, bed_str, info_s_Block[b], info_l_Block[b],
-						  num_s_vec[b], num_l_vec[b], eff_s_Block[b], eff_l_Block[b], training);
+			  arma::vec out = calcBlock(n_ref, n_obs, sigma_s, idv, bed_str, info_s_Block[b], info_l_Block[b],
+						  num_s_vec[b], num_l_vec[b], eff_s_Block[b], eff_l_Block[b]);
 			  int index = floor(i / B_MAX) * B_MAX + b;
 
 			}
@@ -235,7 +235,7 @@ int DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s,
 #pragma omp parallel for schedule(dynamic)
 			for (int b = 0; b < B; b++){
 			  arma::vec out = calcBlock(n_ref, n_obs, sigma_s, idv, bed_str, info_s_Block[b],
-						  num_s_vec[b], eff_s_Block[b], training);
+						  num_s_vec[b], eff_s_Block[b]);
 			  //cout <<"index: " << index << endl; 
 			}
 			// eff of small effect SNPs
