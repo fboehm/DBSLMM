@@ -24,6 +24,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <armadillo>
 
+#include "dtpr.hpp"
+#include "dbslmmfit.hpp"
+#include "calc_asymptotic_variance.hpp"
+#include "subset_to_test_and_training.hpp"
 
 
 using namespace std;
