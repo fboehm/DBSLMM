@@ -3,7 +3,6 @@
 #include <algorithm> /* std::sort, std::set_difference */
 #include <fstream> //std::ifstream
 #include <string>
-#include "subset_to_test_and_training.hpp"
 
 
 std::vector<int> fisher_yates_shuffle(std::size_t size, 
