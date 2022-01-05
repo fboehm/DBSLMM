@@ -40,9 +40,18 @@ public:
 			vector <INFO> info_s, int thread, vector <EFF> &eff_s,
 			arma::Col <arma::uword> training_indices, unsigned int n_total);
 	// estimate large and small effect for each block
-	arma::vec calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, string bed_str, 
-				  vector <INFO> info_s_block_full, vector <INFO> info_l_block_full, int num_s_block, int num_l_block, 
-				  vector <EFF> &eff_s_block, vector <EFF> &eff_l_block, arma::Col <arma::uword> training_indices);
+	arma::vec calcBlock(int n_ref, 
+                     int n_obs, 
+                     double sigma_s, 
+                     vector<int> idv, 
+                     string bed_str, 
+                     vector <INFO> info_s_block_full, 
+                     vector <INFO> info_l_block_full, 
+                     int num_s_block, 
+                     int num_l_block, 
+                     vector <EFF> &eff_s_block, 
+                     vector <EFF> &eff_l_block, 
+                     arma::Col <arma::uword> training_indices);
 	// estimate only small effect for each block
 	arma::vec calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, string bed_str, 
 				  vector <INFO> info_s_block_full, int num_s_block, 
