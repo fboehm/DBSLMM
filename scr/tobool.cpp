@@ -3,7 +3,7 @@
 #include <iomanip>
 #include <algorithm>
 #include <cctype>
-#include "tobool.h"
+#include "tobool.hpp"
 
 bool to_bool(std::string str) {
   std::transform(str.begin(), str.end(), str.begin(), ::tolower);

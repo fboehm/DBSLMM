@@ -1,5 +1,6 @@
 
 #include <armadillo>
+#include "calc_asymptotic_variance.hpp"
 
 using namespace std;
 using namespace arma;
@@ -102,9 +103,9 @@ arma::mat calc_var_betal(arma::mat Sigma_ll,
 //' @param var_bl variance of beta hat l
 //' @return covariance matrix
 
-arma::mat calc_var_betas(arma::field <arma::mat> Sigma_ss, 
-                         arma::field <arma::mat> Sigma_sl,
-                         arma::field <arma::mat> A_inverse,
+arma::mat calc_var_betas(arma::mat Sigma_ss, 
+                         arma::mat <arma::mat> Sigma_sl,
+                         arma::mat <arma::mat> A_inverse,
                          double sigma2_s,
                          unsigned int n,
                          arma::mat var_bl){
@@ -115,9 +116,9 @@ arma::mat calc_var_betas(arma::field <arma::mat> Sigma_ss,
 }
 
 // for LD blocks without large effects:
-arma::mat calc_var_betas(arma::field <arma::mat> Sigma_ss, 
+arma::mat calc_var_betas(arma::mat Sigma_ss, 
                          
-                         arma::field <arma::mat> A_inverse,
+                         arma::mat A_inverse,
                          double sigma2_s,
                          unsigned int n
                          ){

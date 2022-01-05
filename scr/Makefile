@@ -27,8 +27,6 @@ dbslmmfit.o: dbslmmfit.cpp dbslmmfit.hpp
 dtpr.o: dtpr.cpp dtpr.hpp 
 	$(CXX) -c dtpr.cpp $(CXXFLAG)
 
-tobool.o: tobool.cpp tobool.hpp
-	$(CXX) -c tobool.cpp $(CXXFLAG)
 
 clean:
 	rm -f *.o  dbslmm valid
