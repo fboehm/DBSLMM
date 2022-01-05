@@ -45,6 +45,7 @@ using namespace arma;
 //' @param thread number of threads to use
 //' @param eff_s small effects SNP effects object
 //' @param eff_l large effects SNP effects object
+//' @param training_indices an armadillo column vector containing the indices for subjects that belong to the training set. 
 //' @return zero is returned
 // estimate large and small effect
 int  DBSLMMFIT::est(int n_ref, 
@@ -57,7 +58,8 @@ int  DBSLMMFIT::est(int n_ref,
 				            vector <INFO> info_l, 
 				            int thread, 
                     vector <EFF> &eff_s, 
-                    vector <EFF> &eff_l){
+                    vector <EFF> &eff_l,
+                    arma::Col <arma::uword> training_indices){
 	
 	// get the maximum number of each block
 	int count_s = 0, count_l = 0;
@@ -195,7 +197,8 @@ int DBSLMMFIT::est(int n_ref,
                    string bed_str,
 				            vector <INFO> info_s, 
 				            int thread, 
-				            vector <EFF> &eff_s){
+				            vector <EFF> &eff_s,
+				            arma::Col <arma::uword> training_indices){
 	
 	// get the maximum number of each block
 	int count_s = 0;
@@ -397,7 +400,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	  arma::mat geno_s_test= subset(geno_s, test_indices);
 	  // estimation
 		
-		arma::field <arma::mat> out = estBlock(n_ref, n_obs, sigma_s, geno_s, z_s, beta_s);
+		arma::field <arma::mat> out = estBlock(n_ref, n_obs, sigma_s, geno_s_training, z_s, beta_s);
 
 	  
 		eff_l_block[0].snp = eff_pseudo.snp;
@@ -586,7 +589,12 @@ arma::field< arma::mat > DBSLMMFIT::estBlock(int n_ref, int n_obs, double sigma_
 	return result; 
 }
 
-arma::field <arma::mat> DBSLMMFIT::estBlock(int n_ref, int n_obs, double sigma_s, mat geno_s, vec z_s, vec &beta_s) {
+arma::field <arma::mat> DBSLMMFIT::estBlock(int n_ref, 
+                                            int n_obs, 
+                                            double sigma_s, 
+                                            mat geno_s, 
+                                            vec z_s, 
+                                            vec &beta_s) {
 
 	// LD matrix 
 	// mat SIGMA_ss = geno_s.t() * geno_s; 

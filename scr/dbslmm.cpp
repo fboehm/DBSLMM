@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "dtpr.hpp"
 #include "dbslmmfit.hpp"
 #include "dbslmm.hpp"
+#include "subset_to_test_and_training.hpp"
 
 using namespace std;
 
@@ -277,6 +278,9 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 		}
 		clearVector(summ_l);
 	}
+	//read file containing training indices
+	arma::Col <arma::uword> training_indices = read_indices_file("training_indices.txt");
+	
 	// output stream
 	string eff_str = cPar.eff + ".txt"; 
 	ofstream effFout(eff_str.c_str());
@@ -299,7 +303,8 @@ void DBSLMM::BatchRun(PARAM &cPar) {
             info_l, 
             cPar.t, 
             eff_s, 
-            eff_l); 
+            eff_l, 
+            training_indices); 
 		double time_fitting = cIO.getWalltime() - t_fitting;
 		cout << "Fitting time: " << time_fitting << " seconds." << endl;
 
@@ -326,7 +331,7 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 		double t_fitting = cIO.getWalltime();
 		double sigma_s = cPar.h / (double)cPar.nsnp;
 		cout << "Fitting model..." << endl;
-		cDBSF.est(n_ref, cPar.n, sigma_s, num_block_s, idv, bed_str, info_s, cPar.t, eff_s); 
+		cDBSF.est(n_ref, cPar.n, sigma_s, num_block_s, idv, bed_str, info_s, cPar.t, eff_s, training_indices); 
 		double time_fitting = cIO.getWalltime() - t_fitting;
 		cout << "Fitting time: " << time_fitting << " seconds." << endl;
 

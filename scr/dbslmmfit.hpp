@@ -33,10 +33,12 @@ public:
 	// estimate large and small effect
 	int est(int n_ref, int n_obs, double sigma_s, int num_block, vector<int> idv, string bed_str,
 			vector <INFO> info_s, vector <INFO> info_l, int thread, 
-			vector <EFF> &eff_s, vector <EFF> &eff_l);
+			vector <EFF> &eff_s, vector <EFF> &eff_l,
+			arma::Col <arma::uword> training_indices);
 	// estimate only small effect
 	int est(int n_ref, int n_obs, double sigma_s, int num_block, vector<int> idv, string bed_str,
-			vector <INFO> info_s, int thread, vector <EFF> &eff_s);
+			vector <INFO> info_s, int thread, vector <EFF> &eff_s,
+			arma::Col <arma::uword> training_indices);
 	// estimate large and small effect for each block
 	arma::vec calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, string bed_str, 
 				  vector <INFO> info_s_block_full, vector <INFO> info_l_block_full, int num_s_block, int num_l_block, 
