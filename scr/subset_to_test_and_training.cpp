@@ -144,7 +144,7 @@ arma::Col <arma::uword> read_indices_file(const string filepath){
   }*/ 
   string line;
   std::vector<string> result;
-  while(string::getline(infile, line)) 
+  while(getline(infile, line)) 
   { 
     result.push_back(line);
   } 
