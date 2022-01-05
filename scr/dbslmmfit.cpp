@@ -166,7 +166,7 @@ int  DBSLMMFIT::est(int n_ref,
                                 num_s_vec[b], 
                                 num_l_vec[b], 
                                 eff_s_Block[b], 
-                                eff_l_Block[b]);
+                                eff_l_Block[b], training_indices);
 			 // int index = floor(i / B_MAX) * B_MAX + b;
 
 			}
@@ -276,7 +276,7 @@ int DBSLMMFIT::est(int n_ref,
                                 bed_str, 
                                 info_s_Block[b],
 						                    num_s_vec[b], 
-                                eff_s_Block[b]);
+                                eff_s_Block[b], training_indices);
 			  //cout <<"index: " << index << endl; 
 			}
 			// eff of small effect SNPs
