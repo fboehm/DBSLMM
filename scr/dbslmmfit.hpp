@@ -31,18 +31,18 @@ using namespace arma;
 class DBSLMMFIT {
 public:
 	// estimate large and small effect
-	arma::field <arma::mat> est(int n_ref, int n_obs, double sigma_s, int num_block, vector<int> idv, string bed_str,
+	int est(int n_ref, int n_obs, double sigma_s, int num_block, vector<int> idv, string bed_str,
 			vector <INFO> info_s, vector <INFO> info_l, int thread, 
 			vector <EFF> &eff_s, vector <EFF> &eff_l);
 	// estimate only small effect
-	arma::field <arma::mat> est(int n_ref, int n_obs, double sigma_s, int num_block, vector<int> idv, string bed_str,
+	int est(int n_ref, int n_obs, double sigma_s, int num_block, vector<int> idv, string bed_str,
 			vector <INFO> info_s, int thread, vector <EFF> &eff_s);
 	// estimate large and small effect for each block
-	arma::field <arma::mat> calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, string bed_str, 
+	arma::vec calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, string bed_str, 
 				  vector <INFO> info_s_block_full, vector <INFO> info_l_block_full, int num_s_block, int num_l_block, 
 				  vector <EFF> &eff_s_block, vector <EFF> &eff_l_block);
 	// estimate only small effect for each block
-	arma::field <arma::mat> calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, string bed_str, 
+	arma::vec calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, string bed_str, 
 				  vector <INFO> info_s_block_full, int num_s_block, 
 				  vector <EFF> &eff_s_block);
 	// solve x=Ab
