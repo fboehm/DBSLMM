@@ -111,6 +111,10 @@ int  DBSLMMFIT::est(int n_ref,
 	vector < vector <INFO> > info_s_Block(B_MAX, vector <INFO> ((int)len_s)), info_l_Block(B_MAX, vector <INFO> ((int)len_l));
 	vector < vector <EFF> > eff_s_Block(B_MAX, vector <EFF> ((int)len_s)), eff_l_Block(B_MAX, vector <EFF> ((int)len_l));
 	vector <int> num_s_vec, num_l_vec;
+	unsigned int n_training = training_indices.n_elem;
+	unsigned int n_test = n_total - n_training;
+	arma::vec diags(n_test); //specify length of diags
+	diags.zeros(); //set all elements to zero via armadillo function
 	
 
 	for (int i = 0; i < num_block; ++i) {
@@ -150,10 +154,6 @@ int  DBSLMMFIT::est(int n_ref,
 
 		B++;
 		if (B == B_MAX || i + 1 == num_block) { // process the block of SNPs using multi-threading
-			unsigned int n_training = training_indices.n_elem;
-			unsigned int n_test = n_total - n_training;
-			arma::vec diags(n_test); //specify length of diags
-			diags.zeros; //set all elements to zero via armadillo function
 			omp_set_num_threads(thread);
 #pragma omp parallel for schedule(dynamic)
 			for (int b = 0; b < B; b++){
@@ -245,7 +245,11 @@ int DBSLMMFIT::est(int n_ref,
 	vector < vector <INFO> > info_s_Block(B_MAX, vector <INFO> ((int)len_s));
 	vector < vector <EFF> > eff_s_Block(B_MAX, vector <EFF> ((int)len_s));
 	vector <int> num_s_vec;
-  
+	unsigned int n_training = training_indices.n_elem;
+	unsigned int n_test = n_total - n_training;
+	arma::vec diags(n_test); //specify length of diags
+	diags.zeros; //set all elements to zero via armadillo function
+	
 	for (int i = 0; i < num_block; ++i) {
 		// small effect SNP information
 		vector <INFO> info_s_block; 
@@ -264,10 +268,6 @@ int DBSLMMFIT::est(int n_ref,
 		
 		B++;
 		if (B == B_MAX || i + 1 == num_block) { // process the block of SNPs using multi-threading
-		  unsigned int n_training = training_indices.n_elem;
-		  unsigned int n_test = n_total - n_training;
-		  arma::vec diags(n_test); //specify length of diags
-		  diags.zeros; //set all elements to zero via armadillo function
 		  omp_set_num_threads(thread);
 #pragma omp parallel for schedule(dynamic)
 			for (int b = 0; b < B; b++){
@@ -292,7 +292,7 @@ int DBSLMMFIT::est(int n_ref,
 		}
 	}
 	//write the out object to a file
-	out.save("variance.txt", arma_ascii);
+	diags.save("variance.txt", arma_ascii);
 	return 0;
 }
 
@@ -307,7 +307,8 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 						                    int num_s_block, 
 						                    int num_l_block, 
 						                    vector <EFF> &eff_s_block, 
-						                    vector <EFF> &eff_l_block){
+						                    vector <EFF> &eff_l_block,
+						                    arma::Col <arma::uword> training_indices){
 	SNPPROC cSP;
 	IO cIO; 
 	ifstream bed_in(bed_str.c_str(), ios::binary);
@@ -342,7 +343,6 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	eff_pseudo.beta = 0.0; 
 	
 	vec beta_s = zeros<vec>(num_s_block); 
-	arma::field <arma::mat> result(5);
 	// INFO large effect SNPs 
 	if (num_l_block != 0){
 		// vector <INFO*> info_l_block(num_l_block);
@@ -440,7 +440,8 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
                                string bed_str, 
                                vector <INFO> info_s_block_full, 
                                int num_s_block, 
-                    						vector <EFF> &eff_s_block){
+                    						vector <EFF> &eff_s_block,
+                    						arma::Col <arma::uword> training_indices){
 	SNPPROC cSP;
 	IO cIO; 
 	ifstream bed_in(bed_str.c_str(), ios::binary);
