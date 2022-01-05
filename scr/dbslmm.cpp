@@ -312,7 +312,7 @@ void DBSLMM::BatchRun(PARAM &cPar) {
             cPar.t, 
             eff_s, 
             eff_l, 
-            training_indices, n_total); 
+            training_indices, cPar.n_total); 
 		double time_fitting = cIO.getWalltime() - t_fitting;
 		cout << "Fitting time: " << time_fitting << " seconds." << endl;
 
@@ -348,7 +348,7 @@ void DBSLMM::BatchRun(PARAM &cPar) {
             info_s, 
             cPar.t, 
             eff_s, 
-            training_indices, n_total); 
+            training_indices, cPar.n_total); 
 		double time_fitting = cIO.getWalltime() - t_fitting;
 		cout << "Fitting time: " << time_fitting << " seconds." << endl;
 
