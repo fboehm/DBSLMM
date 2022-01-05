@@ -39,7 +39,7 @@ public:
 	double h;
 	int t;
 	string eff;
-	bool training;
+	unsigned int n_total;
 };
 
 class DBSLMM {

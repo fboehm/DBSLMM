@@ -149,7 +149,15 @@ void DBSLMM::Assign(int argc, char ** argv, PARAM &cPar) {
 			str.assign(argv[i]);
 			cPar.eff = str;
 		}
-
+		else if (strcmp(argv[i], "--EFF") == 0 || strcmp(argv[i], "-eff") == 0) {
+		  
+		  if (argv[i + 1] == NULL || argv[i + 1][0] == '-') { continue; }
+		  ++i;
+		  str.clear();
+		  str.assign(argv[i]);
+		  cPar.n_total = atoi(str.c_str());//total sample size (training plus test)
+		}
+		
 	}
 	return;
 }
@@ -304,7 +312,7 @@ void DBSLMM::BatchRun(PARAM &cPar) {
             cPar.t, 
             eff_s, 
             eff_l, 
-            training_indices); 
+            training_indices, n_total); 
 		double time_fitting = cIO.getWalltime() - t_fitting;
 		cout << "Fitting time: " << time_fitting << " seconds." << endl;
 
@@ -331,7 +339,16 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 		double t_fitting = cIO.getWalltime();
 		double sigma_s = cPar.h / (double)cPar.nsnp;
 		cout << "Fitting model..." << endl;
-		cDBSF.est(n_ref, cPar.n, sigma_s, num_block_s, idv, bed_str, info_s, cPar.t, eff_s, training_indices); 
+		cDBSF.est(n_ref, 
+            cPar.n, 
+            sigma_s, 
+            num_block_s, 
+            idv, 
+            bed_str, 
+            info_s, 
+            cPar.t, 
+            eff_s, 
+            training_indices, n_total); 
 		double time_fitting = cIO.getWalltime() - t_fitting;
 		cout << "Fitting time: " << time_fitting << " seconds." << endl;
 

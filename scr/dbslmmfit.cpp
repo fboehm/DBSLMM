@@ -59,7 +59,8 @@ int  DBSLMMFIT::est(int n_ref,
 				            int thread, 
                     vector <EFF> &eff_s, 
                     vector <EFF> &eff_l,
-                    arma::Col <arma::uword> training_indices){
+                    arma::Col <arma::uword> training_indices,
+                    unsigned int n_total){
 	
 	// get the maximum number of each block
 	int count_s = 0, count_l = 0;
@@ -110,7 +111,7 @@ int  DBSLMMFIT::est(int n_ref,
 	vector < vector <INFO> > info_s_Block(B_MAX, vector <INFO> ((int)len_s)), info_l_Block(B_MAX, vector <INFO> ((int)len_l));
 	vector < vector <EFF> > eff_s_Block(B_MAX, vector <EFF> ((int)len_s)), eff_l_Block(B_MAX, vector <EFF> ((int)len_l));
 	vector <int> num_s_vec, num_l_vec;
-	arma::vec out;
+	
 
 	for (int i = 0; i < num_block; ++i) {
 		// small effect SNP information
@@ -149,10 +150,14 @@ int  DBSLMMFIT::est(int n_ref,
 
 		B++;
 		if (B == B_MAX || i + 1 == num_block) { // process the block of SNPs using multi-threading
+			unsigned int n_training = training_indices.n_elem;
+			unsigned int n_test = n_total - n_training;
+			arma::vec diags(n_test); //specify length of diags
+			diags.zeros; //set all elements to zero via armadillo function
 			omp_set_num_threads(thread);
 #pragma omp parallel for schedule(dynamic)
 			for (int b = 0; b < B; b++){
-			  out += calcBlock(n_ref, 
+			  diags += calcBlock(n_ref, 
                                 n_obs, 
                                 sigma_s, 
                                 idv, 
@@ -184,7 +189,7 @@ int  DBSLMMFIT::est(int n_ref,
 		}
 	}
 	//write the out object to a file
-	out.save("variance.txt", arma_ascii);
+	diags.save("variance.txt", arma_ascii);
 	return 0;
 }
 
@@ -198,7 +203,8 @@ int DBSLMMFIT::est(int n_ref,
 				            vector <INFO> info_s, 
 				            int thread, 
 				            vector <EFF> &eff_s,
-				            arma::Col <arma::uword> training_indices){
+				            arma::Col <arma::uword> training_indices, 
+				            unsigned int n_total){
 	
 	// get the maximum number of each block
 	int count_s = 0;
@@ -258,11 +264,14 @@ int DBSLMMFIT::est(int n_ref,
 		
 		B++;
 		if (B == B_MAX || i + 1 == num_block) { // process the block of SNPs using multi-threading
-			
-			omp_set_num_threads(thread);
+		  unsigned int n_training = training_indices.n_elem;
+		  unsigned int n_test = n_total - n_training;
+		  arma::vec diags(n_test); //specify length of diags
+		  diags.zeros; //set all elements to zero via armadillo function
+		  omp_set_num_threads(thread);
 #pragma omp parallel for schedule(dynamic)
 			for (int b = 0; b < B; b++){
-			  arma::vec out += calcBlock(n_ref, 
+			  diags += calcBlock(n_ref, 
                                 n_obs, 
                                 sigma_s, 
                                 idv, 
