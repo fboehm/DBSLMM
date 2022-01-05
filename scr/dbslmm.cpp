@@ -287,7 +287,7 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 		clearVector(summ_l);
 	}
 	//read file containing training indices
-	arma::Col <arma::uword> training_indices = read_indices_file("training_indices.txt");
+	arma::Col <uint> training_indices = read_indices_file("training_indices.txt");
 	
 	// output stream
 	string eff_str = cPar.eff + ".txt"; 
