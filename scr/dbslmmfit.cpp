@@ -113,8 +113,7 @@ int  DBSLMMFIT::est(int n_ref,
 	vector <int> num_s_vec, num_l_vec;
 	unsigned int n_training = training_indices.n_elem;
 	unsigned int n_test = n_total - n_training;
-	arma::vec diags(n_test); //specify length of diags
-	diags.zeros(); //set all elements to zero via armadillo function
+	arma::vec diags = zeros(n_test); //specify length of diags
 	
 
 	for (int i = 0; i < num_block; ++i) {
@@ -247,9 +246,8 @@ int DBSLMMFIT::est(int n_ref,
 	vector <int> num_s_vec;
 	unsigned int n_training = training_indices.n_elem;
 	unsigned int n_test = n_total - n_training;
-	arma::vec diags(n_test); //specify length of diags
-	diags.zeros; //set all elements to zero via armadillo function
-	
+	arma::vec diags = zeros(n_test); //specify length of diags & set all to zeros
+
 	for (int i = 0; i < num_block; ++i) {
 		// small effect SNP information
 		vector <INFO> info_s_block; 
