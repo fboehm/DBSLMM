@@ -6,9 +6,6 @@
 
 
 
-arma::Col<uint> get_test_indices(int n_obs, 
-                                        double test_proportion, 
-                                        unsigned int seed);
 
 arma::mat subset(arma::mat matrix, arma::Col<uint> indices);
 

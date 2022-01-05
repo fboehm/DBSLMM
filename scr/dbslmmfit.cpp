@@ -59,7 +59,7 @@ int  DBSLMMFIT::est(int n_ref,
 				            int thread, 
                     vector <EFF> &eff_s, 
                     vector <EFF> &eff_l,
-                    arma::Col <arma::uword> training_indices,
+                    arma::Col <uint> training_indices,
                     unsigned int n_total){
 	
 	// get the maximum number of each block
@@ -202,7 +202,7 @@ int DBSLMMFIT::est(int n_ref,
 				            vector <INFO> info_s, 
 				            int thread, 
 				            vector <EFF> &eff_s,
-				            arma::Col <arma::uword> training_indices, 
+				            arma::Col <uint> training_indices, 
 				            unsigned int n_total){
 	
 	// get the maximum number of each block
@@ -306,7 +306,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 						                    int num_l_block, 
 						                    vector <EFF> &eff_s_block, 
 						                    vector <EFF> &eff_l_block,
-						                    arma::Col <arma::uword> training_indices){
+						                    arma::Col <uint> training_indices){
 	SNPPROC cSP;
 	IO cIO; 
 	ifstream bed_in(bed_str.c_str(), ios::binary);
@@ -403,7 +403,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	}
 	else{
 	  arma::mat geno_s_training = subset(geno_s, training_indices);
-	  arma::Col <arma::uword> test_indices = get_complementary_indices(training_indices, geno_s.n_rows);
+	  arma::Col <uint> test_indices = get_complementary_indices(training_indices, geno_s.n_rows);
 	  arma::mat geno_s_test= subset(geno_s, test_indices);
 	  unsigned int n_training = geno_s_training.n_rows;
 	  // estimation
@@ -444,7 +444,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
                                vector <INFO> info_s_block_full, 
                                int num_s_block, 
                     						vector <EFF> &eff_s_block,
-                    						arma::Col <arma::uword> training_indices){
+                    						arma::Col <uint> training_indices){
 	SNPPROC cSP;
 	IO cIO; 
 	ifstream bed_in(bed_str.c_str(), ios::binary);
@@ -476,7 +476,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	vec beta_s = zeros<vec>(num_s_block); 
 	// partition subjects into training and test sets
 	arma::mat geno_s_training = subset(geno_s, training_indices);
-	arma::Col <arma::uword> test_indices = get_complementary_indices(training_indices, geno_s.n_rows);
+	arma::Col <uint> test_indices = get_complementary_indices(training_indices, geno_s.n_rows);
 	arma::mat geno_s_test= subset(geno_s, test_indices);
 	//call estBlock on training data
 	arma::field <arma::mat> out = estBlock(n_ref, n_obs, sigma_s, geno_s_training, z_s, beta_s);
