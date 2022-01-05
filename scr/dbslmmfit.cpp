@@ -26,6 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dtpr.hpp"
 #include "dbslmmfit.hpp"
+#include "calc_asymptotic_variance.hpp"
 
 using namespace std;
 using namespace arma;
@@ -98,8 +99,7 @@ int  DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<
 	vector < vector <INFO> > info_s_Block(B_MAX, vector <INFO> ((int)len_s)), info_l_Block(B_MAX, vector <INFO> ((int)len_l));
 	vector < vector <EFF> > eff_s_Block(B_MAX, vector <EFF> ((int)len_s)), eff_l_Block(B_MAX, vector <EFF> ((int)len_l));
 	vector <int> num_s_vec, num_l_vec;
-	arma::field <arma::mat> result(num_block, 5);
-	
+
 	for (int i = 0; i < num_block; ++i) {
 		// small effect SNP information
 		vector <INFO> info_s_block; 
@@ -141,9 +141,18 @@ int  DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<
 			omp_set_num_threads(thread);
 #pragma omp parallel for schedule(dynamic)
 			for (int b = 0; b < B; b++){
-			  arma::vec out = calcBlock(n_ref, n_obs, sigma_s, idv, bed_str, info_s_Block[b], info_l_Block[b],
-						  num_s_vec[b], num_l_vec[b], eff_s_Block[b], eff_l_Block[b]);
-			  int index = floor(i / B_MAX) * B_MAX + b;
+			  arma::vec out += calcBlock(n_ref, 
+                                n_obs, 
+                                sigma_s, 
+                                idv, 
+                                bed_str, 
+                                info_s_Block[b], 
+                                info_l_Block[b],
+                                num_s_vec[b], 
+                                num_l_vec[b], 
+                                eff_s_Block[b], 
+                                eff_l_Block[b]);
+			 // int index = floor(i / B_MAX) * B_MAX + b;
 
 			}
 			// eff of small effect SNPs
@@ -163,6 +172,8 @@ int  DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<
 			num_s_vec.clear();
 		}
 	}
+	//write the out object to a file
+	out.save("variance.txt", arma_ascii);
 	return 0;
 }
 
@@ -234,7 +245,7 @@ int DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s,
 			omp_set_num_threads(thread);
 #pragma omp parallel for schedule(dynamic)
 			for (int b = 0; b < B; b++){
-			  arma::vec out = calcBlock(n_ref, n_obs, sigma_s, idv, bed_str, info_s_Block[b],
+			  arma::vec out += calcBlock(n_ref, n_obs, sigma_s, idv, bed_str, info_s_Block[b],
 						  num_s_vec[b], eff_s_Block[b]);
 			  //cout <<"index: " << index << endl; 
 			}
@@ -248,6 +259,8 @@ int DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s,
 			num_s_vec.clear();
 		}
 	}
+	//write the out object to a file
+	out.save("variance.txt", arma_ascii);
 	return 0;
 }
 
@@ -316,10 +329,13 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int>
 		}
 		// estimation
 		vec beta_l = zeros<vec>(num_l_block); 
-		arma::field <arma::mat> out = estBlock(n_ref, n_obs, sigma_s, geno_s, geno_l, z_s, z_l, beta_s, beta_l);
+		arma::field <arma::mat> out = estBlock(n_ref, n_obs, 
+                                         sigma_s, geno_s, geno_l, 
+                                         z_s, z_l, beta_s, beta_l);
 		// need to partition into training and test sets! Do this BEFORE the estimation step!
 		//variance calcs
-		arma::mat result = calc_nt_by_nt_matrix(Sigma_ss, sigma_s, n_training, geno_s_test);
+		arma::mat result = calc_nt_by_nt_matrix(out(0), //Sigma_ss 
+                                          sigma_s, n_training, geno_s_test);
 		
 		
 		// summary 
