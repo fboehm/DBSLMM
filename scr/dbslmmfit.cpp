@@ -370,7 +370,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 		arma::mat geno_s_test= subset(geno_s, test_indices);
 		arma::mat geno_l_training = subset(geno_l, training_indices);
 		arma::mat geno_l_test= subset(geno_l, test_indices);
-		
+		unsigned int n_training = geno_s_training.n_rows;
 		
 		// estimation
 		vec beta_l = zeros<vec>(num_l_block); 
