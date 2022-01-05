@@ -21,6 +21,6 @@ arma::Col<arma::uword> get_complementary_indices(arma::Col<arma::uword> indices,
 
 arma::Col<arma::uword> convert_string_to_Col(std::vector<std::string> string);
 
-arma::Col <arma::uword> read_indices_file(const string filepath);
+arma::Col <arma::uword> read_indices_file(const std::string filepath);
 
 
