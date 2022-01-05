@@ -108,6 +108,7 @@ int  DBSLMMFIT::est(int n_ref,
 	vector < vector <INFO> > info_s_Block(B_MAX, vector <INFO> ((int)len_s)), info_l_Block(B_MAX, vector <INFO> ((int)len_l));
 	vector < vector <EFF> > eff_s_Block(B_MAX, vector <EFF> ((int)len_s)), eff_l_Block(B_MAX, vector <EFF> ((int)len_l));
 	vector <int> num_s_vec, num_l_vec;
+	arma::vec out(n_test);
 
 	for (int i = 0; i < num_block; ++i) {
 		// small effect SNP information
@@ -119,7 +120,7 @@ int  DBSLMMFIT::est(int n_ref,
 			}else{
 				break;
 			}
-		}
+		} //end loop for populating info_s_block
 		for (size_t k = 0; k < info_s_block.size(); k++)
 			// info_s_Block[B][k] = &info_s_block[k]; 
 			info_s_Block[B][k] = info_s_block[k]; 
@@ -146,11 +147,10 @@ int  DBSLMMFIT::est(int n_ref,
 
 		B++;
 		if (B == B_MAX || i + 1 == num_block) { // process the block of SNPs using multi-threading
-			
 			omp_set_num_threads(thread);
 #pragma omp parallel for schedule(dynamic)
 			for (int b = 0; b < B; b++){
-			  arma::vec out += calcBlock(n_ref, 
+			  out += calcBlock(n_ref, 
                                 n_obs, 
                                 sigma_s, 
                                 idv, 
@@ -353,17 +353,28 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 			cIO.readSNPIm(info_l_block[i].pos, n_ref, idv, bed_in, geno, maf);
 			cSP.nomalizeVec(geno);
 			geno_l.col(i) = geno;
-		}
+		}//end populating of geno_l
+		//partition subjects - for geno_s and geno_l - into training and test
+		arma::mat geno_s_training = subset(geno_s, training_indices);
+		arma::Col <arma::uword> test_indices = get_complementary_indices(training_indices, geno_s.n_rows);
+		arma::mat geno_s_test= subset(geno_s, test_indices);
+		arma::mat geno_l_training = subset(geno_l, training_indices);
+		arma::mat geno_l_test= subset(geno_l, test_indices);
+		
+		
 		// estimation
 		vec beta_l = zeros<vec>(num_l_block); 
 		arma::field <arma::mat> out = estBlock(n_ref, n_obs, 
-                                         sigma_s, geno_s, geno_l, 
+                                         sigma_s, geno_s_training, geno_l_training, 
                                          z_s, z_l, beta_s, beta_l);
 		// need to partition into training and test sets! Do this BEFORE the estimation step!
 		//variance calcs
 		arma::mat result = calc_nt_by_nt_matrix(out(0), //Sigma_ss 
+                                          arma::trans(out(1)), //Sigma_ls - need transpose because estBlock outputs Sigma_sl
+                                          out(2), //Sigma_ll
                                           sigma_s, 
                                           n_training, 
+                                          geno_l_test, 
                                           geno_s_test);
 		
 		
@@ -381,7 +392,10 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 		}
 	}
 	else{
-		// estimation
+	  arma::mat geno_s_training = subset(geno_s, training_indices);
+	  arma::Col <arma::uword> test_indices = get_complementary_indices(training_indices, geno_s.n_rows);
+	  arma::mat geno_s_test= subset(geno_s, test_indices);
+	  // estimation
 		
 		arma::field <arma::mat> out = estBlock(n_ref, n_obs, sigma_s, geno_s, z_s, beta_s);
 
@@ -446,13 +460,13 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	vec beta_s = zeros<vec>(num_s_block); 
 	// partition subjects into training and test sets
 	arma::mat geno_s_training = subset(geno_s, training_indices);
-	arma::Col <arma::uword> test_indices = get_complementary_indices(training_indices, geno_s.n_rows());
+	arma::Col <arma::uword> test_indices = get_complementary_indices(training_indices, geno_s.n_rows);
 	arma::mat geno_s_test= subset(geno_s, test_indices);
 	//call estBlock on training data
 	arma::field <arma::mat> out = estBlock(n_ref, n_obs, sigma_s, geno_s_training, z_s, beta_s);
 	// need to partition into training and test sets! Do this BEFORE the estimation step, ie, before estBlock call!
   //variance calcs
-  arma::mat result = calc_nt_by_nt_matrix(out(0), sigma_s, geno_s_training.n_rows(), geno_s_test);
+  arma::mat result = calc_nt_by_nt_matrix(out(0), sigma_s, geno_s_training.n_rows, geno_s_test);
 	
 	// output small effect
 	for(int i = 0; i < num_s_block; i++) {
