@@ -103,7 +103,7 @@ std::vector<int> make_integer_vector(int start, int end){
 
 arma::Col<arma::uword> get_complementary_indices(arma::Col<arma::uword> indices, int sample_size){
   //convert to std::vector
-  std::vector<int> test_std = arma::conv_to<std::vector<int> >::from(test_indices);
+  std::vector<int> test_std = arma::conv_to<std::vector<int> >::from(indices);
   std::sort(test_std.begin(), test_std.end()); //essentially overwrites test_std with the sorted vector, smallest to largest
   std::vector<int> all_indices = make_integer_vector(0, sample_size - 1);
   std::sort(all_indices.begin(), all_indices.end());
@@ -137,11 +137,11 @@ arma::Col<arma::uword> convert_string_to_Col(std::vector<std::string> string){
 arma::Col <arma::uword> read_indices_file(const string filepath){
   ifstream infile;
   infile.open(filepath.c_str(), ios::in); //read mode
-  if(infile.fail()) // checks to see if file opened 
+/*  if(infile.fail()) // checks to see if file opened 
   { 
     cout << "error - file didn't open" << endl; 
     return 1; // no point continuing if the file didn't open...
-  } 
+  }*/ 
   string line;
   std::vector<string> result;
   while(string::getline(infile, line)) 

@@ -26,7 +26,6 @@ arma::mat calc_nt_by_nt_matrix(arma::mat Sigma_ll,
   arma::mat Ainv = calc_A_inverse(Sigma_ss, sigma2_s, n_training);
   arma::mat var_bl = calc_var_betal(Sigma_ll, 
                                     Sigma_ls, 
-                                    Sigma_ss, 
                                     Ainv, 
                                     n_training);
   arma::mat var_bs = calc_var_betas(Sigma_ss, 
