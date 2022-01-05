@@ -413,7 +413,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int>
 	arma::field <arma::mat> out = estBlock(n_ref, n_obs, sigma_s, geno_s, z_s, beta_s);
 	// need to partition into training and test sets! Do this BEFORE the estimation step, ie, before estBlock call!
   //variance calcs
-  arma::mat result = calc_nt_by_nt_matrix(Sigma_ss, sigma_s, n_training, geno_s_test);
+  arma::mat result = calc_nt_by_nt_matrix(out(0), sigma_s, n_training, geno_s_test);
 	
 	// output small effect
 	for(int i = 0; i < num_s_block; i++) {
