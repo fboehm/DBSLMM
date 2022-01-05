@@ -134,7 +134,7 @@ arma::Col<arma::uword> convert_string_to_Col(std::vector<std::string> string){
 //' @param filepath file path for the indices file
 //' @references https://www.youtube.com/watch?v=EaHFhms_Shw, https://stackoverflow.com/questions/2706076/new-how-would-i-read-a-file-that-has-3-columns-and-each-column-contains-100-n
 
-arma::Col <arma::uword> read_indices_file(const char* filepath){
+arma::Col <arma::uword> read_indices_file(const char filepath){
   ifstream infile;
   infile.open(filepath, ios::in); //read mode
   if(infile.fail()) // checks to see if file opened 
