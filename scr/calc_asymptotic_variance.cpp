@@ -103,8 +103,8 @@ arma::mat calc_var_betal(arma::mat Sigma_ll,
 //' @return covariance matrix
 
 arma::mat calc_var_betas(arma::mat Sigma_ss, 
-                         arma::mat <arma::mat> Sigma_sl,
-                         arma::mat <arma::mat> A_inverse,
+                         arma::mat Sigma_sl,
+                         arma::mat A_inverse,
                          double sigma2_s,
                          unsigned int n,
                          arma::mat var_bl){
