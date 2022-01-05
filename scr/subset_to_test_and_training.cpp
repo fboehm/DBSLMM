@@ -99,7 +99,7 @@ std::vector<int> make_integer_vector(int start, int end){
 //' 
 //' @param test_indices indices for subjects to be placed into test data set
 //' @param sample_size total combined sample size, training and test together
-//' @return integer vector containing the complement of test_indices to indicate membership in training data set
+//' @return arma::Col integer vector containing the complement of test_indices to indicate membership in training data set
 
 arma::Col<arma::uword> get_training_indices(arma::Col<arma::uword> test_indices, int sample_size){
   //convert to std::vector
