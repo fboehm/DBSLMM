@@ -110,7 +110,7 @@ int  DBSLMMFIT::est(int n_ref,
 	vector < vector <INFO> > info_s_Block(B_MAX, vector <INFO> ((int)len_s)), info_l_Block(B_MAX, vector <INFO> ((int)len_l));
 	vector < vector <EFF> > eff_s_Block(B_MAX, vector <EFF> ((int)len_s)), eff_l_Block(B_MAX, vector <EFF> ((int)len_l));
 	vector <int> num_s_vec, num_l_vec;
-	arma::vec out(n_test);
+	arma::vec out;
 
 	for (int i = 0; i < num_block; ++i) {
 		// small effect SNP information
