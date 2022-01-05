@@ -136,7 +136,7 @@ arma::Col<arma::uword> convert_string_to_Col(std::vector<std::string> string){
 
 arma::Col <arma::uword> read_indices_file(const std::vector<string> filepath){
   ifstream infile;
-  infile.open(filepath, ios::in); //read mode
+  infile.open(filepath.c_str(), ios::in); //read mode
   if(infile.fail()) // checks to see if file opened 
   { 
     cout << "error - file didn't open" << endl; 
