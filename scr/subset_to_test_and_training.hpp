@@ -15,6 +15,6 @@ arma::vec subset(arma::vec vector, arma::Col<arma::uword> indices);
 
 arma::Col<arma::uword> get_training_indices(arma::Col<arma::uword> test_indices, int sample_size);  
 
-
+arma::Col<arma::uword> convert_string_to_Col(std::vector<std::string> string);
 
 

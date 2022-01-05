@@ -1,7 +1,10 @@
 #include <armadillo>
 #include <math.h>       /* floor */
 #include <algorithm> /* std::sort, std::set_difference */
-#include "subset_to_test_and_training.h"
+#include <ifstream>
+#include <string>
+#include "subset_to_test_and_training.hpp"
+
 
 using namespace arma;
 using namespace std;
@@ -116,4 +119,35 @@ arma::Col<arma::uword> get_training_indices(arma::Col<arma::uword> test_indices,
   return result;
 }
 
+//' Convert std::vector <string> to arma::Col<arma::uword>
+//' 
+//' @param string a string vector
+//' @return arma::Col<arma::uword> vector, for use as indices in subsetting armadillo matrices or vectors
 
+arma::Col<arma::uword> convert_string_to_Col(std::vector<std::string> string){
+  arma::Col<arma::uword> result = conv_to< arma::Col<arma::uword> >::from(string);
+  return (result);
+} 
+
+//' Read first - and only - column of a text file containing one integer per line
+//' 
+//' @param filepath file path for the indices file
+//' @references https://www.youtube.com/watch?v=EaHFhms_Shw, https://stackoverflow.com/questions/2706076/new-how-would-i-read-a-file-that-has-3-columns-and-each-column-contains-100-n
+
+std::vector<std::string> read_indices_file(filepath){
+  ifstream infile;
+  infile.open(filepath, ios::in); //read mode
+  if(infile.fail()) // checks to see if file opened 
+  { 
+    cout << "error - file didn't open" << endl; 
+    return 1; // no point continuing if the file didn't open...
+  } 
+  string line;
+  std::vector<string> result;
+  while(string::getline(infile, line)) 
+  { 
+    result.push_back(line);
+  } 
+  infile.close(); 
+  return (result); 
+}
