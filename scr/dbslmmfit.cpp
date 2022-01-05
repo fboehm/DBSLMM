@@ -405,6 +405,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	  arma::mat geno_s_training = subset(geno_s, training_indices);
 	  arma::Col <arma::uword> test_indices = get_complementary_indices(training_indices, geno_s.n_rows);
 	  arma::mat geno_s_test= subset(geno_s, test_indices);
+	  unsigned int n_training = geno_s_training.n_rows;
 	  // estimation
 		
 		arma::field <arma::mat> out = estBlock(n_ref, n_obs, sigma_s, geno_s_training, z_s, beta_s);
