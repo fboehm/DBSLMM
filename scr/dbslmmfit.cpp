@@ -408,8 +408,12 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	  // estimation
 		
 		arma::field <arma::mat> out = estBlock(n_ref, n_obs, sigma_s, geno_s_training, z_s, beta_s);
-
-	  
+		//variance calcs
+		arma::mat result = calc_nt_by_nt_matrix(out(0), //Sigma_ss 
+                                          sigma_s, 
+                                          n_training, 
+                                          geno_s_test);
+		
 		eff_l_block[0].snp = eff_pseudo.snp;
 		eff_l_block[0].a1 = eff_pseudo.a1;
 		eff_l_block[0].maf = eff_pseudo.maf;
