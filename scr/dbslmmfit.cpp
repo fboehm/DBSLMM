@@ -167,7 +167,8 @@ int  DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<
 }
 
 // estimate only small effect
-int DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<int> idv, string bed_str,
+int DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, 
+                   int num_block, vector<int> idv, string bed_str,
 				 vector <INFO> info_s, int thread, 
 				 vector <EFF> &eff_s){
 	
