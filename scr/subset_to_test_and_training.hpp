@@ -17,4 +17,6 @@ arma::Col<arma::uword> get_training_indices(arma::Col<arma::uword> test_indices,
 
 arma::Col<arma::uword> convert_string_to_Col(std::vector<std::string> string);
 
+arma::Col <arma::uword> read_indices_file(filepath);
+
 
