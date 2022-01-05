@@ -339,7 +339,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	eff_pseudo.a1 = "Y"; 
 	eff_pseudo.maf = 0.0; 
 	eff_pseudo.beta = 0.0; 
-	
+	arma::mat result;
 	vec beta_s = zeros<vec>(num_s_block); 
 	// INFO large effect SNPs 
 	if (num_l_block != 0){
@@ -379,7 +379,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
                                          z_s, z_l, beta_s, beta_l);
 		// need to partition into training and test sets! Do this BEFORE the estimation step!
 		//variance calcs
-		arma::mat result = calc_nt_by_nt_matrix(out(0), //Sigma_ss 
+		result = calc_nt_by_nt_matrix(out(0), //Sigma_ss 
                                           arma::trans(out(1)), //Sigma_ls - need transpose because estBlock outputs Sigma_sl
                                           out(2), //Sigma_ll
                                           sigma_s, 
@@ -410,7 +410,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 		
 		arma::field <arma::mat> out = estBlock(n_ref, n_obs, sigma_s, geno_s_training, z_s, beta_s);
 		//variance calcs
-		arma::mat result = calc_nt_by_nt_matrix(out(0), //Sigma_ss 
+		result = calc_nt_by_nt_matrix(out(0), //Sigma_ss 
                                           sigma_s, 
                                           n_training, 
                                           geno_s_test);
