@@ -46,9 +46,17 @@ using namespace arma;
 //' @param eff_l large effects SNP effects object
 //' @return zero is returned
 // estimate large and small effect
-int  DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<int> idv, string bed_str,
-				 vector <INFO> info_s, vector <INFO> info_l, int thread, 
-                 vector <EFF> &eff_s, vector <EFF> &eff_l){
+int  DBSLMMFIT::est(int n_ref, 
+                    int n_obs, 
+                    double sigma_s, 
+                    int num_block, 
+                    vector<int> idv, 
+                    string bed_str,
+				            vector <INFO> info_s, 
+				            vector <INFO> info_l, 
+				            int thread, 
+                    vector <EFF> &eff_s, 
+                    vector <EFF> &eff_l){
 	
 	// get the maximum number of each block
 	int count_s = 0, count_l = 0;
@@ -178,10 +186,15 @@ int  DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<
 }
 
 // estimate only small effect
-int DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, 
-                   int num_block, vector<int> idv, string bed_str,
-				 vector <INFO> info_s, int thread, 
-				 vector <EFF> &eff_s){
+int DBSLMMFIT::est(int n_ref, 
+                   int n_obs, 
+                   double sigma_s, 
+                   int num_block, 
+                   vector<int> idv, 
+                   string bed_str,
+				            vector <INFO> info_s, 
+				            int thread, 
+				            vector <EFF> &eff_s){
 	
 	// get the maximum number of each block
 	int count_s = 0;
@@ -245,8 +258,14 @@ int DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s,
 			omp_set_num_threads(thread);
 #pragma omp parallel for schedule(dynamic)
 			for (int b = 0; b < B; b++){
-			  arma::vec out += calcBlock(n_ref, n_obs, sigma_s, idv, bed_str, info_s_Block[b],
-						  num_s_vec[b], eff_s_Block[b]);
+			  arma::vec out += calcBlock(n_ref, 
+                                n_obs, 
+                                sigma_s, 
+                                idv, 
+                                bed_str, 
+                                info_s_Block[b],
+						                    num_s_vec[b], 
+                                eff_s_Block[b]);
 			  //cout <<"index: " << index << endl; 
 			}
 			// eff of small effect SNPs
@@ -265,10 +284,17 @@ int DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s,
 }
 
 // estimate large and small effect for each block
-arma::vec DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, string bed_str, 
-						vector <INFO> info_s_block_full, vector <INFO> info_l_block_full, 
-						int num_s_block, int num_l_block, 
-						vector <EFF> &eff_s_block, vector <EFF> &eff_l_block){
+arma::vec DBSLMMFIT::calcBlock(int n_ref, 
+                               int n_obs, 
+                               double sigma_s, 
+                               vector<int> idv, 
+                               string bed_str, 
+						                    vector <INFO> info_s_block_full, 
+						                    vector <INFO> info_l_block_full, 
+						                    int num_s_block, 
+						                    int num_l_block, 
+						                    vector <EFF> &eff_s_block, 
+						                    vector <EFF> &eff_l_block){
 	SNPPROC cSP;
 	IO cIO; 
 	ifstream bed_in(bed_str.c_str(), ios::binary);
@@ -335,7 +361,9 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int>
 		// need to partition into training and test sets! Do this BEFORE the estimation step!
 		//variance calcs
 		arma::mat result = calc_nt_by_nt_matrix(out(0), //Sigma_ss 
-                                          sigma_s, n_training, geno_s_test);
+                                          sigma_s, 
+                                          n_training, 
+                                          geno_s_test);
 		
 		
 		// summary 
@@ -374,13 +402,18 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int>
 		eff_s.beta = beta_s(i); 
 		eff_s_block[i] = eff_s;
 	}
-	return result; 
+	return result.diag(); 
 }
 
 // estimate only small effect for each block
-arma::vec DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, string bed_str, 
-						vector <INFO> info_s_block_full, int num_s_block, 
-						vector <EFF> &eff_s_block){
+arma::vec DBSLMMFIT::calcBlock(int n_ref, 
+                               int n_obs, 
+                               double sigma_s, 
+                               vector<int> idv, 
+                               string bed_str, 
+                               vector <INFO> info_s_block_full, 
+                               int num_s_block, 
+                    						vector <EFF> &eff_s_block){
 	SNPPROC cSP;
 	IO cIO; 
 	ifstream bed_in(bed_str.c_str(), ios::binary);
@@ -410,10 +443,15 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int>
 	
 	// estimation
 	vec beta_s = zeros<vec>(num_s_block); 
-	arma::field <arma::mat> out = estBlock(n_ref, n_obs, sigma_s, geno_s, z_s, beta_s);
+	// partition subjects into training and test sets
+	arma::mat geno_s_training = subset(geno_s, training_indices);
+	arma::Col <arma::uword> test_indices = get_complementary_indices(training_indices, geno_s.n_rows());
+	arma::mat geno_s_test= subset(geno_s, test_indices);
+	//call estBlock on training data
+	arma::field <arma::mat> out = estBlock(n_ref, n_obs, sigma_s, geno_s_training, z_s, beta_s);
 	// need to partition into training and test sets! Do this BEFORE the estimation step, ie, before estBlock call!
   //variance calcs
-  arma::mat result = calc_nt_by_nt_matrix(out(0), sigma_s, n_training, geno_s_test);
+  arma::mat result = calc_nt_by_nt_matrix(out(0), sigma_s, geno_s_training.n_rows(), geno_s_test);
 	
 	// output small effect
 	for(int i = 0; i < num_s_block; i++) {

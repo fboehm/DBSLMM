@@ -97,11 +97,11 @@ std::vector<int> make_integer_vector(int start, int end){
 
 //' Get complementary indices for, eg, test data or training data
 //' 
-//' @param test_indices indices for subjects to be placed into test data set
+//' @param indices indices for subjects to be placed into test data set
 //' @param sample_size total combined sample size, training and test together
 //' @return arma::Col integer vector containing the complement of test_indices to indicate membership in training data set
 
-arma::Col<arma::uword> get_training_indices(arma::Col<arma::uword> test_indices, int sample_size){
+arma::Col<arma::uword> get_complementary_indices(arma::Col<arma::uword> indices, int sample_size){
   //convert to std::vector
   std::vector<int> test_std = arma::conv_to<std::vector<int> >::from(test_indices);
   std::sort(test_std.begin(), test_std.end()); //essentially overwrites test_std with the sorted vector, smallest to largest
