@@ -54,7 +54,7 @@ std::vector<int> make_integer_vector(int start, int end){
 //' 
 //' @param indices indices for subjects to be placed into test data set
 //' @param sample_size total combined sample size, training and test together
-//' @return arma::Col integer vector containing the complement of test_indices to indicate membership in training data set
+//' @return integer vector containing the complement of test_indices to indicate membership in training data set
 
 arma::uvec get_complementary_indices(arma::uvec indices, int sample_size){
   //convert to std::vector
