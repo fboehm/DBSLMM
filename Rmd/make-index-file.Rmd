@@ -1,0 +1,42 @@
+---
+title: "Creating file for subsetting to training and test sets"
+author: "Frederick Boehm"
+date: "1/6/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Our goal here is to produce a plain text file with one column of integers. Those 
+integers correspond to the row numbers (minus one, for C++) of the subjects that get 
+assigned to the training set.
+
+To accomplish this goal, we need the
+number of subjects. Once we have that number, we can specify the proportion to be in 
+the training set and use R's pseudorandom sampling to partition subjects.
+
+```{bash}
+FAM_FILE= myfam.fam
+wc -l $(FAM_FILE) > foo.txt
+```
+
+```{r}
+n_total <- read.table("foo.txt")
+```
+
+Now that we have `n_total`, the total number of subjects in the fam file, we 
+proceed by specifying the proportion of the subjects that will be in the training set.
+
+```{r}
+training_proportion <- 0.8
+set.seed(2022-01-06)
+cpp_indices <- sample(0:(n_total - 1), size = floor(training_proportion * n_total))
+write.table(cpp_indices, 
+            file = "training_indices.txt", # this is hardcoded into dbslmm.cpp
+            quote = FALSE, 
+            row.names = FALSE, 
+            col.names = FALSE)
+```
+
