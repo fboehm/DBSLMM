@@ -18,7 +18,7 @@ using namespace std;
 //' @param test_indices vector with subject indices to go into test set
 //' @return matrix of genotypes for the subsetted collection of subjects
 
-arma::mat subset(arma::mat matrix, arma::Col <uint> indices){
+arma::mat subset(arma::mat matrix, arma::uvec indices){
   arma::mat result = matrix.rows(indices);
   return(result);
 }
@@ -29,7 +29,7 @@ arma::mat subset(arma::mat matrix, arma::Col <uint> indices){
 //' @param indices arma::vec of indices to indicate which entries to extract 
 //' @return vector of values for the subsetted collection of subjects
 
-arma::vec subset(arma::vec vector, arma::Col<uint> indices){
+arma::vec subset(arma::vec vector, arma::uvec indices){
   arma::vec result = vector.elem(indices);
   return(result);
 }
@@ -53,7 +53,7 @@ std::vector<int> make_integer_vector(int start, int end){
 //' @param sample_size total combined sample size, training and test together
 //' @return arma::Col integer vector containing the complement of test_indices to indicate membership in training data set
 
-arma::Col<uint> get_complementary_indices(arma::Col<uint> indices, int sample_size){
+arma::uvec get_complementary_indices(arma::uvec indices, int sample_size){
   //convert to std::vector
   std::vector<int> test_std = arma::conv_to<std::vector<int> >::from(indices);
   std::sort(test_std.begin(), test_std.end()); //essentially overwrites test_std with the sorted vector, smallest to largest
@@ -67,17 +67,17 @@ arma::Col<uint> get_complementary_indices(arma::Col<uint> indices, int sample_si
                       test_std.end(), 
                       v.begin() );
   v.resize(it - v.begin()); //result is in v
-  arma::Col<uint> result = arma::conv_to<arma::Col<uint> >::from(v);
+  arma::uvec result = arma::conv_to<arma::uvec >::from(v);
   return result;
 }
 
-//' Convert std::vector <string> to arma::Col<uint>
+//' Convert std::vector <string> to arma::uvec
 //' 
 //' @param string a string vector
-//' @return arma::Col<uint> vector, for use as indices in subsetting armadillo matrices or vectors
+//' @return arma::uvec vector, for use as indices in subsetting armadillo matrices or vectors
 
-arma::Col<uint> convert_string_to_Col(std::vector<std::string> string){
-  arma::Col<uint> result = conv_to< arma::Col<uint> >::from(string);
+arma::uvec convert_string_to_uvec(std::vector<std::string> string){
+  arma::uvec result = conv_to< arma::uvec >::from(string);
   return (result);
 } 
 
@@ -86,7 +86,7 @@ arma::Col<uint> convert_string_to_Col(std::vector<std::string> string){
 //' @param filepath file path for the indices file
 //' @references https://www.youtube.com/watch?v=EaHFhms_Shw, https://stackoverflow.com/questions/2706076/new-how-would-i-read-a-file-that-has-3-columns-and-each-column-contains-100-n
 
-arma::Col <uint> read_indices_file(const string filepath){
+arma::uvec read_indices_file(const string filepath){
   ifstream infile;
   infile.open(filepath.c_str(), ios::in); //read mode
 /*  if(infile.fail()) // checks to see if file opened 
@@ -101,6 +101,6 @@ arma::Col <uint> read_indices_file(const string filepath){
     result.push_back(line);
   } 
   infile.close(); 
-  arma::Col<uint> out = convert_string_to_Col(result);  
+  arma::uvec out = convert_string_to_Col(result);  
   return (out); 
 }

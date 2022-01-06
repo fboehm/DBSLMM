@@ -7,14 +7,14 @@
 
 
 
-arma::mat subset(arma::mat matrix, arma::Col<uint> indices);
+arma::mat subset(arma::mat matrix, arma::uvec indices);
 
-arma::vec subset(arma::vec vector, arma::Col<uint> indices);
+arma::vec subset(arma::vec vector, arma::uvec indices);
 
-arma::Col<uint> get_complementary_indices(arma::Col<uint> indices, int sample_size);  
+arma::uvec get_complementary_indices(arma::uvec indices, int sample_size);  
 
-arma::Col<uint> convert_string_to_Col(std::vector<std::string> string);
+arma::uvec convert_string_to_uvec(std::vector<std::string> string);
 
-arma::Col <uint> read_indices_file(const std::string filepath);
+arma::uvec read_indices_file(const std::string filepath);
 
 
