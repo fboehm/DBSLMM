@@ -3,6 +3,9 @@
 #include <algorithm> /* std::sort, std::set_difference */
 #include <fstream> //std::ifstream
 #include <string>
+#include <boost/lexical_cast.hpp>
+#include <iterator>
+
 #include "subset_to_test_and_training.hpp"
 
 
@@ -77,8 +80,9 @@ arma::uvec get_complementary_indices(arma::uvec indices, int sample_size){
 //' @return arma::uvec vector, for use as indices in subsetting armadillo matrices or vectors
 
 arma::uvec convert_string_to_indices(std::string in_string){
-  vector<uint> string_stoi = stoi(in_string);
-  arma::uvec result = conv_to< arma::uvec >::from(string_stoi);
+  vector<int> vectorOfIntegers;
+  std::transform(in_string.begin(), in_string.end(), std::back_inserter(vectorOfIntegers), stringToInteger);
+  arma::uvec result = conv_to< arma::uvec >::from(vectorOfIntegers);
   return (result);
 } 
 
@@ -104,4 +108,13 @@ arma::uvec read_indices_file(const string filepath){
   infile.close(); 
   arma::uvec out = convert_string_to_indices(result);  
   return (out); 
+}
+
+
+//' a single string to single integer function
+//' @references https://www.py4u.net/discuss/90965
+
+int stringToInteger(const std::string& s)
+{
+  return boost::lexical_cast<int>(s);
 }

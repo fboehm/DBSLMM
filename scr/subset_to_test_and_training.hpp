@@ -17,4 +17,4 @@ arma::uvec convert_string_to_indices(std::string in_string);
 
 arma::uvec read_indices_file(const std::string filepath);
 
-
+int stringToInteger(const std::string& s);
