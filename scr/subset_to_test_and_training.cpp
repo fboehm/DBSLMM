@@ -79,9 +79,9 @@ arma::uvec get_complementary_indices(arma::uvec indices, int sample_size){
 //' @param string a string vector
 //' @return arma::uvec vector, for use as indices in subsetting armadillo matrices or vectors
 
-arma::uvec convert_string_to_indices(std::string in_string){
+arma::uvec convert_string_to_indices(std::vector <std::string> in_string){
   vector<int> vectorOfIntegers;
-  std::transform(in_string.begin(), in_string.end(), std::back_inserter(vectorOfIntegers), stringToInteger);
+  castContainer(in_string, vectorOfIntegers);
   arma::uvec result = conv_to< arma::uvec >::from(vectorOfIntegers);
   return (result);
 } 
@@ -100,7 +100,7 @@ arma::uvec read_indices_file(const string filepath){
     return 1; // no point continuing if the file didn't open...
   }*/ 
   string line;
-  std::vector<string> result;
+  std::string result;
   while(getline(infile, line)) 
   { 
     result.push_back(line);
@@ -114,7 +114,18 @@ arma::uvec read_indices_file(const string filepath){
 //' a single string to single integer function
 //' @references https://www.py4u.net/discuss/90965
 
-int stringToInteger(const std::string& s)
+template<typename C1, typename C2>
+void castContainer(const C1& source, C2& destination)
 {
-  return boost::lexical_cast<int>(s);
+  typedef typename C1::value_type source_type;
+  typedef typename C2::value_type destination_type;
+  destination.resize(source.size());
+  std::transform(source.begin(), source.end(), destination.begin(), boost::lexical_cast<destination_type, source_type>);
+}
+
+template<typename T, typename T2>
+std::vector<T>& operator<<(std::vector<T>& v, T2 t)
+{
+  v.push_back(T(t));
+  return v;
 }
