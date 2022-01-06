@@ -76,7 +76,7 @@ arma::uvec get_complementary_indices(arma::uvec indices, int sample_size){
 //' @param string a string vector
 //' @return arma::uvec vector, for use as indices in subsetting armadillo matrices or vectors
 
-arma::uvec convert_string_to_indices(string in_string){
+arma::uvec convert_string_to_indices(std::string in_string){
   std::vector<int> string_stoi = stoi(in_string);
   arma::uvec result = conv_to< arma::uvec >::from(string_stoi);
   return (result);
