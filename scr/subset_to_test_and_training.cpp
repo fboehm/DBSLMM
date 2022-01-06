@@ -100,7 +100,7 @@ arma::uvec read_indices_file(const string filepath){
     return 1; // no point continuing if the file didn't open...
   }*/ 
   string line;
-  std::string result;
+  std::vector<std::string> result;
   while(getline(infile, line)) 
   { 
     result.push_back(line);
