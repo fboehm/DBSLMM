@@ -366,7 +366,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 		}//end populating of geno_l
 		//partition subjects - for geno_s and geno_l - into training and test
 		arma::mat geno_s_training = subset(geno_s, training_indices);
-		arma::Col <arma::uword> test_indices = get_complementary_indices(training_indices, geno_s.n_rows);
+		arma::Col <uint> test_indices = get_complementary_indices(training_indices, geno_s.n_rows);
 		arma::mat geno_s_test= subset(geno_s, test_indices);
 		arma::mat geno_l_training = subset(geno_l, training_indices);
 		arma::mat geno_l_test= subset(geno_l, test_indices);
