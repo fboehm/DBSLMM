@@ -23,10 +23,10 @@ $(OUTPUTD): main_dbslmm.o dtpr.o dbslmm.o dbslmmfit.o calc_asymptotic_variance.o
 	$(CXX) main_dbslmm.o dtpr.o dbslmm.o dbslmmfit.o -o $(OUTPUTD) $(CXXFLAG) -L $(ARMALIB)
 main_dbslmm.o: main_dbslmm.cpp
 	$(CXX) -c main_dbslmm.cpp
-dbslmm.o: dbslmm.cpp dbslmm.hpp
-	$(CXX) -c dbslmm.cpp  $(CXXFLAG)
-dbslmmfit.o: dbslmmfit.cpp dbslmmfit.hpp
-	$(CXX) -c dbslmmfit.cpp $(CXXFLAG)
+dbslmm.o: dbslmm.cpp dbslmm.hpp subset_to_test_and_training.hpp
+	$(CXX) -c $^  $(CXXFLAG)
+dbslmmfit.o: dbslmmfit.cpp dbslmmfit.hpp calc_asymptotic_variance.hpp subset_to_test_and_training.hpp
+	$(CXX) -c $^ $(CXXFLAG)
 dtpr.o: dtpr.cpp dtpr.hpp 
 	$(CXX) -c dtpr.cpp $(CXXFLAG)
 calc_asymptotic_variance.o: calc_asymptotic_variance.cpp calc_asymptotic_variance.hpp 
