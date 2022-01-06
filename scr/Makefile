@@ -20,7 +20,7 @@ HPP_FILES = dtpr.hpp dbslmm.hpp dbslmmfit.hpp calc_asymptotic_variance.hpp subse
 CXXFLAG = -static -fopenmp -O3 -std=c++11 -lm -llapacke -llapack -lblas -Wall
 all: $(OUTPUTD)
 $(OUTPUTD): main_dbslmm.o dtpr.o dbslmm.o dbslmmfit.o calc_asymptotic_variance.o subset_to_test_and_training.o
-	$(CXX) main_dbslmm.o dtpr.o dbslmm.o dbslmmfit.o -o $(OUTPUTD) $(CXXFLAG) -L $(ARMALIB)
+	$(CXX) -v main_dbslmm.o dtpr.o dbslmm.o dbslmmfit.o -o $(OUTPUTD) $(CXXFLAG) -L $(ARMALIB)
 main_dbslmm.o: main_dbslmm.cpp
 	$(CXX) -c main_dbslmm.cpp
 dbslmm.o: dbslmm.cpp dbslmm.hpp subset_to_test_and_training.hpp

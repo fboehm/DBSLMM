@@ -20,7 +20,7 @@ HPP_FILES = dtpr.hpp dbslmm.hpp dbslmmfit.hpp calc_asymptotic_variance.hpp subse
 CXXFLAG = -static -fopenmp -O3 -std=c++11 -lm -llapacke -llapack -lblas -Wall
 all: $(OUTPUTD)
 $(OUTPUTD): $(CPP_FILES) $(HPP_FILES)
-	$(CXX) $^ -o $(OUTPUTD) $(CXXFLAG) -L $(ARMALIB)
+	$(CXX) -v $^ -o $(OUTPUTD) $(CXXFLAG) -L $(ARMALIB)
 
 clean:
 	rm -f *.o  dbslmm valid
