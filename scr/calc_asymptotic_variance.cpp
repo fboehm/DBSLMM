@@ -1,3 +1,4 @@
+#define ARMA_DONT_USE_WRAPPER
 
 #include <armadillo>
 #include "calc_asymptotic_variance.hpp"
