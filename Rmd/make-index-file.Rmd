@@ -17,13 +17,10 @@ To accomplish this goal, we need the
 number of subjects. Once we have that number, we can specify the proportion to be in 
 the training set and use R's pseudorandom sampling to partition subjects.
 
-```{bash}
-FAM_FILE= myfam.fam
-wc -l $(FAM_FILE) > foo.txt
-```
 
 ```{r}
-n_total <- read.table("foo.txt") 
+fam <- readr::read_delim("test_chr1.fam", col_names = FALSE)
+n_total <- nrow(fam) 
 # Does the fam file have column names???
 # No! So every line corresponds to a subject!
 ```
@@ -35,10 +32,9 @@ proceed by specifying the proportion of the subjects that will be in the trainin
 training_proportion <- 0.8
 set.seed(2022-01-06)
 cpp_indices <- sample(0:(n_total - 1), size = floor(training_proportion * n_total))
-write.table(cpp_indices, 
+readr::write_delim(x = tibble::as_tibble(cpp_indices), 
             file = "training_indices.txt", # this is hardcoded into dbslmm.cpp
-            quote = FALSE, 
-            row.names = FALSE, 
-            col.names = FALSE)
+            col_names = FALSE)
+readr::write_delim(x = tibble::as_tibble(fam$X1[1 + cpp_indices]), file = "training_ids.txt", col_names = FALSE)
 ```
 
