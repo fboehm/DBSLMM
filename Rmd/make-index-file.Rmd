@@ -35,6 +35,8 @@ cpp_indices <- sample(0:(n_total - 1), size = floor(training_proportion * n_tota
 readr::write_delim(x = tibble::as_tibble(cpp_indices), 
             file = "training_indices.txt", # this is hardcoded into dbslmm.cpp
             col_names = FALSE)
-readr::write_delim(x = tibble::as_tibble(fam$X1[1 + cpp_indices]), file = "training_ids.txt", col_names = FALSE)
+readr::write_delim(x = tibble::as_tibble(fam$X1[1 + cpp_indices]), 
+                   file = "training_ids.txt", 
+                   col_names = FALSE)
 ```
 
