@@ -53,9 +53,6 @@ args_list <- list(
               metavar = "character"),
   make_option("--thread", type = "character", default = "5",
               help = "INPUT: the number of threads (default: 5)", 
-              metavar = "character"),
-  make_option("--training", type = "character", default = "true", 
-              help = "INPUT: training (true) or test (false) set", 
               metavar = "character")
 )
 
@@ -158,8 +155,7 @@ prefix_file <- paste(prefix_file[-c((len_prefix_file-1):len_prefix_file)], colla
                             " -training ", opt$training
                     ))
       }
-    }
-  } else {
+    } else {
     tosnp_cmd <- paste0("awk '{print $3}' ", opt$outPath, "l_", prefix_file, ".clumped", " > ",
                         opt$outPath, "/l_snp_", prefix_file, ".txt")
     system(tosnp_cmd)
