@@ -87,7 +87,7 @@ arma::mat calc_var_betal(arma::mat Sigma_ll,
                          unsigned int n){
 
   //calculate big matrix
-  arma::mat big = Sigma_ll - arma::trans(Sigma_ls) * A_inverse * Sigma_ls;
+  arma::mat big = Sigma_ll - arma::trans(Sigma_sl) * A_inverse * Sigma_sl;
   //invert and divide by n
   arma::mat result = arma::inv_sympd(big) / n; // we invert a ml by ml matrix - no problem!
   return (result);
