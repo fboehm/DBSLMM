@@ -21,5 +21,5 @@ n=$(echo "${nobs}+${nmis}" | bc -l)
 Rscript ${DBSLMM} --summary ${summf}${chr}.assoc.txt --outPath ${outPath} \
   --plink ${plink} --dbslmm ${dbslmm} --ref ${ref}${chr} --n ${n} \
   --nsnp ${m} --type auto --model DBSLMM --block ${blockf}${chr}.bed \
-  --h2 ${h2}  
+  --h2 ${h2} --ntotal 400  
 
