@@ -53,6 +53,9 @@ args_list <- list(
               metavar = "character"),
   make_option("--thread", type = "character", default = "5",
               help = "INPUT: the number of threads (default: 5)", 
+              metavar = "character"),
+  make_option("--ntotal", type = "character", default = "400", 
+              help = "INPUT: total sample size, training plus test sets", 
               metavar = "character")
 )
 
@@ -152,7 +155,7 @@ prefix_file <- paste(prefix_file[-c((len_prefix_file-1):len_prefix_file)], colla
                            " -mafMax ", opt$mafMax,      
                            " -t ",      opt$thread,
                            " -eff ",    opt$outPath, prefix_file, ".dbslmm",
-                            " -training ", opt$training
+                            " -ntotal ", opt$ntotal
                     ))
       }
     } else {
@@ -188,7 +191,7 @@ prefix_file <- paste(prefix_file[-c((len_prefix_file-1):len_prefix_file)], colla
                     " -h ",      opt$h2,
                     " -t ",      opt$thread,
                     " -eff ",    opt$outPath, prefix_file, ".dbslmm",
-                    " -training ", opt$training))
+                    " -ntotal ", opt$ntotal))
 
     } else {
       h2_vec <- as.numeric(unlist(strsplit(opt$h2f, ",")))
@@ -212,3 +215,4 @@ prefix_file <- paste(prefix_file[-c((len_prefix_file-1):len_prefix_file)], colla
     system(paste0("rm ", opt$outPath, "s_", prefix_file, "*"))
   }
   system(paste0("rm ", opt$outPath, "plink_", prefix_file, ".txt"))
+
