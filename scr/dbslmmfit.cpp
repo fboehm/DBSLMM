@@ -388,9 +388,9 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
                                          z_s, z_l, beta_s, beta_l);
 		// need to partition into training and test sets! Do this BEFORE the estimation step!
 		//variance calcs
-		result = calc_nt_by_nt_matrix(out(0), //Sigma_ss 
+		result = calc_nt_by_nt_matrix(out(2), //Sigma_ss 
                                           out(1), //Sigma_sl - no need transpose because estBlock outputs Sigma_sl
-                                          out(2), //Sigma_ll
+                                          out(0), //Sigma_ll
                                           sigma_s, 
                                           n_training, 
                                           geno_l_test, 

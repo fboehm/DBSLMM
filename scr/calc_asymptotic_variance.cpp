@@ -69,6 +69,7 @@ arma::mat calc_A_inverse(arma::mat Sigma_ss,
 {
   unsigned int m_s = Sigma_ss.n_rows;
   arma::mat result = arma::inv_sympd(arma::eye(m_s, m_s) / (n * sigma2_s) + Sigma_ss);
+  
   return(result);
 }
 
