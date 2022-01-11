@@ -415,6 +415,10 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	  arma::uvec test_indices = get_complementary_indices(training_indices, geno_s.n_rows);
 	  arma::mat geno_s_test= subset(geno_s, test_indices);
 	  unsigned int n_training = geno_s_training.n_rows;
+	  cout << "geno_s_training number of rows: " << geno_s_training.n_rows << endl;
+	  cout << "test_indices length: " << test_indices.n_elem << endl;
+	  cout << "geno_s_test number of rows: " << geno_s_test.n_rows << endl;
+	  
 	  // estimation
 		
 		arma::field <arma::mat> out = estBlock(n_ref, n_obs, sigma_s, geno_s_training, z_s, beta_s);
@@ -487,6 +491,10 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	arma::mat geno_s_training = subset(geno_s, training_indices);
 	arma::uvec test_indices = get_complementary_indices(training_indices, geno_s.n_rows);
 	arma::mat geno_s_test= subset(geno_s, test_indices);
+	cout << "geno_s_training number of rows: " << geno_s_training.n_rows << endl;
+	cout << "test_indices length: " << test_indices.n_elem << endl;
+	cout << "geno_s_test number of rows: " << geno_s_test.n_rows << endl;
+	
 	//call estBlock on training data
 	arma::field <arma::mat> out = estBlock(n_ref, n_obs, sigma_s, geno_s_training, z_s, beta_s);
 	// need to partition into training and test sets! Do this BEFORE the estimation step, ie, before estBlock call!
