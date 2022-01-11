@@ -245,7 +245,9 @@ int DBSLMMFIT::est(int n_ref,
 	vector < vector <EFF> > eff_s_Block(B_MAX, vector <EFF> ((int)len_s));
 	vector <int> num_s_vec;
 	unsigned int n_training = training_indices.n_elem;
+	cout << "n_training: " << n_training << endl;
 	unsigned int n_test = n_total - n_training;
+	cout << "n_test: " << n_test << endl;
 	arma::vec diags = zeros(n_test); //specify length of diags & set all to zeros
 
 	for (int i = 0; i < num_block; ++i) {
@@ -366,10 +368,17 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 		}//end populating of geno_l
 		//partition subjects - for geno_s and geno_l - into training and test
 		arma::mat geno_s_training = subset(geno_s, training_indices);
+		cout << "geno_s_training number of rows: " << geno_s_training.n_rows << endl;
 		arma::uvec test_indices = get_complementary_indices(training_indices, geno_s.n_rows);
+		cout << "test_indices length: " << test_indices.n_elem << endl;
 		arma::mat geno_s_test= subset(geno_s, test_indices);
+		cout << "geno_s_test number of rows: " << geno_s_test.n_rows << endl;
 		arma::mat geno_l_training = subset(geno_l, training_indices);
 		arma::mat geno_l_test= subset(geno_l, test_indices);
+		cout << "geno_l_training number of rows: " << geno_l_training.n_rows << endl;
+		cout << "geno_l_test number of rows: " << geno_l_test.n_rows << endl;
+		
+		
 		unsigned int n_training = geno_s_training.n_rows;
 		
 		// estimation
