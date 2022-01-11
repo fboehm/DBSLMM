@@ -158,8 +158,7 @@ prefix_file <- paste(prefix_file[-c((len_prefix_file-1):len_prefix_file)], colla
                             " -ntotal ", opt$ntotal
                     ))
       }
-    }
-  } else {
+    } else {
     tosnp_cmd <- paste0("awk '{print $3}' ", opt$outPath, "l_", prefix_file, ".clumped", " > ",
                         opt$outPath, "/l_snp_", prefix_file, ".txt")
     system(tosnp_cmd)
@@ -216,3 +215,4 @@ prefix_file <- paste(prefix_file[-c((len_prefix_file-1):len_prefix_file)], colla
     system(paste0("rm ", opt$outPath, "s_", prefix_file, "*"))
   }
   system(paste0("rm ", opt$outPath, "plink_", prefix_file, ".txt"))
+
