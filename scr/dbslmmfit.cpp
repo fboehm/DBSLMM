@@ -614,6 +614,8 @@ arma::field< arma::mat > DBSLMMFIT::estBlock(int n_ref, int n_obs, double sigma_
 	arma::field<arma::mat> result(3);
 	result(0) = SIGMA_ss;
 	result(1) = arma::trans(SIGMA_ls);//ie, Sigma_sl
+	cout << "number of rows in SIGMA_ls: " << SIGMA_ls.n_rows << endl;
+	cout << "number of columns in SIGMA_ls: " << SIGMA_ls.n_cols << endl; 
 	result(2) = SIGMA_ll;
 	
 	return result; 
