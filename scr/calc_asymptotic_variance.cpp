@@ -9,7 +9,7 @@ using namespace arma;
 //' Calculate for one LD block the n tilde by n tilde matrix that contributes to the asymptotic variance for the predicted y values
 //' 
 //' @param Sigma_ll Sigma_ll matrix for a single LD block
-//' @param Sigma_ls Sigma_ls matrix for a single LD block
+//' @param Sigma_sl Sigma_ls matrix for a single LD block
 //' @param Sigma_ss Sigma_ss matrix for a single LD block
 //' @param sigma2_s estimated value of sigma^2_s
 //' @param n_training sample size for training data
@@ -111,6 +111,9 @@ arma::mat calc_var_betas(arma::mat Sigma_ss,
                          arma::mat var_bl){
   arma::mat mat1 = Sigma_ss - Sigma_ss * A_inverse * Sigma_ss;
   arma::mat mat2 = Sigma_sl - Sigma_ss * A_inverse * Sigma_sl;
+  cout << "mat1 has this many rows: " << mat1.n_rows << endl; 
+  cout << "mat2 has this many rows: " << mat2.n_rows << endl; 
+  
   arma::mat result = n * sigma2_s * sigma2_s * (mat1 + mat2 * n * var_bl * arma::trans(mat2));
   return (result);
 }
