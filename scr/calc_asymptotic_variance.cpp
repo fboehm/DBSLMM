@@ -18,7 +18,7 @@ using namespace arma;
 //' @return n tilde by n tilde matrix that contributes to the asymptotic variance
 
 arma::mat calc_nt_by_nt_matrix(arma::mat Sigma_ll, 
-                                   arma::mat Sigma_ls, 
+                                   arma::mat Sigma_sl, 
                                    arma::mat Sigma_ss,
                                    double sigma2_s, 
                                    unsigned int n_training,
@@ -26,11 +26,11 @@ arma::mat calc_nt_by_nt_matrix(arma::mat Sigma_ll,
                                    arma::mat Xs_test){
   arma::mat Ainv = calc_A_inverse(Sigma_ss, sigma2_s, n_training);
   arma::mat var_bl = calc_var_betal(Sigma_ll, 
-                                    Sigma_ls, 
+                                    Sigma_sl, 
                                     Ainv, 
                                     n_training);
   arma::mat var_bs = calc_var_betas(Sigma_ss, 
-                                    Sigma_ls,
+                                    Sigma_sl,
                                     Ainv,
                                     sigma2_s,
                                     n_training,
@@ -82,12 +82,12 @@ arma::mat calc_A_inverse(arma::mat Sigma_ss,
 //' @return covariance matrix
 
 arma::mat calc_var_betal(arma::mat Sigma_ll, 
-                         arma::mat Sigma_ls, 
+                         arma::mat Sigma_sl, 
                          arma::mat A_inverse,
                          unsigned int n){
 
   //calculate big matrix
-  arma::mat big = Sigma_ll - Sigma_ls * A_inverse * arma::trans(Sigma_ls);
+  arma::mat big = Sigma_ll - arma::trans(Sigma_ls) * A_inverse * Sigma_ls;
   //invert and divide by n
   arma::mat result = arma::inv_sympd(big) / n; // we invert a ml by ml matrix - no problem!
   return (result);
