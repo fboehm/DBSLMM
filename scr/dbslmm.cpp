@@ -157,6 +157,14 @@ void DBSLMM::Assign(int argc, char ** argv, PARAM &cPar) {
 		  str.assign(argv[i]);
 		  cPar.n_total = atoi(str.c_str());//total sample size (training plus test)
 		}
+		else if (strcmp(argv[i], "--training_indices_file") == 0 || strcmp(argv[i], "-training_indices_file") == 0) {
+		  
+		  if (argv[i + 1] == NULL || argv[i + 1][0] == '-') { continue; }
+		  ++i;
+		  str.clear();
+		  str.assign(argv[i]);
+		  cPar.training_indices_file = str.c_str();//total sample size (training plus test)
+		}
 		
 	}
 	return;
@@ -287,7 +295,7 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 		clearVector(summ_l);
 	}
 	//read file containing training indices
-	arma::uvec training_indices = read_indices_file("training_indices.txt");
+	arma::uvec training_indices = read_indices_file(cPar.training_indices_file); //read file containing training set indices
 	
 	// output stream
 	string eff_str = cPar.eff + ".txt"; 
