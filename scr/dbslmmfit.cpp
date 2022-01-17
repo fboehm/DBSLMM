@@ -112,7 +112,13 @@ int  DBSLMMFIT::est(int n_ref,
 	vector < vector <EFF> > eff_s_Block(B_MAX, vector <EFF> ((int)len_s)), eff_l_Block(B_MAX, vector <EFF> ((int)len_l));
 	vector <int> num_s_vec, num_l_vec;
 	unsigned int n_training = training_indices.n_elem;
+	cout << "n_training is: " << n_training << endl;
+	
 	unsigned int n_test = n_total - n_training;
+	cout << "n_test is: " << n_test << endl;
+	cout << "cPar.n is: " << cPar.n << endl;
+	cout << "cPar.ntotal is: " << cPar.ntotal << endl;
+	
 	arma::vec diags = zeros(n_test); //specify length of diags
 	
 
