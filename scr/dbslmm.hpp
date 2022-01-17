@@ -41,6 +41,7 @@ public:
 	string eff;
 	unsigned int n_total;
 	string training_indices_file;
+	string test_indices_file;
 };
 
 class DBSLMM {

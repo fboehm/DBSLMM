@@ -149,21 +149,21 @@ void DBSLMM::Assign(int argc, char ** argv, PARAM &cPar) {
 			str.assign(argv[i]);
 			cPar.eff = str;
 		}
-		else if (strcmp(argv[i], "--ntotal") == 0 || strcmp(argv[i], "-ntotal") == 0) {
-		  
-		  if (argv[i + 1] == NULL || argv[i + 1][0] == '-') { continue; }
-		  ++i;
-		  str.clear();
-		  str.assign(argv[i]);
-		  cPar.n_total = atoi(str.c_str());//total sample size (training plus test)
-		}
 		else if (strcmp(argv[i], "--training_indices_file") == 0 || strcmp(argv[i], "-training_indices_file") == 0) {
 		  
 		  if (argv[i + 1] == NULL || argv[i + 1][0] == '-') { continue; }
 		  ++i;
 		  str.clear();
 		  str.assign(argv[i]);
-		  cPar.training_indices_file = str.c_str();//total sample size (training plus test)
+		  cPar.training_indices_file = str.c_str();
+		}
+		else if (strcmp(argv[i], "--test_indices_file") == 0 || strcmp(argv[i], "-test_indices_file") == 0) {
+		  
+		  if (argv[i + 1] == NULL || argv[i + 1][0] == '-') { continue; }
+		  ++i;
+		  str.clear();
+		  str.assign(argv[i]);
+		  cPar.test_indices_file = str.c_str();
 		}
 		
 	}
@@ -296,7 +296,7 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 	}
 	//read file containing training indices
 	arma::uvec training_indices = read_indices_file(cPar.training_indices_file); //read file containing training set indices
-	
+	arma::uvec test_indices = read_indices_file(cPar.test_indices_file);
 	// output stream
 	string eff_str = cPar.eff + ".txt"; 
 	ofstream effFout(eff_str.c_str());
@@ -320,7 +320,7 @@ void DBSLMM::BatchRun(PARAM &cPar) {
             cPar.t, 
             eff_s, 
             eff_l, 
-            training_indices, cPar.n_total); 
+            training_indices, test_indices); 
 		double time_fitting = cIO.getWalltime() - t_fitting;
 		cout << "Fitting time: " << time_fitting << " seconds." << endl;
 
@@ -356,7 +356,7 @@ void DBSLMM::BatchRun(PARAM &cPar) {
             info_s, 
             cPar.t, 
             eff_s, 
-            training_indices, cPar.n_total); 
+            training_indices, test_indices); 
 		double time_fitting = cIO.getWalltime() - t_fitting;
 		cout << "Fitting time: " << time_fitting << " seconds." << endl;
 

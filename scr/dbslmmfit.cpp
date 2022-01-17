@@ -60,7 +60,7 @@ int  DBSLMMFIT::est(int n_ref,
                     vector <EFF> &eff_s, 
                     vector <EFF> &eff_l,
                     arma::uvec training_indices,
-                    unsigned int n_total){
+                    arma::uvec test_indices){
 	
 	// get the maximum number of each block
 	int count_s = 0, count_l = 0;
@@ -114,7 +114,7 @@ int  DBSLMMFIT::est(int n_ref,
 	unsigned int n_training = training_indices.n_elem;
 	cout << "n_training is: " << n_training << endl;
 	
-	unsigned int n_test = n_total - n_training;
+	unsigned int n_test = test_indices.n_elem;
 	cout << "n_test is: " << n_test << endl;
 	cout << "n_obs is: " << n_obs << endl;
 
@@ -171,7 +171,9 @@ int  DBSLMMFIT::est(int n_ref,
                                 num_s_vec[b], 
                                 num_l_vec[b], 
                                 eff_s_Block[b], 
-                                eff_l_Block[b], training_indices);
+                                eff_l_Block[b], 
+                                           training_indices,
+                                           test_indices);
 			 // int index = floor(i / B_MAX) * B_MAX + b;
 
 			}
@@ -208,7 +210,7 @@ int DBSLMMFIT::est(int n_ref,
 				            int thread, 
 				            vector <EFF> &eff_s,
 				            arma::uvec training_indices, 
-				            unsigned int n_total){
+				            arma::uvec test_indices){
 	
 	// get the maximum number of each block
 	int count_s = 0;
@@ -251,7 +253,7 @@ int DBSLMMFIT::est(int n_ref,
 	vector <int> num_s_vec;
 	unsigned int n_training = training_indices.n_elem;
 	cout << "n_training: " << n_training << endl;
-	unsigned int n_test = n_total - n_training;
+	unsigned int n_test = test_indices.n_elem;
 	cout << "n_test: " << n_test << endl;
 	arma::vec diags = zeros(n_test); //specify length of diags & set all to zeros
 
@@ -283,7 +285,9 @@ int DBSLMMFIT::est(int n_ref,
                                 bed_str, 
                                 info_s_Block[b],
 						                    num_s_vec[b], 
-                                eff_s_Block[b], training_indices);
+                                eff_s_Block[b], 
+                                           training_indices,
+                                           test_indices);
 			  //cout <<"index: " << index << endl; 
 			}
 			// eff of small effect SNPs
@@ -313,7 +317,8 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 						                    int num_l_block, 
 						                    vector <EFF> &eff_s_block, 
 						                    vector <EFF> &eff_l_block,
-						                    arma::uvec training_indices){
+						                    arma::uvec training_indices,
+						                    arma::uvec test_indices){
 	SNPPROC cSP;
 	IO cIO; 
 	ifstream bed_in(bed_str.c_str(), ios::binary);
@@ -374,7 +379,6 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 		//partition subjects - for geno_s and geno_l - into training and test
 		arma::mat geno_s_training = subset(geno_s, training_indices);
 		cout << "geno_s_training number of rows: " << geno_s_training.n_rows << endl;
-		arma::uvec test_indices = get_complementary_indices(training_indices, geno_s.n_rows);
 		cout << "test_indices length: " << test_indices.n_elem << endl;
 		arma::mat geno_s_test= subset(geno_s, test_indices);
 		cout << "geno_s_test number of rows: " << geno_s_test.n_rows << endl;
@@ -417,7 +421,6 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	}
 	else{
 	  arma::mat geno_s_training = subset(geno_s, training_indices);
-	  arma::uvec test_indices = get_complementary_indices(training_indices, geno_s.n_rows);
 	  arma::mat geno_s_test= subset(geno_s, test_indices);
 	  unsigned int n_training = geno_s_training.n_rows;
 	  cout << "geno_s_training number of rows: " << geno_s_training.n_rows << endl;
@@ -462,7 +465,8 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
                                vector <INFO> info_s_block_full, 
                                int num_s_block, 
                     						vector <EFF> &eff_s_block,
-                    						arma::uvec training_indices){
+                    						arma::uvec training_indices,
+                    						arma::uvec test_indices){
 	SNPPROC cSP;
 	IO cIO; 
 	ifstream bed_in(bed_str.c_str(), ios::binary);
@@ -494,7 +498,6 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	vec beta_s = zeros<vec>(num_s_block); 
 	// partition subjects into training and test sets
 	arma::mat geno_s_training = subset(geno_s, training_indices);
-	arma::uvec test_indices = get_complementary_indices(training_indices, geno_s.n_rows);
 	arma::mat geno_s_test= subset(geno_s, test_indices);
 	cout << "geno_s_training number of rows: " << geno_s_training.n_rows << endl;
 	cout << "test_indices length: " << test_indices.n_elem << endl;

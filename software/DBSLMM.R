@@ -158,7 +158,8 @@ prefix_file <- paste(prefix_file[-c((len_prefix_file-1):len_prefix_file)], colla
                            " -t ",      opt$thread,
                            " -eff ",    opt$outPath, prefix_file, ".dbslmm",
                             " -ntotal ", opt$ntotal, 
-                    " -training_indices_file ", opt$training_indices_file
+                    " -training_indices_file ", opt$training_indices_file,
+                    " -test_indices_file ", opt$test_indices_file
                     ))
       }
     } else {
@@ -195,7 +196,8 @@ prefix_file <- paste(prefix_file[-c((len_prefix_file-1):len_prefix_file)], colla
                     " -t ",      opt$thread,
                     " -eff ",    opt$outPath, prefix_file, ".dbslmm",
                     " -ntotal ", opt$ntotal, 
-                    " -training_indices_file ", opt$training_indices_file))
+                    " -training_indices_file ", opt$training_indices_file,
+                    " -test_indices_file ", opt$test_indices_file))
 
     } else {
       h2_vec <- as.numeric(unlist(strsplit(opt$h2f, ",")))
