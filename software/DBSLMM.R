@@ -56,7 +56,9 @@ args_list <- list(
               metavar = "character"),
   make_option("--ntotal", type = "character", default = "400", 
               help = "INPUT: total sample size, training plus test sets", 
-              metavar = "character")
+              metavar = "character"),
+  make_option("--training_indices_file", type = "character", default = "training_indices.txt", 
+              help = "INPUT: file path for the training indices text file", metavar = "character")
 )
 
 opt_parser <- OptionParser(option_list=args_list)
@@ -155,7 +157,8 @@ prefix_file <- paste(prefix_file[-c((len_prefix_file-1):len_prefix_file)], colla
                            " -mafMax ", opt$mafMax,      
                            " -t ",      opt$thread,
                            " -eff ",    opt$outPath, prefix_file, ".dbslmm",
-                            " -ntotal ", opt$ntotal
+                            " -ntotal ", opt$ntotal, 
+                    " -training_indices_file ", opt$training_indices_file
                     ))
       }
     } else {
@@ -191,7 +194,8 @@ prefix_file <- paste(prefix_file[-c((len_prefix_file-1):len_prefix_file)], colla
                     " -h ",      opt$h2,
                     " -t ",      opt$thread,
                     " -eff ",    opt$outPath, prefix_file, ".dbslmm",
-                    " -ntotal ", opt$ntotal))
+                    " -ntotal ", opt$ntotal, 
+                    " -training_indices_file ", opt$training_indices_file))
 
     } else {
       h2_vec <- as.numeric(unlist(strsplit(opt$h2f, ",")))
