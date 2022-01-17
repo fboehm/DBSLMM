@@ -17,9 +17,11 @@ h2=0.5
 nobs=`sed -n "2p" ${summf}${chr}.assoc.txt | awk '{print $5}'`
 nmis=`sed -n "2p" ${summf}${chr}.assoc.txt | awk '{print $4}'`
 n=$(echo "${nobs}+${nmis}" | bc -l)
+echo ${n}
+echo ${nsnp}
 ## execute Rscript
 Rscript ${DBSLMM} --summary ${summf}${chr}.assoc.txt --outPath ${outPath} \
   --plink ${plink} --dbslmm ${dbslmm} --ref ${ref}${chr} --n ${n} \
   --nsnp ${m} --type auto --model DBSLMM --block ${blockf}${chr}.bed \
-  --h2 ${h2} --ntotal 400  
+  --h2 ${h2} --ntotal 400 --training_indices_file ~/research/DBSLMM/test_dat/training_indices.txt
 
