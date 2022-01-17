@@ -116,9 +116,8 @@ int  DBSLMMFIT::est(int n_ref,
 	
 	unsigned int n_test = n_total - n_training;
 	cout << "n_test is: " << n_test << endl;
-	cout << "cPar.n is: " << cPar.n << endl;
-	cout << "cPar.ntotal is: " << cPar.ntotal << endl;
-	
+	cout << "n_obs is: " << n_obs << endl;
+
 	arma::vec diags = zeros(n_test); //specify length of diags
 	
 
