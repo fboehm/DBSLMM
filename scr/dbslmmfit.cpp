@@ -378,6 +378,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 			geno_l.col(i) = geno;
 		}//end populating of geno_l
 		//partition subjects - for geno_s and geno_l - into training and test
+		cout << "dimensions of geno_s: " << geno_s.n_row << " rows and " << geno_s.n_col << " columns"
 		arma::mat geno_s_training = subset(geno_s, training_indices);
 		cout << "geno_s_training number of rows: " << geno_s_training.n_rows << endl;
 		cout << "test_indices length: " << test_indices.n_elem << endl;
