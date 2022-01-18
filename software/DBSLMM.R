@@ -214,9 +214,9 @@ prefix_file <- paste(prefix_file[-c((len_prefix_file-1):len_prefix_file)], colla
                       " -eff ",    opt$outPath, prefix_file, "_h2f", hh, ".dbslmm"))
       }
     }
-    system(paste0("rm ", opt$outPath, "l_", prefix_file, "*"))
-    system(paste0("rm ", opt$outPath, "l_snp_", prefix_file, ".txt"))
-    system(paste0("rm ", opt$outPath, "s_", prefix_file, "*"))
+#    system(paste0("rm ", opt$outPath, "l_", prefix_file, "*"))
+#    system(paste0("rm ", opt$outPath, "l_snp_", prefix_file, ".txt"))
+#    system(paste0("rm ", opt$outPath, "s_", prefix_file, "*"))
   }
-  system(paste0("rm ", opt$outPath, "plink_", prefix_file, ".txt"))
+#  system(paste0("rm ", opt$outPath, "plink_", prefix_file, ".txt"))
 
