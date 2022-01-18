@@ -161,6 +161,7 @@ int  DBSLMMFIT::est(int n_ref,
 			omp_set_num_threads(thread);
 #pragma omp parallel for schedule(dynamic)
 			for (int b = 0; b < B; b++){
+			  cout << "call calcBlock... b has value:"<< b << endl;
 			  diags += calcBlock(n_ref, 
                                 n_obs, 
                                 sigma_s, 
