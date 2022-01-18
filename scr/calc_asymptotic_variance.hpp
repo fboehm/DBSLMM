@@ -20,7 +20,7 @@ arma::mat calc_var_betal(arma::mat Sigma_ll,
                          arma::mat A_inverse,
                          unsigned int n);
 arma::mat calc_var_betas(arma::mat Sigma_ss, 
-                         arma::mat Sigma_sl,
+                         arma::mat Sigma_sl, //check this!
                          arma::mat A_inverse,
                          double sigma2_s,
                          unsigned int n,
