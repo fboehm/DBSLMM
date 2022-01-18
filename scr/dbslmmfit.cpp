@@ -390,7 +390,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 		cout << "geno_l_test number of rows: " << geno_l_test.n_rows << endl;
 		
 		
-		unsigned int n_training = geno_s_training.n_rows;
+		unsigned int n_training = training_indices.n_elem;
 		
 		// estimation
 		vec beta_l = zeros<vec>(num_l_block); 
