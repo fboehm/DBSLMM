@@ -54,8 +54,8 @@ args_list <- list(
   make_option("--thread", type = "character", default = "5",
               help = "INPUT: the number of threads (default: 5)", 
               metavar = "character"),
-  make_option("--ntotal", type = "character", default = "400", 
-              help = "INPUT: total sample size, training plus test sets", 
+  make_option("--test_indices_file", type = "character", default = "test_indices.txt", 
+              help = "INPUT: file path for the test indices text file", 
               metavar = "character"),
   make_option("--training_indices_file", type = "character", default = "training_indices.txt", 
               help = "INPUT: file path for the training indices text file", metavar = "character")
