@@ -375,25 +375,31 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 
 		// large effect matrix
 		mat geno_l = zeros<mat>(n_ref, num_l_block);
+		arma::mat X_l = zeros<mat>(n_total, num_l_block);
 		for (int i = 0; i < num_l_block; ++i) {
 			vec geno = zeros<vec>(n_ref);
+		  arma::vec gg = zeros<vec>(n_total);
 			double maf = 0.0; 
 			// cIO.readSNPIm(info_l_block[i]->pos, n_ref, idv, bed_in, geno, maf);
 			cIO.readSNPIm(info_l_block[i].pos, n_ref, idv, bed_in, geno, maf);
 			cSP.nomalizeVec(geno);
 			geno_l.col(i) = geno;
-		}//end populating of geno_l
+			cIO.readSNPIm(info_l_block[i].pos, n_total, indic, dat_in, gg, maf);
+			cSP.nomalizeVec(gg);
+			X_l.col(i) = gg;
+			
+		}//end populating of geno_l & of X_l
 		//partition subjects - for geno_s and geno_l - into training and test
 		cout << "dimensions of geno_s: " << geno_s.n_rows << " rows and " << geno_s.n_cols << " columns" << endl;
-		arma::mat geno_s_training = subset(geno_s, training_indices);
-		cout << "geno_s_training number of rows: " << geno_s_training.n_rows << endl;
+		arma::mat X_s_training = subset(X_s, training_indices);
+		cout << "X_s_training number of rows: " << X_s_training.n_rows << endl;
 		cout << "test_indices length: " << test_indices.n_elem << endl;
-		arma::mat geno_s_test= subset(geno_s, test_indices);
-		cout << "geno_s_test number of rows: " << geno_s_test.n_rows << endl;
-		arma::mat geno_l_training = subset(geno_l, training_indices);
-		arma::mat geno_l_test= subset(geno_l, test_indices);
-		cout << "geno_l_training number of rows: " << geno_l_training.n_rows << endl;
-		cout << "geno_l_test number of rows: " << geno_l_test.n_rows << endl;
+		arma::mat X_s_test= subset(X_s, test_indices);
+		cout << "geno_s_test number of rows: " << X_s_test.n_rows << endl;
+		arma::mat X_l_training = subset(X_l, training_indices);
+		arma::mat X_l_test= subset(X_l, test_indices);
+		cout << "X_l_training number of rows: " << X_l_training.n_rows << endl;
+		cout << "X_l_test number of rows: " << X_l_test.n_rows << endl;
 		
 		
 		unsigned int n_training = training_indices.n_elem;
@@ -401,7 +407,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 		// estimation
 		vec beta_l = zeros<vec>(num_l_block); 
 		arma::field <arma::mat> out = estBlock(n_ref, n_obs, 
-                                         sigma_s, geno_s_training, geno_l_training, 
+                                         sigma_s, geno_s, geno_l, 
                                          z_s, z_l, beta_s, beta_l);
 		// need to partition into training and test sets! Do this BEFORE the estimation step!
 		//variance calcs
@@ -410,8 +416,8 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
                                           out(0), //Sigma_ll
                                           sigma_s, 
                                           n_training, 
-                                          geno_l_test, 
-                                          geno_s_test);
+                                          X_l_test, 
+                                          X_s_test);
 		
 		
 		// summary 
@@ -428,21 +434,21 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 		}
 	}
 	else{
-	  arma::mat geno_s_training = subset(geno_s, training_indices);
-	  arma::mat geno_s_test= subset(geno_s, test_indices);
-	  unsigned int n_training = geno_s_training.n_rows;
-	  cout << "geno_s_training number of rows: " << geno_s_training.n_rows << endl;
+	  arma::mat X_s_training = subset(X_s, training_indices);
+	  arma::mat X_s_test= subset(X_s, test_indices);
+	  unsigned int n_training = X_s_training.n_rows;
+	  cout << "X_s_training number of rows: " << X_s_training.n_rows << endl;
 	  cout << "test_indices length: " << test_indices.n_elem << endl;
-	  cout << "geno_s_test number of rows: " << geno_s_test.n_rows << endl;
+	  cout << "X_s_test number of rows: " << X_s_test.n_rows << endl;
 	  
 	  // estimation
 		
-		arma::field <arma::mat> out = estBlock(n_ref, n_obs, sigma_s, geno_s_training, z_s, beta_s);
+		arma::field <arma::mat> out = estBlock(n_ref, n_obs, sigma_s, geno_s, z_s, beta_s);
 		//variance calcs
 		result = calc_nt_by_nt_matrix(out(0), //Sigma_ss 
                                           sigma_s, 
                                           n_training, 
-                                          geno_s_test);
+                                          X_s_test);
 		
 		eff_l_block[0].snp = eff_pseudo.snp;
 		eff_l_block[0].a1 = eff_pseudo.a1;
@@ -493,6 +499,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 		z_s(i) = info_s_block[i].z;
 	// small effect genotype matrix
 	mat geno_s = zeros<mat>(n_ref, num_s_block);
+	arma::mat X_s = zeros <mat>(n_total, num_s_block);
 	for (int i = 0; i < num_s_block; ++i) {
 		vec geno = zeros<vec>(n_ref);
 		double maf = 0.0; 
