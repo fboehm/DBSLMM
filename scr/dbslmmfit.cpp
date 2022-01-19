@@ -319,10 +319,13 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 						                    vector <EFF> &eff_s_block, 
 						                    vector <EFF> &eff_l_block,
 						                    arma::uvec training_indices,
-						                    arma::uvec test_indices){
+						                    arma::uvec test_indices,
+						                    string dat_str){
 	SNPPROC cSP;
 	IO cIO; 
 	ifstream bed_in(bed_str.c_str(), ios::binary);
+	//open stream for observed data (not the reference panel)
+	ifstream dat_in(dat_str.c_str(), ios::binary);
 	
 	// INFO small effect SNPs 
 	// vector <INFO*> info_s_block(num_s_block);
@@ -480,11 +483,13 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
                                int num_s_block, 
                     						vector <EFF> &eff_s_block,
                     						arma::uvec training_indices,
-                    						arma::uvec test_indices){
+                    						arma::uvec test_indices,
+                    						string dat_str){
 	SNPPROC cSP;
 	IO cIO; 
 	ifstream bed_in(bed_str.c_str(), ios::binary);
-	
+	//open stream for observed data (not the reference panel)
+	ifstream dat_in(dat_str.c_str(), ios::binary);
 	// INFO small effect SNPs 
 	// vector <INFO*> info_s_block(num_s_block);
 	// for (int i = 0; i < num_s_block; i++)
@@ -524,7 +529,6 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	
 	//call estBlock on training data
 	arma::field <arma::mat> out = estBlock(n_ref, n_obs, sigma_s, geno_s, z_s, beta_s);
-	// need to partition into training and test sets! Do this BEFORE the estimation step, ie, before estBlock call!
   //variance calcs
   arma::mat result = calc_nt_by_nt_matrix(out(0), sigma_s, X_s_training.n_rows, X_s_test);
 	
