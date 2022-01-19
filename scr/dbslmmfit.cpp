@@ -345,15 +345,15 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	arma::mat X_s = zeros<mat>(n_total, num_s_block);
 	for (int i = 0; i < num_s_block; ++i) {
 		vec geno = zeros<vec>(n_ref);
-	  arma::vec x = zeros<vec>(n_total);
+	  arma::vec gg = zeros<vec>(n_total);
 		double maf = 0.0; 
 		// cIO.readSNPIm(info_s_block[i]->pos, n_ref, idv, bed_in, geno, maf);
 		cIO.readSNPIm(info_s_block[i].pos, n_ref, idv, bed_in, geno, maf);
 		cSP.nomalizeVec(geno);
 		geno_s.col(i) = geno;
-		cIO.readSNPIm(info_s_block[i].pos, n_total, indic, dat_in, x, maf);
-		cSP.nomalizeVec(x);
-		X_s.col(i) = x;
+		cIO.readSNPIm(info_s_block[i].pos, n_total, indic, dat_in, gg, maf);
+		cSP.nomalizeVec(gg);
+		X_s.col(i) = gg;
 	}
 	// pseudo EFF
 	EFF eff_pseudo; 
