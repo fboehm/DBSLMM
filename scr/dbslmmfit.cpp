@@ -502,27 +502,31 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	arma::mat X_s = zeros <mat>(n_total, num_s_block);
 	for (int i = 0; i < num_s_block; ++i) {
 		vec geno = zeros<vec>(n_ref);
+	  arma::vec gg = zeros <vec>(n_total);
 		double maf = 0.0; 
 		// cIO.readSNPIm(info_s_block[i]->pos, n_ref, idv, bed_in, geno, maf);
 		cIO.readSNPIm(info_s_block[i].pos, n_ref, idv, bed_in, geno, maf);
 		cSP.nomalizeVec(geno);
 		geno_s.col(i) = geno;
+		cIO.readSNPIm(info_s_block[i].pos, n_total, indic, dat_in, gg, maf);
+		cSP.nomalizeVec(gg);
+		geno_s.col(i) = gg;
 	}
 	
 	// estimation
 	vec beta_s = zeros<vec>(num_s_block); 
 	// partition subjects into training and test sets
-	arma::mat geno_s_training = subset(geno_s, training_indices);
-	arma::mat geno_s_test= subset(geno_s, test_indices);
-	cout << "geno_s_training number of rows: " << geno_s_training.n_rows << endl;
+	arma::mat X_s_training = subset(X_s, training_indices);
+	arma::mat X_s_test= subset(X_s, test_indices);
+	cout << "X_s_training number of rows: " << X_s_training.n_rows << endl;
 	cout << "test_indices length: " << test_indices.n_elem << endl;
-	cout << "geno_s_test number of rows: " << geno_s_test.n_rows << endl;
+	cout << "X_s_test number of rows: " << X_s_test.n_rows << endl;
 	
 	//call estBlock on training data
-	arma::field <arma::mat> out = estBlock(n_ref, n_obs, sigma_s, geno_s_training, z_s, beta_s);
+	arma::field <arma::mat> out = estBlock(n_ref, n_obs, sigma_s, geno_s, z_s, beta_s);
 	// need to partition into training and test sets! Do this BEFORE the estimation step, ie, before estBlock call!
   //variance calcs
-  arma::mat result = calc_nt_by_nt_matrix(out(0), sigma_s, geno_s_training.n_rows, geno_s_test);
+  arma::mat result = calc_nt_by_nt_matrix(out(0), sigma_s, X_s_training.n_rows, X_s_test);
 	
 	// output small effect
 	for(int i = 0; i < num_s_block; i++) {
