@@ -28,7 +28,10 @@ indic <- as.numeric(!is.na(fam$X6))
 (n_total <- sum(indic)) 
 # Does the fam file have column names???
 # No! So every line corresponds to a subject!
-readr::write_delim(x = tibble::as_tibble(indic), quote = "none", file = "indicator.txt", col_names = FALSE)
+readr::write_delim(x = tibble::as_tibble(indic), 
+                   quote = "none", 
+                   file = "indicator.txt", 
+                   col_names = FALSE)
 ```
 
 Now that we have `n_total`, the total number of subjects in the fam file with nonmissing trait values for the first trait, we 
