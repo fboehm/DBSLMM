@@ -42,6 +42,8 @@ public:
 	unsigned int n_total;
 	string training_indices_file;
 	string test_indices_file;
+	string dat_str;
+	string indicator_file;
 };
 
 class DBSLMM {
