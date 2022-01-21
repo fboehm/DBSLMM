@@ -18,14 +18,20 @@ number of subjects. Once we have that number, we can specify the proportion to b
 the training set and use R's pseudorandom sampling to partition subjects.
 
 
+We also need to write an indicator file, like the indices files, but containing 1's and 0's only to indicate whether we analyze each subject. That is, we need a file with a single column and one entry per subject. An entry is 1 if the subject has a nonmissing trait value; otherwise, it's a zero.
+
+Note also that we hard code the trait column of the fam file to be column 6.
+
 ```{r}
 fam <- readr::read_delim("test_chr1.fam", col_names = FALSE)
-n_total <- nrow(fam) 
+indic <- as.numeric(!is.na(fam$X6))
+(n_total <- sum(indic)) 
 # Does the fam file have column names???
 # No! So every line corresponds to a subject!
+readr::write_delim(x = tibble::as_tibble(indic), quote = "none", file = "indicator.txt", col_names = FALSE)
 ```
 
-Now that we have `n_total`, the total number of subjects in the fam file, we 
+Now that we have `n_total`, the total number of subjects in the fam file with nonmissing trait values for the first trait, we 
 proceed by specifying the proportion of the subjects that will be in the training set.
 
 ```{r}
@@ -36,9 +42,11 @@ readr::write_delim(x = tibble::as_tibble(cpp_indices),
                    quote = "none",
                    file = "training_indices.txt", # this is hardcoded into dbslmm.cpp
                    col_names = FALSE)
-readr::write_delim(x = tibble::as_tibble(fam$X1[1 + cpp_indices]), 
+readr::write_delim(x = tibble::as_tibble(fam$X1[!is.na(fam$X6)][1 + cpp_indices]), 
                    file = "training_ids.txt", 
                    quote = "none",
                    col_names = FALSE)
 ```
+
+
 
