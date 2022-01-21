@@ -38,7 +38,7 @@ using namespace arma;
 //' @param n_obs sample size of the observed data
 //' @param sigma_s the estimate for sigma_s^2
 //' @param num_block number of blocks in the genome
-//' @param idv 
+//' @param idv indicator of trait missingness for the reference panel data 
 //' @param bed_str file path for the plink bed file
 //' @param info_s small effect SNP info object
 //' @param info_l large effect SNP info object
@@ -60,7 +60,9 @@ int  DBSLMMFIT::est(int n_ref,
                     vector <EFF> &eff_s, 
                     vector <EFF> &eff_l,
                     arma::uvec training_indices,
-                    arma::uvec test_indices){
+                    arma::uvec test_indices,
+                    string dat_str, 
+                    vector<int> indic){
 	
 	// get the maximum number of each block
 	int count_s = 0, count_l = 0;
@@ -174,7 +176,9 @@ int  DBSLMMFIT::est(int n_ref,
                                 eff_s_Block[b], 
                                 eff_l_Block[b], 
                                            training_indices,
-                                           test_indices);
+                                           test_indices,
+                                           dat_str, 
+                                           indic);
 			 // int index = floor(i / B_MAX) * B_MAX + b;
 
 			}
@@ -211,7 +215,9 @@ int DBSLMMFIT::est(int n_ref,
 				            int thread, 
 				            vector <EFF> &eff_s,
 				            arma::uvec training_indices, 
-				            arma::uvec test_indices){
+				            arma::uvec test_indices,
+				            string dat_str, 
+				            vector<int> indic){
 	
 	// get the maximum number of each block
 	int count_s = 0;
@@ -288,7 +294,7 @@ int DBSLMMFIT::est(int n_ref,
 						                    num_s_vec[b], 
                                 eff_s_Block[b], 
                                            training_indices,
-                                           test_indices);
+                                           test_indices, dat_str, indic);
 			  //cout <<"index: " << index << endl; 
 			}
 			// eff of small effect SNPs
@@ -320,7 +326,8 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 						                    vector <EFF> &eff_l_block,
 						                    arma::uvec training_indices,
 						                    arma::uvec test_indices,
-						                    string dat_str){
+						                    string dat_str,
+						                    vector<int> indic){//indic is the indicator for missingness in the observed trait values
 	SNPPROC cSP;
 	IO cIO; 
 	ifstream bed_in(bed_str.c_str(), ios::binary);
@@ -341,6 +348,9 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 		z_s(i) = info_s_block[i].z;
 	// small effect genotype matrix
 	mat geno_s = zeros<mat>(n_ref, num_s_block); // from reference data
+	unsigned int n_training = training_indices.n_elem;
+	unsigned int n_test = test_indices.n_elem;
+	unsigned int n_total = n_training + n_test;
 	//initialize a matrix for reading training and test genotype data
 	arma::mat X_s = zeros<mat>(n_total, num_s_block);
 	for (int i = 0; i < num_s_block; ++i) {
@@ -403,9 +413,6 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 		arma::mat X_l_test= subset(X_l, test_indices);
 		cout << "X_l_training number of rows: " << X_l_training.n_rows << endl;
 		cout << "X_l_test number of rows: " << X_l_test.n_rows << endl;
-		
-		
-		unsigned int n_training = training_indices.n_elem;
 		
 		// estimation
 		vec beta_l = zeros<vec>(num_l_block); 
@@ -478,13 +485,14 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
                                int n_obs, 
                                double sigma_s, 
                                vector<int> idv, 
-                               string bed_str, 
+                               string bed_str, //for reference data
                                vector <INFO> info_s_block_full, 
                                int num_s_block, 
                     						vector <EFF> &eff_s_block,
                     						arma::uvec training_indices,
                     						arma::uvec test_indices,
-                    						string dat_str){
+                    						string dat_str,
+                    						vector<int> indic){
 	SNPPROC cSP;
 	IO cIO; 
 	ifstream bed_in(bed_str.c_str(), ios::binary);
@@ -504,6 +512,9 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 		z_s(i) = info_s_block[i].z;
 	// small effect genotype matrix
 	mat geno_s = zeros<mat>(n_ref, num_s_block);
+	unsigned int n_training = training_indices.n_elem;
+	unsigned int n_test = test_indices.n_elem;
+	unsigned int n_total = n_training + n_test;
 	arma::mat X_s = zeros <mat>(n_total, num_s_block);
 	for (int i = 0; i < num_s_block; ++i) {
 		vec geno = zeros<vec>(n_ref);

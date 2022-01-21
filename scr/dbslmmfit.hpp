@@ -39,11 +39,15 @@ public:
 	int est(int n_ref, int n_obs, double sigma_s, int num_block, vector<int> idv, string bed_str,
 			vector <INFO> info_s, vector <INFO> info_l, int thread, 
 			vector <EFF> &eff_s, vector <EFF> &eff_l,
-			uvec training_indices, uvec test_indices);
+			uvec training_indices, uvec test_indices,
+			string dat_str, 
+			vector<int> indic);
 	// estimate only small effect
 	int est(int n_ref, int n_obs, double sigma_s, int num_block, vector<int> idv, string bed_str,
 			vector <INFO> info_s, int thread, vector <EFF> &eff_s,
-			uvec training_indices, uvec test_indices);
+			uvec training_indices, uvec test_indices,
+			string dat_str, 
+			vector<int> indic);
 	// estimate large and small effect for each block
 	arma::vec calcBlock(int n_ref, 
                      int n_obs, 
@@ -58,14 +62,16 @@ public:
                      vector <EFF> &eff_l_block, 
                      uvec training_indices, 
                      uvec test_indices,
-                     string dat_str);
+                     string dat_str,
+                     vector<int> indic);
 	// estimate only small effect for each block
 	arma::vec calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, string bed_str, 
 				  vector <INFO> info_s_block_full, int num_s_block, 
 				  vector <EFF> &eff_s_block, 
 				  uvec training_indices, 
 				  uvec test_indices,
-				  string dat_str);
+				  string dat_str,
+				  vector<int> indic);
 	// solve x=Ab
 	vec PCGv(mat A, vec b, size_t maxiter, const double tol); 
 	// solve x=AB
