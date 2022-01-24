@@ -58,7 +58,13 @@ args_list <- list(
               help = "INPUT: file path for the test indices text file", 
               metavar = "character"),
   make_option("--training_indices_file", type = "character", default = "training_indices.txt", 
+              help = "INPUT: file path for the training indices text file", metavar = "character"),
+  make_option("--dat_str", type = "character", default = NULL, 
+              help = "INPUT: file path for the bed file for the observed data", metavar = "character"), 
+  make_option("--indicator_file", type = "character", default = NULL, 
               help = "INPUT: file path for the training indices text file", metavar = "character")
+  
+  
 )
 
 opt_parser <- OptionParser(option_list=args_list)
@@ -158,7 +164,9 @@ prefix_file <- paste(prefix_file[-c((len_prefix_file-1):len_prefix_file)], colla
                            " -t ",      opt$thread,
                            " -eff ",    opt$outPath, prefix_file, ".dbslmm",
                     " -training_indices_file ", opt$training_indices_file,
-                    " -test_indices_file ", opt$test_indices_file
+                    " -test_indices_file ", opt$test_indices_file,
+                    " -dat_str ", opt$dat_str,
+                    " -indicator_file ", opt$indicator_file
                     ))
       }
     } else {
@@ -195,7 +203,9 @@ prefix_file <- paste(prefix_file[-c((len_prefix_file-1):len_prefix_file)], colla
                     " -t ",      opt$thread,
                     " -eff ",    opt$outPath, prefix_file, ".dbslmm",
                     " -training_indices_file ", opt$training_indices_file,
-                    " -test_indices_file ", opt$test_indices_file))
+                    " -test_indices_file ", opt$test_indices_file,
+                    " -dat_str ", opt$dat_str,
+                    " -indicator_file ", opt$indicator_file))
 
     } else {
       h2_vec <- as.numeric(unlist(strsplit(opt$h2f, ",")))
