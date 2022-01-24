@@ -526,7 +526,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 		geno_s.col(i) = geno;
 		cIO.readSNPIm(info_s_block[i].pos, n_total, indic, dat_in, gg, maf);
 		cSP.nomalizeVec(gg);
-		geno_s.col(i) = gg;
+		X_s.col(i) = gg;
 	}
 	
 	// estimation
