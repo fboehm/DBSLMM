@@ -165,6 +165,22 @@ void DBSLMM::Assign(int argc, char ** argv, PARAM &cPar) {
 		  str.assign(argv[i]);
 		  cPar.test_indices_file = str.c_str();
 		}
+		else if (strcmp(argv[i], "--dat_str") == 0 || strcmp(argv[i], "-dat_str") == 0) {
+		  
+		  if (argv[i + 1] == NULL || argv[i + 1][0] == '-') { continue; }
+		  ++i;
+		  str.clear();
+		  str.assign(argv[i]);
+		  cPar.dat_str = str.c_str();
+		}
+		else if (strcmp(argv[i], "--indicator_file") == 0 || strcmp(argv[i], "-indicator_file") == 0) {
+		  
+		  if (argv[i + 1] == NULL || argv[i + 1][0] == '-') { continue; }
+		  ++i;
+		  str.clear();
+		  str.assign(argv[i]);
+		  cPar.indicator_file = str.c_str();
+		}
 		
 	}
 	return;
