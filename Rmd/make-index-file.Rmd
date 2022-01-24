@@ -23,7 +23,7 @@ We also need to write an indicator file, like the indices files, but containing 
 Note also that we hard code the trait column of the fam file to be column 6.
 
 ```{r}
-fam <- readr::read_delim("test_chr1.fam", col_names = FALSE)
+fam <- readr::read_delim("", col_names = FALSE)
 indic <- as.numeric(!is.na(fam$X6))
 (n_total <- sum(indic)) 
 # Does the fam file have column names???
@@ -50,6 +50,8 @@ readr::write_delim(x = tibble::as_tibble(fam$X1[!is.na(fam$X6)][1 + cpp_indices]
                    quote = "none",
                    col_names = FALSE)
 ```
+
+It's important to recognize that every trait requires its own set of training and test subjects, because of the different patterns of missingness.
 
 
 
