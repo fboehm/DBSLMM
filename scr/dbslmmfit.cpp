@@ -326,13 +326,13 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 						                    vector <EFF> &eff_l_block,
 						                    arma::uvec training_indices,
 						                    arma::uvec test_indices,
-						                    string dat_str,
-						                    vector<int> indic){//indic is the indicator for missingness in the observed trait values
+						                    string genotypes_str,
+						                    vector<int> missing_pheno_indic){//indic is the indicator for missingness in the observed trait values
 	SNPPROC cSP;
 	IO cIO; 
 	ifstream bed_in(bed_str.c_str(), ios::binary);
 	//open stream for observed data (not the reference panel)
-	ifstream dat_in(dat_str.c_str(), ios::binary);
+	ifstream dat_in(genotypes_str.c_str(), ios::binary);
 	
 	// INFO small effect SNPs 
 	// vector <INFO*> info_s_block(num_s_block);
@@ -355,13 +355,13 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	arma::mat X_s = zeros<mat>(n_total, num_s_block);
 	for (int i = 0; i < num_s_block; ++i) {
 		vec geno = zeros<vec>(n_ref);
-	  arma::vec gg = zeros<vec>(n_total);
+	  	arma::vec gg = zeros<vec>(n_total);
 		double maf = 0.0; 
 		// cIO.readSNPIm(info_s_block[i]->pos, n_ref, idv, bed_in, geno, maf);
 		cIO.readSNPIm(info_s_block[i].pos, n_ref, idv, bed_in, geno, maf);
 		cSP.nomalizeVec(geno);
 		geno_s.col(i) = geno;
-		cIO.readSNPIm(info_s_block[i].pos, n_total, indic, dat_in, gg, maf);
+		cIO.readSNPIm(info_s_block[i].pos, n_total, missing_pheno_indic, dat_in, gg, maf);
 		cSP.nomalizeVec(gg);
 		X_s.col(i) = gg;
 	}
@@ -391,24 +391,25 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 		arma::mat X_l = zeros<mat>(n_total, num_l_block);
 		for (int i = 0; i < num_l_block; ++i) {
 			vec geno = zeros<vec>(n_ref);
-		  arma::vec gg = zeros<vec>(n_total);
+		  	arma::vec gg = zeros<vec>(n_total);
 			double maf = 0.0; 
 			// cIO.readSNPIm(info_l_block[i]->pos, n_ref, idv, bed_in, geno, maf);
 			cIO.readSNPIm(info_l_block[i].pos, n_ref, idv, bed_in, geno, maf);
 			cSP.nomalizeVec(geno);
 			geno_l.col(i) = geno;
-			cIO.readSNPIm(info_l_block[i].pos, n_total, indic, dat_in, gg, maf);
+			cIO.readSNPIm(info_l_block[i].pos, n_total, missing_pheno_indic, dat_in, gg, maf);
 			cSP.nomalizeVec(gg);
 			X_l.col(i) = gg;
 			
-		}//end populating of geno_l & of X_l
-		//partition subjects - for geno_s and geno_l - into training and test
+		}//end populating of geno_l & of X_l. 
+		//X_l is the genotypes data for the non-reference subjects
+		//partition subjects - for X_s and X_l - into training and test
 		cout << "dimensions of geno_s: " << geno_s.n_rows << " rows and " << geno_s.n_cols << " columns" << endl;
-		arma::mat X_s_training = subset(X_s, training_indices);
+		arma::mat X_s_training = subset(X_s, training_indices); //note that training_indices can take zero as a value
 		cout << "X_s_training number of rows: " << X_s_training.n_rows << endl;
 		cout << "test_indices length: " << test_indices.n_elem << endl;
 		arma::mat X_s_test= subset(X_s, test_indices);
-		cout << "geno_s_test number of rows: " << X_s_test.n_rows << endl;
+		
 		arma::mat X_l_training = subset(X_l, training_indices);
 		arma::mat X_l_test= subset(X_l, test_indices);
 		cout << "X_l_training number of rows: " << X_l_training.n_rows << endl;
@@ -416,8 +417,8 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 		
 		// estimation
 		vec beta_l = zeros<vec>(num_l_block); 
-		arma::field <arma::mat> out = estBlock(n_ref, n_obs, 
-                                         sigma_s, geno_s, geno_l, 
+		arma::field <arma::mat> out = estBlock(n_total, n_obs, 
+                                         sigma_s, X_s, X_l, 
                                          z_s, z_l, beta_s, beta_l);
 		// need to partition into training and test sets! Do this BEFORE the estimation step!
 		//variance calcs
@@ -518,7 +519,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	arma::mat X_s = zeros <mat>(n_total, num_s_block);
 	for (int i = 0; i < num_s_block; ++i) {
 		vec geno = zeros<vec>(n_ref);
-	  arma::vec gg = zeros <vec>(n_total);
+	  	arma::vec gg = zeros <vec>(n_total);
 		double maf = 0.0; 
 		// cIO.readSNPIm(info_s_block[i]->pos, n_ref, idv, bed_in, geno, maf);
 		cIO.readSNPIm(info_s_block[i].pos, n_ref, idv, bed_in, geno, maf);
