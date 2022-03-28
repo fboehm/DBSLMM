@@ -86,7 +86,7 @@ arma::uvec convert_string_to_indices(std::vector <std::string> in_string){
   return (result);
 } 
 
-//' Read first column of a text file containing one integer per line
+//' Read first column of a text file containing one integer per line with space delimiters
 //' 
 //' @param filepath file path for the indices file
 //' @references https://www.youtube.com/watch?v=EaHFhms_Shw, https://stackoverflow.com/questions/2706076/new-how-would-i-read-a-file-that-has-3-columns-and-each-column-contains-100-n
@@ -101,7 +101,7 @@ arma::uvec read_indices_file(const string filepath){
   }*/ 
   string line;
   std::vector<std::string> result;
-  while(getline(infile, line)) 
+  while(getline(infile, line, ' ')) 
   { 
     result.push_back(line[0]); // append only the first entry in line
   } 
