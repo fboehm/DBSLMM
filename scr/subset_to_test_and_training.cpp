@@ -95,10 +95,12 @@ arma::uvec convert_string_to_indices(std::vector <std::string> in_string){
 //' @references https://stackoverflow.com/questions/14265581/parse-split-a-string-in-c-using-string-delimiter-standard-c
 
 std::vector<std::string> split(const std::string str, const std::string regex_str)
-{   // a yet more concise form!
-  return { std::sregex_token_iterator(str.begin(), str.end(), std::regex(regex_str), -1), std::sregex_token_iterator() };
+{
+  std::regex regexz(regex_str);
+  std::vector<std::string> list(std::sregex_token_iterator(str.begin(), str.end(), regexz, -1),
+                                std::sregex_token_iterator());
+  return list;
 }
-
 
 //' Read first column of a text file containing one integer per line with space delimiters
 //' 
