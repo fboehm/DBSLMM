@@ -5,6 +5,8 @@
 #include <string>
 #include <boost/lexical_cast.hpp>
 #include <iterator>
+#include <regex>
+
 
 #include "subset_to_test_and_training.hpp"
 
@@ -86,6 +88,18 @@ arma::uvec convert_string_to_indices(std::vector <std::string> in_string){
   return (result);
 } 
 
+
+
+//' Split a string vector with a regex
+//' 
+//' @references https://stackoverflow.com/questions/14265581/parse-split-a-string-in-c-using-string-delimiter-standard-c
+
+std::vector<std::string> split(const std::string str, const std::string regex_str)
+{   // a yet more concise form!
+  return { std::sregex_token_iterator(str.begin(), str.end(), std::regex(regex_str), -1), std::sregex_token_iterator() };
+}
+
+
 //' Read first column of a text file containing one integer per line with space delimiters
 //' 
 //' @param filepath file path for the indices file
@@ -101,9 +115,10 @@ arma::uvec read_indices_file(const string filepath){
   }*/ 
   string line;
   std::vector<std::string> result;
-  while(getline(infile, line, ' ')) 
+  while(getline(infile, line)) 
   { 
-    result.push_back(line[0]); // append only the first entry in line
+    std::vector<std::string> l0 = split(line, " "); //split line with space delimiter 
+    result.push_back(l0[0]); // append only the first entry in line
   } 
   infile.close(); 
   arma::uvec out = convert_string_to_indices(result);  
