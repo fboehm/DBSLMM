@@ -3,7 +3,9 @@
 #include <algorithm> /* std::sort, std::set_difference */
 #include <fstream> //std::ifstream
 #include <string>
-
+#include <boost/lexical_cast.hpp>
+#include <iterator>
+#include <regex>
 
 
 
