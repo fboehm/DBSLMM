@@ -15,6 +15,8 @@ arma::uvec get_complementary_indices(arma::uvec indices, int sample_size);
 
 arma::uvec convert_string_to_indices(std::string in_string);
 
+std::vector<std::string> split(const std::string str, const std::string regex_str);
+
 arma::uvec read_indices_file(const std::string filepath);
 
 template<typename C1, typename C2>
