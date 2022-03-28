@@ -23,5 +23,5 @@ echo ${nsnp}
 Rscript ${DBSLMM} --summary ${summf}${chr}.assoc.txt --outPath ${outPath} \
   --plink ${plink} --dbslmm ${dbslmm} --ref ${ref}${chr} --n ${n} \
   --nsnp ${m} --type auto --model DBSLMM --block ${blockf}${chr}.bed \
-  --h2 ${h2} --ntotal 400 --training_indices_file ~/research/DBSLMM/test_dat/training_indices.txt
+  --h2 ${h2} --training_indices_file ~/research/DBSLMM/test_dat/training_indices.txt
 
