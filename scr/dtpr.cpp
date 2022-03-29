@@ -274,10 +274,10 @@ int IO::readExt(string summ_str, char *separator, map<string, SUMMS> &summ){
 //' Read genotype data from plink bed file
 //' 
 //' @param pos position in binary bed file
-//' @param ni_test number of subjects in analysis
+//' @param ni_test number of subjects in analysis. Seems it's not actually used in the function code
 //' @param indicator_idv indicator vector of which individuals to include in analysis
 //' @param infile ifstream object for reading bim file
-//' @param geno genotype vector, size is ni_test
+//' @param geno genotype vector
 //' @param maf minor allele frequency
 //' @return void
 
@@ -289,7 +289,7 @@ void IO::readSNPIm(const int pos, //??position within the bed file
                    double &maf) {
 
 	// debug_msg("entered");
-	size_t ni_total = indicator_idv.size(), n_bit;
+	size_t ni_total = indicator_idv.size(), n_bit;// set ni_total to length of indicator_idv 
 	if (ni_total % 4 == 0) {
 		n_bit = ni_total / 4;
 	}
