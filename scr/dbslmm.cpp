@@ -312,7 +312,8 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 	}
 	//read file containing training indices
 	arma::uvec training_indices = read_indices_file(cPar.training_indices_file); //read file containing training set indices
-	arma::uvec test_indices = read_indices_file(cPar.test_indices_file);
+	arma::uvec test_indices = get_complementary_indices(training_indices, cPar.n);
+	// we'll discard the subjects with missing data before we subset to test and training
 	vector<int> indic = conv_to<vector<int> >::from( read_indices_file(cPar.indicator_file));
 	// output stream
 	string eff_str = cPar.eff + ".txt"; 

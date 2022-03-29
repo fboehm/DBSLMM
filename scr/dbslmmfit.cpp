@@ -35,10 +35,10 @@ using namespace arma;
 //' Estimate large and small effects
 //' 
 //' @param n_ref sample size of the reference panel
-//' @param n_obs sample size of the observed data
+//' @param n_obs sample size of the nonreference data
 //' @param sigma_s the estimate for sigma_s^2
 //' @param num_block number of blocks in the genome
-//' @param idv indicator of trait missingness for the reference panel data 
+//' @param idv indicator of trait missingness for the reference panel data. Since we don't care about trait values for the reference data, this is typically a vector of all 1's to indicate no missingness 
 //' @param bed_str file path for the plink bed file
 //' @param info_s small effect SNP info object
 //' @param info_l large effect SNP info object
