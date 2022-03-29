@@ -242,12 +242,12 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 	
 	// get sample size of reference panel 
 	char separate[] = "\t";
-	cout << "Reading PLINK FAM file from [" << cPar.r << ".fam]" << endl;
+	cout << "Reading reference PLINK FAM file from [" << cPar.r << ".fam]" << endl;
 	int n_ref = cIO.getRow(ref_fam_str); //n_ref is sample size of reference panel!
 	cout << n_ref << " individuals to be included from reference FAM file." << endl;
 	
 	// get SNP of reference panel
-	cout << "Reading PLINK BIM file from [" << cPar.r << ".bim]" << endl;
+	cout << "Reading reference PLINK BIM file from [" << cPar.r << ".bim]" << endl;
 	map <string, ALLELE> ref_bim;
 	bool constr = true; 
 	if (abs(cPar.mafMax-1.0) < 1e-10){
