@@ -46,6 +46,9 @@ using namespace arma;
 //' @param eff_s small effects SNP effects object
 //' @param eff_l large effects SNP effects object
 //' @param training_indices an armadillo column vector containing the indices for subjects that belong to the training set. 
+//' @param test_indices an armadillo vector containing indices for the subjects that belong to the test set.
+//' @param genotypes_str a string containing the file path to the file containing genotypes for test and training subjects
+//' @param missing_pheno_indic integer vector containing ones and zeros only to designate those subjects that have a missing phenotype value.
 //' @return zero is returned
 // estimate large and small effect
 int  DBSLMMFIT::est(int n_ref, 
@@ -61,8 +64,8 @@ int  DBSLMMFIT::est(int n_ref,
                     vector <EFF> &eff_l,
                     arma::uvec training_indices,
                     arma::uvec test_indices,
-                    string dat_str, 
-                    vector<int> indic){
+                    string genotypes_str, 
+                    vector<int> missing_pheno_indic){
 	
 	// get the maximum number of each block
 	int count_s = 0, count_l = 0;
@@ -177,8 +180,8 @@ int  DBSLMMFIT::est(int n_ref,
                                 eff_l_Block[b], 
                                            training_indices,
                                            test_indices,
-                                           dat_str, 
-                                           indic);
+                                           genotypes_str, 
+                                           missing_pheno_indic);
 			 // int index = floor(i / B_MAX) * B_MAX + b;
 
 			}
@@ -216,8 +219,8 @@ int DBSLMMFIT::est(int n_ref,
 				            vector <EFF> &eff_s,
 				            arma::uvec training_indices, 
 				            arma::uvec test_indices,
-				            string dat_str, 
-				            vector<int> indic){
+				            string genotypes_str, 
+				            vector<int> missing_pheno_indic){
 	
 	// get the maximum number of each block
 	int count_s = 0;
@@ -294,7 +297,9 @@ int DBSLMMFIT::est(int n_ref,
 						                    num_s_vec[b], 
                                 eff_s_Block[b], 
                                            training_indices,
-                                           test_indices, dat_str, indic);
+                                           test_indices, 
+                                           genotypes_str, 
+                                           missing_pheno_indic);
 			  //cout <<"index: " << index << endl; 
 			}
 			// eff of small effect SNPs
@@ -327,7 +332,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 						                    arma::uvec training_indices,
 						                    arma::uvec test_indices,
 						                    string genotypes_str,
-						                    vector<int> missing_pheno_indic){//indic is the indicator for missingness in the observed trait values
+						                    vector<int> missing_pheno_indic){//missing_pheno_indic is the indicator for missingness in the observed trait values
 	SNPPROC cSP;
 	IO cIO; 
 	ifstream bed_in(bed_str.c_str(), ios::binary);
@@ -391,7 +396,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 		arma::mat X_l = zeros<mat>(n_total, num_l_block);
 		for (int i = 0; i < num_l_block; ++i) {
 			vec geno = zeros<vec>(n_ref);
-		  	arma::vec gg = zeros<vec>(n_total);
+		  arma::vec gg = zeros<vec>(n_total);
 			double maf = 0.0; 
 			// cIO.readSNPIm(info_l_block[i]->pos, n_ref, idv, bed_in, geno, maf);
 			cIO.readSNPIm(info_l_block[i].pos, n_ref, idv, bed_in, geno, maf);
