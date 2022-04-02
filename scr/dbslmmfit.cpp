@@ -716,7 +716,7 @@ arma::field <arma::mat> DBSLMMFIT::estBlock(int n_ref,
 	vec z_s_SIGMA_ss_SIGMA_ss_inv_SIGMA_sl = z_s - SIGMA_ss_SIGMA_ss_inv_z_s; 
 	beta_s = sqrt(n_obs) * sigma_s * z_s_SIGMA_ss_SIGMA_ss_inv_SIGMA_sl; 
 	
-	arma::field <arma::mat> result(3);
+	arma::field <arma::mat> result(3);//length is 3 for compatibility with overloading
 	result(0) = SIGMA_ss;
 
 	return result; 
