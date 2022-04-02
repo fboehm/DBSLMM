@@ -423,8 +423,8 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 		arma::field <arma::mat> out = estBlock(n_ref, 
                                            n_obs, 
                                            sigma_s, 
-                                           X_s, 
-                                           X_l, 
+                                           geno_s, //ref data
+                                           geno_l, //ref data
                                            z_s, 
                                            z_l, 
                                            beta_s, 
@@ -551,7 +551,12 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	cout << "X_s_test number of rows: " << X_s_test.n_rows << endl;
 	
 	//call estBlock on training data
-	arma::field <arma::mat> out = estBlock(n_ref, n_obs, sigma_s, geno_s, z_s, beta_s);
+	arma::field <arma::mat> out = estBlock(n_ref, 
+                                        n_obs, 
+                                        sigma_s, 
+                                        geno_s, 
+                                        z_s, 
+                                        beta_s);
   //variance calcs
   arma::mat result = calc_nt_by_nt_matrix(out(0), 
                                           sigma_s, 
