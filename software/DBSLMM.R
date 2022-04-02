@@ -54,15 +54,12 @@ args_list <- list(
   make_option("--thread", type = "character", default = "5",
               help = "INPUT: the number of threads (default: 5)", 
               metavar = "character"),
-#  make_option("--test_indices_file", type = "character", default = "test_indices.txt", 
-#              help = "INPUT: file path for the test indices text file", 
-#              metavar = "character"),
-  make_option("--training_indices_file", type = "character", default = "training_indices.txt", 
-              help = "INPUT: file path for the training indices text file", metavar = "character"),
+  make_option("--test_indices_file", type = "character", default = NULL, 
+              help = "INPUT: file path for the test indices text file", metavar = "character"),
   make_option("--dat_str", type = "character", default = NULL, 
-              help = "INPUT: file path for the bed file for the observed data", metavar = "character"), 
+              help = "INPUT: file path for the bed file for the nonreference data", metavar = "character"), 
   make_option("--indicator_file", type = "character", default = NULL, 
-              help = "INPUT: file path for the training indices text file", metavar = "character")
+              help = "INPUT: file path for the missing trait value indicator text file", metavar = "character")
   
   
 )
