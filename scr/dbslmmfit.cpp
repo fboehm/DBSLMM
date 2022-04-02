@@ -289,17 +289,17 @@ int DBSLMMFIT::est(int n_ref,
 #pragma omp parallel for schedule(dynamic)
 			for (int b = 0; b < B; b++){
 			  diags += calcBlock(n_ref, 
-                                n_obs, 
-                                sigma_s, 
-                                idv, 
-                                bed_str, 
-                                info_s_Block[b],
-						                    num_s_vec[b], 
-                                eff_s_Block[b], 
-                                           training_indices,
-                                           test_indices, 
-                                           genotypes_str, 
-                                           missing_pheno_indic);
+                            n_obs, 
+                            sigma_s, 
+                            idv, 
+                            bed_str, 
+                            info_s_Block[b],
+				                    num_s_vec[b], 
+                            eff_s_Block[b], 
+                           training_indices,
+                           test_indices, 
+                           genotypes_str, 
+                           missing_pheno_indic);
 			  //cout <<"index: " << index << endl; 
 			}
 			// eff of small effect SNPs
