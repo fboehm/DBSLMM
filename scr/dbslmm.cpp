@@ -328,17 +328,20 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 		double sigma_s = cPar.h / (double)cPar.nsnp;
 		cout << "Fitting model..." << endl;
 		cDBSF.est(n_ref, 
-            cPar.n, 
+            cPar.n, //number of subjects with nonmissing trait value
             sigma_s, 
             num_block_s, 
-            idv, 
+            idv, //vector of length n_ref
             bed_str, 
             info_s, 
             info_l, 
             cPar.t, 
             eff_s, 
             eff_l, 
-            training_indices, test_indices, cPar.dat_str, indic); 
+            training_indices, 
+            test_indices, 
+            cPar.dat_str, 
+            indic); 
 		double time_fitting = cIO.getWalltime() - t_fitting;
 		cout << "Fitting time: " << time_fitting << " seconds." << endl;
 
@@ -374,7 +377,10 @@ void DBSLMM::BatchRun(PARAM &cPar) {
             info_s, 
             cPar.t, 
             eff_s, 
-            training_indices, test_indices, cPar.dat_str, indic); 
+            training_indices, 
+            test_indices, 
+            cPar.dat_str, 
+            indic); 
 		double time_fitting = cIO.getWalltime() - t_fitting;
 		cout << "Fitting time: " << time_fitting << " seconds." << endl;
 

@@ -178,10 +178,10 @@ int  DBSLMMFIT::est(int n_ref,
                                 num_l_vec[b], 
                                 eff_s_Block[b], 
                                 eff_l_Block[b], 
-                                           training_indices,
-                                           test_indices,
-                                           genotypes_str, 
-                                           missing_pheno_indic);
+                                 training_indices,
+                                 test_indices,
+                                 genotypes_str, 
+                                 missing_pheno_indic);
 			 // int index = floor(i / B_MAX) * B_MAX + b;
 
 			}
@@ -353,20 +353,17 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 		z_s(i) = info_s_block[i].z;
 	// small effect genotype matrix
 	mat geno_s = zeros<mat>(n_ref, num_s_block); // from reference data
-	unsigned int n_training = training_indices.n_elem;
-	unsigned int n_test = test_indices.n_elem;
-	unsigned int n_total = n_training + n_test;
 	//initialize a matrix for reading training and test genotype data
-	arma::mat X_s = zeros<mat>(n_total, num_s_block);
+	arma::mat X_s = zeros<mat>(n_obs, num_s_block);
 	for (int i = 0; i < num_s_block; ++i) {
 		vec geno = zeros<vec>(n_ref);
-	  	arma::vec gg = zeros<vec>(n_total);
+  	arma::vec gg = zeros<vec>(n_obs);
 		double maf = 0.0; 
 		// cIO.readSNPIm(info_s_block[i]->pos, n_ref, idv, bed_in, geno, maf);
 		cIO.readSNPIm(info_s_block[i].pos, n_ref, idv, bed_in, geno, maf);
 		cSP.nomalizeVec(geno);
 		geno_s.col(i) = geno;
-		cIO.readSNPIm(info_s_block[i].pos, n_total, missing_pheno_indic, dat_in, gg, maf);
+		cIO.readSNPIm(info_s_block[i].pos, n_obs, missing_pheno_indic, dat_in, gg, maf);
 		cSP.nomalizeVec(gg);
 		X_s.col(i) = gg;
 	}
@@ -393,16 +390,16 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 
 		// large effect matrix
 		mat geno_l = zeros<mat>(n_ref, num_l_block);
-		arma::mat X_l = zeros<mat>(n_total, num_l_block);
+		arma::mat X_l = zeros<mat>(n_obs, num_l_block);
 		for (int i = 0; i < num_l_block; ++i) {
 			vec geno = zeros<vec>(n_ref);
-		  arma::vec gg = zeros<vec>(n_total);
+		  arma::vec gg = zeros<vec>(n_obs);
 			double maf = 0.0; 
 			// cIO.readSNPIm(info_l_block[i]->pos, n_ref, idv, bed_in, geno, maf);
 			cIO.readSNPIm(info_l_block[i].pos, n_ref, idv, bed_in, geno, maf);
 			cSP.nomalizeVec(geno);
 			geno_l.col(i) = geno;
-			cIO.readSNPIm(info_l_block[i].pos, n_total, missing_pheno_indic, dat_in, gg, maf);
+			cIO.readSNPIm(info_l_block[i].pos, n_obs, missing_pheno_indic, dat_in, gg, maf);
 			cSP.nomalizeVec(gg);
 			X_l.col(i) = gg;
 			
@@ -416,15 +413,22 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 		arma::mat X_s_test= subset(X_s, test_indices);
 		
 		arma::mat X_l_training = subset(X_l, training_indices);
+		unsigned int n_training = X_l_training.n_rows;
 		arma::mat X_l_test= subset(X_l, test_indices);
 		cout << "X_l_training number of rows: " << X_l_training.n_rows << endl;
 		cout << "X_l_test number of rows: " << X_l_test.n_rows << endl;
 		
 		// estimation
 		vec beta_l = zeros<vec>(num_l_block); 
-		arma::field <arma::mat> out = estBlock(n_total, n_obs, 
-                                         sigma_s, X_s, X_l, 
-                                         z_s, z_l, beta_s, beta_l);
+		arma::field <arma::mat> out = estBlock(n_ref, 
+                                           n_obs, 
+                                           sigma_s, 
+                                           X_s, 
+                                           X_l, 
+                                           z_s, 
+                                           z_l, 
+                                           beta_s, 
+                                           beta_l);
 		// need to partition into training and test sets! Do this BEFORE the estimation step!
 		//variance calcs
 		result = calc_nt_by_nt_matrix(out(2), //Sigma_ss 
@@ -459,7 +463,12 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	  
 	  // estimation
 		
-		arma::field <arma::mat> out = estBlock(n_ref, n_obs, sigma_s, geno_s, z_s, beta_s);
+		arma::field <arma::mat> out = estBlock(n_ref, 
+                                           n_obs, 
+                                           sigma_s, 
+                                           geno_s, 
+                                           z_s, 
+                                           beta_s);
 		//variance calcs
 		result = calc_nt_by_nt_matrix(out(0), //Sigma_ss 
                                           sigma_s, 
@@ -518,19 +527,16 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 		z_s(i) = info_s_block[i].z;
 	// small effect genotype matrix
 	mat geno_s = zeros<mat>(n_ref, num_s_block);
-	unsigned int n_training = training_indices.n_elem;
-	unsigned int n_test = test_indices.n_elem;
-	unsigned int n_total = n_training + n_test;
-	arma::mat X_s = zeros <mat>(n_total, num_s_block);
+	arma::mat X_s = zeros <mat>(n_obs, num_s_block);
 	for (int i = 0; i < num_s_block; ++i) {
 		vec geno = zeros<vec>(n_ref);
-	  	arma::vec gg = zeros <vec>(n_total);
+	  arma::vec gg = zeros <vec>(n_obs);
 		double maf = 0.0; 
 		// cIO.readSNPIm(info_s_block[i]->pos, n_ref, idv, bed_in, geno, maf);
 		cIO.readSNPIm(info_s_block[i].pos, n_ref, idv, bed_in, geno, maf);
 		cSP.nomalizeVec(geno);
 		geno_s.col(i) = geno;
-		cIO.readSNPIm(info_s_block[i].pos, n_total, indic, dat_in, gg, maf);
+		cIO.readSNPIm(info_s_block[i].pos, n_obs, indic, dat_in, gg, maf);
 		cSP.nomalizeVec(gg);
 		X_s.col(i) = gg;
 	}
@@ -547,7 +553,10 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	//call estBlock on training data
 	arma::field <arma::mat> out = estBlock(n_ref, n_obs, sigma_s, geno_s, z_s, beta_s);
   //variance calcs
-  arma::mat result = calc_nt_by_nt_matrix(out(0), sigma_s, X_s_training.n_rows, X_s_test);
+  arma::mat result = calc_nt_by_nt_matrix(out(0), 
+                                          sigma_s, 
+                                          X_s_training.n_rows, 
+                                          X_s_test);
 	
 	// output small effect
 	for(int i = 0; i < num_s_block; i++) {
@@ -616,7 +625,15 @@ mat DBSLMMFIT::PCGm(mat A, mat B, size_t maxiter, const double tol){
 	return(x);
 }// end function
 
-arma::field< arma::mat > DBSLMMFIT::estBlock(int n_ref, int n_obs, double sigma_s, mat geno_s, mat geno_l, vec z_s, vec z_l, vec &beta_s, vec &beta_l) {
+arma::field< arma::mat > DBSLMMFIT::estBlock(int n_ref, 
+                                             int n_obs, 
+                                             double sigma_s, 
+                                             mat geno_s, 
+                                             mat geno_l, 
+                                             vec z_s, 
+                                             vec z_l, 
+                                             vec &beta_s, 
+                                             vec &beta_l) {
 
 	// LD matrix 
 	// mat SIGMA_ls = geno_l.t() * geno_s; 
@@ -662,8 +679,8 @@ arma::field< arma::mat > DBSLMMFIT::estBlock(int n_ref, int n_obs, double sigma_
 	arma::field<arma::mat> result(3);
 	result(0) = SIGMA_ss;
 	result(1) = arma::trans(SIGMA_ls);//ie, Sigma_sl
-	cout << "number of rows in SIGMA_ls: " << SIGMA_ls.n_rows << endl;
-	cout << "number of columns in SIGMA_ls: " << SIGMA_ls.n_cols << endl; 
+//	cout << "number of rows in SIGMA_ls: " << SIGMA_ls.n_rows << endl;
+//	cout << "number of columns in SIGMA_ls: " << SIGMA_ls.n_cols << endl; 
 	result(2) = SIGMA_ll;
 	
 	return result; 
