@@ -499,7 +499,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 arma::vec DBSLMMFIT::calcBlock(int n_ref, 
                                int n_obs, 
                                double sigma_s, 
-                               vector<int> idv, 
+                               vector<int> idv, //indicator for missingness in reference data - typically this is a vector of all zeroes to indicate no missingness, since we don't care about reference data's trait values
                                string bed_str, //for reference data
                                vector <INFO> info_s_block_full, 
                                int num_s_block, 
@@ -634,7 +634,6 @@ arma::field< arma::mat > DBSLMMFIT::estBlock(int n_ref,
                                              vec z_l, 
                                              vec &beta_s, 
                                              vec &beta_l) {
-
 	// LD matrix 
 	// mat SIGMA_ls = geno_l.t() * geno_s; 
 	// SIGMA_ls /= (double)n_ref; 
