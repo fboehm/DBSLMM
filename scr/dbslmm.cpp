@@ -311,10 +311,14 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 		clearVector(summ_l);
 	}
 	//read file containing training indices
-	arma::uvec test_indices = read_indices_file(cPar.test_indices_file); //read file containing training set indices
-	arma::uvec training_indices = get_complementary_indices(test_indices, cPar.n);
-	// we'll discard the subjects with missing data before we subset to test and training
-	vector<int> indic = conv_to<vector<int> >::from( read_indices_file(cPar.indicator_file));
+	arma::uvec test_indices_pre = read_indices_file(cPar.test_indices_file); //read file containing training set indices
+  arma::uvec ones_te;
+  arma::uvec test_indices = test_indices_pre - ones_te.ones(test_indices_pre.n_elem);
+	arma::uvec training_indices_pre = read_indices_file(cPar.training_indices_file);
+	arma::uvec ones_tr;
+	arma::uvec training_indices = training_indices_pre - ones_tr.ones(training_indices_pre.n_elem);
+	// we subtract one from test_indices and training_indices because our c++ indices start with zero, 
+	// while the files from which we read the indices have 1 as their smallest possible value.
 	// output stream
 	string eff_str = cPar.eff + ".txt"; 
 	ofstream effFout(eff_str.c_str());
@@ -340,8 +344,7 @@ void DBSLMM::BatchRun(PARAM &cPar) {
             eff_l, 
             training_indices, 
             test_indices, 
-            cPar.dat_str, 
-            indic); 
+            cPar.dat_str); 
 		double time_fitting = cIO.getWalltime() - t_fitting;
 		cout << "Fitting time: " << time_fitting << " seconds." << endl;
 
@@ -379,8 +382,7 @@ void DBSLMM::BatchRun(PARAM &cPar) {
             eff_s, 
             training_indices, 
             test_indices, 
-            cPar.dat_str, 
-            indic); 
+            cPar.dat_str); 
 		double time_fitting = cIO.getWalltime() - t_fitting;
 		cout << "Fitting time: " << time_fitting << " seconds." << endl;
 
