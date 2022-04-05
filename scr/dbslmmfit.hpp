@@ -60,16 +60,14 @@ public:
                      vector <EFF> &eff_l_block, 
                      uvec training_indices, 
                      uvec test_indices,
-                     string genotypes_str,
-                     vector<int> missing_pheno_indic);
+                     string genotypes_str);
 	// estimate only small effect for each block
 	arma::vec calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, string bed_str, 
 				  vector <INFO> info_s_block_full, int num_s_block, 
 				  vector <EFF> &eff_s_block, 
 				  uvec training_indices, 
 				  uvec test_indices,
-				  string genotypes_str,
-				  vector<int> missing_pheno_indic);
+				  string genotypes_str);
 	// solve x=Ab
 	vec PCGv(mat A, vec b, size_t maxiter, const double tol); 
 	// solve x=AB

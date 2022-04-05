@@ -354,7 +354,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	mat geno_s = zeros<mat>(n_ref, num_s_block); // from reference data
 	unsigned int n_test = test_indices.n_elem;
 	//make a test_indicator indicator vector
-	vector<int> test_indicator = make_ones_and_zeroes_vec(test_indices - 1, 337129); // test_indices -1 because test_indices has 1 as its smallest possible value
+	vector<int> test_indicator = make_ones_and_zeroes_vec(test_indices, 337129); 
 	// 337129 because that is the number of UKB subjects in the fam file
 	//initialize a matrix for reading training and test genotype data
 	arma::mat X_s = zeros<mat>(n_test, num_s_block);
@@ -528,8 +528,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 		// z_s(i) = info_s_block[i]->z;
 		z_s(i) = info_s_block[i].z;
 	//make a test_indicator indicator vector
-	vector<int> test_indicator = make_ones_and_zeroes_vec(test_indices - 1, 337129); 
-	// test_indices -1 because test_indices has 1 as its smallest possible value
+	vector<int> test_indicator = make_ones_and_zeroes_vec(test_indices, 337129); 
 	// 337129 because that is the number of UKB subjects in the fam file
 	unsigned int n_test = test_indices.n_elem;
 	// small effect genotype matrix
