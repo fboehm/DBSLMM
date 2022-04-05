@@ -331,8 +331,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 						                    vector <EFF> &eff_l_block,
 						                    arma::uvec training_indices,
 						                    arma::uvec test_indices,
-						                    string genotypes_str,
-						                    vector<int> missing_pheno_indic){//missing_pheno_indic is the indicator for missingness in the observed trait values
+						                    string genotypes_str){//missing_pheno_indic is the indicator for missingness in the observed trait values
 	SNPPROC cSP;
 	IO cIO; 
 	ifstream bed_in(bed_str.c_str(), ios::binary);
@@ -353,17 +352,21 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 		z_s(i) = info_s_block[i].z;
 	// small effect genotype matrix
 	mat geno_s = zeros<mat>(n_ref, num_s_block); // from reference data
+	unsigned int n_test = test_indices.n_elem;
+	//make a test_indicator indicator vector
+	vector<int> test_indicator = make_ones_and_zeroes_vec(test_indices - 1, 337129); // test_indices -1 because test_indices has 1 as its smallest possible value
+	// 337129 because that is the number of UKB subjects in the fam file
 	//initialize a matrix for reading training and test genotype data
-	arma::mat X_s = zeros<mat>(n_obs, num_s_block);
+	arma::mat X_s = zeros<mat>(n_test, num_s_block);
 	for (int i = 0; i < num_s_block; ++i) {
 		vec geno = zeros<vec>(n_ref);
-  	arma::vec gg = zeros<vec>(n_obs);
+  	arma::vec gg = zeros<vec>(n_test);
 		double maf = 0.0; 
 		// cIO.readSNPIm(info_s_block[i]->pos, n_ref, idv, bed_in, geno, maf);
 		cIO.readSNPIm(info_s_block[i].pos, n_ref, idv, bed_in, geno, maf);
 		cSP.nomalizeVec(geno);
 		geno_s.col(i) = geno;
-		cIO.readSNPIm(info_s_block[i].pos, n_obs, missing_pheno_indic, dat_in, gg, maf);
+		cIO.readSNPIm(info_s_block[i].pos, n_test, test_indicator, dat_in, gg, maf);
 		cSP.nomalizeVec(gg);
 		X_s.col(i) = gg;
 	}
@@ -390,16 +393,16 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 
 		// large effect matrix
 		mat geno_l = zeros<mat>(n_ref, num_l_block);
-		arma::mat X_l = zeros<mat>(n_obs, num_l_block);
+		arma::mat X_l = zeros<mat>(n_test, num_l_block);
 		for (int i = 0; i < num_l_block; ++i) {
 			vec geno = zeros<vec>(n_ref);
-		  arma::vec gg = zeros<vec>(n_obs);
+		  arma::vec gg = zeros<vec>(n_test);
 			double maf = 0.0; 
 			// cIO.readSNPIm(info_l_block[i]->pos, n_ref, idv, bed_in, geno, maf);
 			cIO.readSNPIm(info_l_block[i].pos, n_ref, idv, bed_in, geno, maf);
 			cSP.nomalizeVec(geno);
 			geno_l.col(i) = geno;
-			cIO.readSNPIm(info_l_block[i].pos, n_obs, missing_pheno_indic, dat_in, gg, maf);
+			cIO.readSNPIm(info_l_block[i].pos, n_test, test_indicator, dat_in, gg, maf);
 			cSP.nomalizeVec(gg);
 			X_l.col(i) = gg;
 			
@@ -506,13 +509,12 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
                     						vector <EFF> &eff_s_block,
                     						arma::uvec training_indices,
                     						arma::uvec test_indices,
-                    						string dat_str,
-                    						vector<int> indic){
+                    						string genotypes_str){
 	SNPPROC cSP;
 	IO cIO; 
 	ifstream bed_in(bed_str.c_str(), ios::binary);
 	//open stream for observed data (not the reference panel)
-	ifstream dat_in(dat_str.c_str(), ios::binary);
+	ifstream dat_in(genotypes_str.c_str(), ios::binary);
 	// INFO small effect SNPs 
 	// vector <INFO*> info_s_block(num_s_block);
 	// for (int i = 0; i < num_s_block; i++)
@@ -525,9 +527,14 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	for (int i = 0; i < num_s_block; i++) 
 		// z_s(i) = info_s_block[i]->z;
 		z_s(i) = info_s_block[i].z;
+	//make a test_indicator indicator vector
+	vector<int> test_indicator = make_ones_and_zeroes_vec(test_indices - 1, 337129); 
+	// test_indices -1 because test_indices has 1 as its smallest possible value
+	// 337129 because that is the number of UKB subjects in the fam file
+	unsigned int n_test = test_indices.n_elem;
 	// small effect genotype matrix
 	mat geno_s = zeros<mat>(n_ref, num_s_block);
-	arma::mat X_s = zeros <mat>(n_obs, num_s_block);
+	arma::mat X_s = zeros <mat>(n_test, num_s_block);
 	for (int i = 0; i < num_s_block; ++i) {
 		vec geno = zeros<vec>(n_ref);
 	  arma::vec gg = zeros <vec>(n_obs);
@@ -536,7 +543,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 		cIO.readSNPIm(info_s_block[i].pos, n_ref, idv, bed_in, geno, maf);
 		cSP.nomalizeVec(geno);
 		geno_s.col(i) = geno;
-		cIO.readSNPIm(info_s_block[i].pos, n_obs, indic, dat_in, gg, maf);
+		cIO.readSNPIm(info_s_block[i].pos, n_test, test_indicator, dat_in, gg, maf);
 		cSP.nomalizeVec(gg);
 		X_s.col(i) = gg;
 	}

@@ -40,14 +40,12 @@ public:
 			vector <INFO> info_s, vector <INFO> info_l, int thread, 
 			vector <EFF> &eff_s, vector <EFF> &eff_l,
 			uvec training_indices, uvec test_indices,
-			string genotypes_str, 
-			vector<int> missing_pheno_indic);
+			string genotypes_str);
 	// estimate only small effect
 	int est(int n_ref, int n_obs, double sigma_s, int num_block, vector<int> idv, string bed_str,
 			vector <INFO> info_s, int thread, vector <EFF> &eff_s,
 			uvec training_indices, uvec test_indices,
-			string genotypes_str, 
-			vector<int> missing_pheno_indic);
+			string genotypes_str);
 	// estimate large and small effect for each block
 	arma::vec calcBlock(int n_ref, 
                      int n_obs, 

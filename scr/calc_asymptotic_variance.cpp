@@ -121,7 +121,6 @@ arma::mat calc_var_betas(arma::mat Sigma_ss,
 
 // for LD blocks without large effects:
 arma::mat calc_var_betas(arma::mat Sigma_ss, 
-                         
                          arma::mat A_inverse,
                          double sigma2_s,
                          unsigned int n

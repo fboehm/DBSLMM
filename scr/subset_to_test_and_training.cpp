@@ -14,7 +14,25 @@
 using namespace arma;
 using namespace std;
 
+//' Make a vector of zeros and ones with ones at positions indicated
+//' 
+//' @param ones_positions an arma::uvec specifying the positions where the 1's go
+//' @param length the total length of the outputted vector
+//' @return an unsigned integer vector of zeros and ones
+//' @reference https://gallery.rcpp.org/articles/armadillo-subsetting/
 
+vector<int> make_ones_and_zeroes_vec(arma::uvec ones_positions, unsigned int length){
+  arma::vec result;
+  result.zeros(length); //fill vector with all zeros
+  //construct a vector for replacing zeroes with ones
+  arma::vec ones_vector;
+  ones_vector.ones(ones_positions.n_elem);
+  // replace zeroes with ones
+  result.elem(ones_positions) = ones_vector;
+  //convert to vector<int>
+  vector<int> out = conv_to<vector<int> >::from(result);
+  return out;
+}
 
 
 //' Subset a matrix's rows by indices 
