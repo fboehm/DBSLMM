@@ -149,13 +149,13 @@ void DBSLMM::Assign(int argc, char ** argv, PARAM &cPar) {
 			str.assign(argv[i]);
 			cPar.eff = str;
 		}
-		else if (strcmp(argv[i], "--test_indices_file") == 0 || strcmp(argv[i], "-test_indices_file") == 0) {
+		else if (strcmp(argv[i], "--test_indicator_file") == 0 || strcmp(argv[i], "-test_indicator_file") == 0) {
 		  
 		  if (argv[i + 1] == NULL || argv[i + 1][0] == '-') { continue; }
 		  ++i;
 		  str.clear();
 		  str.assign(argv[i]);
-		  cPar.test_indices_file = str.c_str();
+		  cPar.test_indicator_file = str.c_str();
 		}
 		else if (strcmp(argv[i], "--dat_str") == 0 || strcmp(argv[i], "-dat_str") == 0) {
 		  
@@ -189,7 +189,7 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 	 cout << "-h:      " << cPar.h << endl;
 	 cout << "-t:      " << cPar.t << endl;
 	 cout << "-eff:    " << cPar.eff << endl;
-	cout << "-test_indices_file:  " << cPar.test_indices_file <<endl;
+	cout << "-test_indicator_file:  " << cPar.test_indicator_file <<endl;
 
 	string ref_fam_str = cPar.r + ".fam"; //next line below declares the ifstream objects, including an ifstream object for reading the fam file! 
 	ifstream seffstream(cPar.s.c_str()), leffstream(cPar.l.c_str()), reffstream(ref_fam_str.c_str()), beffstream(cPar.b.c_str());
@@ -297,8 +297,8 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 		clearVector(summ_l);
 	}
 	//read file containing test indices
-	vector<int> test_indicator = read_indices_file(cPar.test_indicator_file) - 1; //read file containing training set indices
-
+	arma::uvec test_indicator_pre = read_indices_file(cPar.test_indicator_file) ; //read file containing training set indices
+	vector<int> test_indicator =  conv_to<vector<int> >::from(test_indicator_pre);
 
 	// we subtract one from test_indices and training_indices because our c++ indices start with zero, 
 	// while the files from which we read the indices have 1 as their smallest possible value.

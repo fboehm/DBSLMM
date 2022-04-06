@@ -46,7 +46,7 @@ using namespace arma;
 //' @param thread number of threads to use
 //' @param eff_s small effects SNP effects object
 //' @param eff_l large effects SNP effects object
-//' @param test_indicator_file a string with file path to the file containing a column of ones and zeroes for indicating which subjects are in the test set.
+//' @param test_indicator vector containing ones and zeroes for indicating which subjects are in the test set.
 //' @param genotypes_str a string containing the file path to the file containing genotypes for test and training subjects
 //' @return zero is returned
 // estimate large and small effect
@@ -343,8 +343,6 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	
 
 	//make a test_indicator indicator vector
-	//vector<int> test_indicator = make_ones_and_zeroes_vec(test_indices, 337129); //337129 is the sample size for UKB data
-	//vector<int> test_indicator = read_indices_file(test_indicator_file);
 	cout << "length of test_indicator: " << test_indicator.size() << endl;
 	unsigned int n_test = std::accumulate(test_indicator.begin(), test_indicator.end(),
                                        decltype(test_indicator)::value_type(0)); //https://stackoverflow.com/questions/3221812/how-to-sum-up-elements-of-a-c-vector
@@ -482,7 +480,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
                                vector <INFO> info_s_block_full, 
                                int num_s_block, 
                     						vector <EFF> &eff_s_block,
-                    						string test_indicator_file,
+                    						vector <int> test_indicator,
                     						string genotypes_str){
   cout << "starting line 1 of calcBlock..."<< endl;
 	SNPPROC cSP;
@@ -502,8 +500,6 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	for (int i = 0; i < num_s_block; i++) 
 		// z_s(i) = info_s_block[i]->z;
 		z_s(i) = info_s_block[i].z;
-	//make a test_indicator indicator vector
-	vector<int> test_indicator = read_indices_file(test_indicator_file);
 	cout << "length of test_indicator: " << test_indicator.size() << endl;
 	
 	// 337129 because that is the number of UKB subjects in the fam file
