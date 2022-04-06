@@ -158,9 +158,8 @@ prefix_file <- paste(prefix_file[-c((len_prefix_file-1):len_prefix_file)], colla
                            " -mafMax ", opt$mafMax,      
                            " -t ",      opt$thread,
                            " -eff ",    opt$outPath, prefix_file, ".dbslmm",
-                    " -test_indices_file ", opt$test_indices_file,
-                    " -dat_str ", opt$dat_str,
-                    " -indicator_file ", opt$indicator_file
+                    " -test_indicator_file ", opt$test_indicator_file,
+                    " -dat_str ", opt$dat_str
                     ))
       }
     } else {
