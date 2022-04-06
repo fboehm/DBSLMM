@@ -58,8 +58,8 @@ args_list <- list(
               help = "INPUT: file path for the test indices text file", metavar = "character"),
   make_option("--dat_str", type = "character", default = NULL, 
               help = "INPUT: file path for the bed file for the nonreference data", metavar = "character"), 
-  make_option("--indicator_file", type = "character", default = NULL, 
-              help = "INPUT: file path for the missing trait value indicator text file", metavar = "character")
+  make_option("--training_indices_file", type = "character", default = NULL, 
+              help = "INPUT: file path for the text file containing the training set indices", metavar = "character")
   
   
 )
