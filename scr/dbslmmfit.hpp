@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <string>
 #include <armadillo>
-
+#include <numeric>
 #include "dtpr.hpp"
 #include "calc_asymptotic_variance.hpp"
 #include "subset_to_test_and_training.hpp"
@@ -38,12 +38,12 @@ public:
 	int est(int n_ref, int n_obs, double sigma_s, int num_block, vector<int> idv, string bed_str,
 			vector <INFO> info_s, vector <INFO> info_l, int thread, 
 			vector <EFF> &eff_s, vector <EFF> &eff_l,
-			uvec test_indices,
+			vector <int> test_indicator,
 			string genotypes_str);
 	// estimate only small effect
 	int est(int n_ref, int n_obs, double sigma_s, int num_block, vector<int> idv, string bed_str,
 			vector <INFO> info_s, int thread, vector <EFF> &eff_s,
-			 uvec test_indices,
+			 vector<int> test_indicator,
 			string genotypes_str);
 	// estimate large and small effect for each block
 	arma::vec calcBlock(int n_ref, 
@@ -57,13 +57,13 @@ public:
                      int num_l_block, 
                      vector <EFF> &eff_s_block, 
                      vector <EFF> &eff_l_block, 
-                     uvec test_indices,
+                     vector<int> test_indicator,
                      string genotypes_str);
 	// estimate only small effect for each block
 	arma::vec calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, string bed_str, 
 				  vector <INFO> info_s_block_full, int num_s_block, 
 				  vector <EFF> &eff_s_block, 
-				  uvec test_indices,
+				  vector<int> test_indicator,
 				  string genotypes_str);
 	// solve x=Ab
 	vec PCGv(mat A, vec b, size_t maxiter, const double tol); 

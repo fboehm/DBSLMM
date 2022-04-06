@@ -22,12 +22,16 @@ using namespace std;
 //' @reference https://gallery.rcpp.org/articles/armadillo-subsetting/
 
 vector<int> make_ones_and_zeroes_vec(arma::uvec ones_positions, unsigned int length){
+  cout << "starting make_ones_and_zeroes_vec"<<endl;
+  cout <<"result length is: " << length << endl;
   arma::vec result;
   result.zeros(length); //fill vector with all zeros
   //construct a vector for replacing zeroes with ones
   arma::vec ones_vector;
   ones_vector.ones(ones_positions.n_elem);
+  cout << "ones_vector has length: " << ones_positions.n_elem << endl;
   // replace zeroes with ones
+  //result.elem(ones_positions) = ones_vector;
   result.elem(ones_positions) = ones_vector;
   //convert to vector<int>
   vector<int> out = conv_to<vector<int> >::from(result);

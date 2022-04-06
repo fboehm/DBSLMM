@@ -297,12 +297,11 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 		clearVector(summ_l);
 	}
 	//read file containing test indices
-	arma::uvec test_indices = read_indices_file(cPar.test_indices_file) - 1; //read file containing training set indices
+	vector<int> test_indicator = read_indices_file(cPar.test_indicator_file) - 1; //read file containing training set indices
 
 
 	// we subtract one from test_indices and training_indices because our c++ indices start with zero, 
 	// while the files from which we read the indices have 1 as their smallest possible value.
-	cout << "length of test_indices: " << test_indices.n_elem << endl;
 	// output stream
 	string eff_str = cPar.eff + ".txt"; 
 	ofstream effFout(eff_str.c_str());
@@ -326,7 +325,7 @@ void DBSLMM::BatchRun(PARAM &cPar) {
             cPar.t, 
             eff_s, 
             eff_l, 
-            test_indices, 
+            test_indicator, 
             cPar.dat_str); 
 		double time_fitting = cIO.getWalltime() - t_fitting;
 		cout << "Fitting time: " << time_fitting << " seconds." << endl;
@@ -363,7 +362,7 @@ void DBSLMM::BatchRun(PARAM &cPar) {
             info_s, 
             cPar.t, 
             eff_s, 
-            test_indices, 
+            test_indicator, 
             cPar.dat_str); 
 		double time_fitting = cIO.getWalltime() - t_fitting;
 		cout << "Fitting time: " << time_fitting << " seconds." << endl;

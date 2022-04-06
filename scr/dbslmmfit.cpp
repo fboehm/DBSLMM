@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <armadillo>
 #include <string>
+#include <numeric>
 #include "omp.h"
 
 #include "dtpr.hpp"
@@ -45,9 +46,8 @@ using namespace arma;
 //' @param thread number of threads to use
 //' @param eff_s small effects SNP effects object
 //' @param eff_l large effects SNP effects object
-//' @param test_indices an armadillo vector containing indices for the subjects that belong to the test set.
+//' @param test_indicator_file a string with file path to the file containing a column of ones and zeroes for indicating which subjects are in the test set.
 //' @param genotypes_str a string containing the file path to the file containing genotypes for test and training subjects
-//' @param missing_pheno_indic integer vector containing ones and zeros only to designate those subjects that have a missing phenotype value.
 //' @return zero is returned
 // estimate large and small effect
 int  DBSLMMFIT::est(int n_ref, 
@@ -61,7 +61,7 @@ int  DBSLMMFIT::est(int n_ref,
 				            int thread, 
                     vector <EFF> &eff_s, 
                     vector <EFF> &eff_l,
-                    arma::uvec test_indices,
+                    vector<int> test_indicator,
                     string genotypes_str){
 	
 	// get the maximum number of each block
@@ -114,10 +114,8 @@ int  DBSLMMFIT::est(int n_ref,
 	vector < vector <EFF> > eff_s_Block(B_MAX, vector <EFF> ((int)len_s)), eff_l_Block(B_MAX, vector <EFF> ((int)len_l));
 	vector <int> num_s_vec, num_l_vec;
 
-	unsigned int n_test = test_indices.n_elem;
-	cout << "n_test is: " << n_test << endl;
-	cout << "n_obs is: " << n_obs << endl;
-
+  unsigned int n_test = std::accumulate(test_indicator.begin(), test_indicator.end(),
+                                        decltype(test_indicator)::value_type(0));
 	arma::vec diags = zeros(n_test); //specify length of diags
 	
 
@@ -173,7 +171,7 @@ int  DBSLMMFIT::est(int n_ref,
                                 num_l_vec[b], 
                                 eff_s_Block[b], 
                                 eff_l_Block[b], 
-                                 test_indices,
+                                 test_indicator,
                                  genotypes_str);
 			 // int index = floor(i / B_MAX) * B_MAX + b;
 
@@ -210,7 +208,7 @@ int DBSLMMFIT::est(int n_ref,
 				            vector <INFO> info_s, 
 				            int thread, 
 				            vector <EFF> &eff_s,
-				            arma::uvec test_indices,
+				            vector<int> test_indicator,
 				            string genotypes_str){
 	
 	// get the maximum number of each block
@@ -252,7 +250,8 @@ int DBSLMMFIT::est(int n_ref,
 	vector < vector <INFO> > info_s_Block(B_MAX, vector <INFO> ((int)len_s));
 	vector < vector <EFF> > eff_s_Block(B_MAX, vector <EFF> ((int)len_s));
 	vector <int> num_s_vec;
-	unsigned int n_test = test_indices.n_elem;
+	unsigned int n_test = std::accumulate(test_indicator.begin(), test_indicator.end(),
+                                       decltype(test_indicator)::value_type(0));
 	cout << "n_test: " << n_test << endl;
 	arma::vec diags = zeros(n_test); //specify length of diags & set all to zeros
 
@@ -285,7 +284,7 @@ int DBSLMMFIT::est(int n_ref,
                             info_s_Block[b],
 				                    num_s_vec[b], 
                             eff_s_Block[b], 
-                           test_indices, 
+                           test_indicator, 
                            genotypes_str);
 			  //cout <<"index: " << index << endl; 
 			}
@@ -316,8 +315,9 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 						                    int num_l_block, 
 						                    vector <EFF> &eff_s_block, 
 						                    vector <EFF> &eff_l_block,
-						                    arma::uvec test_indices,
+						                    vector <int> test_indicator,
 						                    string genotypes_str){
+  cout << "starting line 1 of calcBlock..."<< endl;
 	SNPPROC cSP;
 	IO cIO; 
 	ifstream bed_in(bed_str.c_str(), ios::binary);
@@ -338,11 +338,17 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 		z_s(i) = info_s_block[i].z;
 	// small effect genotype matrix
 	mat geno_s = zeros<mat>(n_ref, num_s_block); // from reference data
-	unsigned int n_test = test_indices.n_elem;
+	cout << "number of rows in geno_s: " << geno_s.n_rows << endl;
+	cout << "number of columns in geno_s: " << geno_s.n_cols << endl;
+	
+
 	//make a test_indicator indicator vector
-	vector<int> test_indicator = make_ones_and_zeroes_vec(test_indices, 337129); //337129 is the sample size for UKB data
+	//vector<int> test_indicator = make_ones_and_zeroes_vec(test_indices, 337129); //337129 is the sample size for UKB data
+	//vector<int> test_indicator = read_indices_file(test_indicator_file);
 	cout << "length of test_indicator: " << test_indicator.size() << endl;
-	// 337129 because that is the number of UKB subjects in the fam file
+	unsigned int n_test = std::accumulate(test_indicator.begin(), test_indicator.end(),
+                                       decltype(test_indicator)::value_type(0)); //https://stackoverflow.com/questions/3221812/how-to-sum-up-elements-of-a-c-vector
+	//https://stackoverflow.com/questions/3221812/how-to-sum-up-elements-of-a-c-vector
 	//initialize a matrix for reading training and test genotype data
 	arma::mat X_s = zeros<mat>(n_test, num_s_block);
 	cout << "Number of columns in X_s: " << X_s.n_cols << endl;
@@ -476,8 +482,9 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
                                vector <INFO> info_s_block_full, 
                                int num_s_block, 
                     						vector <EFF> &eff_s_block,
-                    						arma::uvec test_indices,
+                    						string test_indicator_file,
                     						string genotypes_str){
+  cout << "starting line 1 of calcBlock..."<< endl;
 	SNPPROC cSP;
 	IO cIO; 
 	ifstream bed_in(bed_str.c_str(), ios::binary);
@@ -496,9 +503,12 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 		// z_s(i) = info_s_block[i]->z;
 		z_s(i) = info_s_block[i].z;
 	//make a test_indicator indicator vector
-	vector<int> test_indicator = make_ones_and_zeroes_vec(test_indices, 337129); 
+	vector<int> test_indicator = read_indices_file(test_indicator_file);
+	cout << "length of test_indicator: " << test_indicator.size() << endl;
+	
 	// 337129 because that is the number of UKB subjects in the fam file
-	unsigned int n_test = test_indices.n_elem;
+	unsigned int n_test = std::accumulate(test_indicator.begin(), test_indicator.end(),
+                                       decltype(test_indicator)::value_type(0)); //https://stackoverflow.com/questions/3221812/how-to-sum-up-elements-of-a-c-vector
 	// small effect genotype matrix
 	mat geno_s = zeros<mat>(n_ref, num_s_block);
 	arma::mat X_s = zeros <mat>(n_test, num_s_block);
