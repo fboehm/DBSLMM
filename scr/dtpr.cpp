@@ -280,6 +280,7 @@ int IO::readExt(string summ_str, char *separator, map<string, SUMMS> &summ){
 //' @param geno genotype vector
 //' @param maf minor allele frequency
 //' @return void
+//' @details indicator_idv contains one entry per subject. Each entry is either 0 or 1. Those subjects with 1 get their SNP genotype read, while those with zero don't.
 
 void IO::readSNPIm(const int pos, //??position within the bed file
                    int ni_test, 
