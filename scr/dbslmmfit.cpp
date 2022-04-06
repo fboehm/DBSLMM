@@ -341,9 +341,12 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	unsigned int n_test = test_indices.n_elem;
 	//make a test_indicator indicator vector
 	vector<int> test_indicator = make_ones_and_zeroes_vec(test_indices, 337129); //337129 is the sample size for UKB data
+	cout << "length of test_indicator: " << test_indicator.size() << endl;
 	// 337129 because that is the number of UKB subjects in the fam file
 	//initialize a matrix for reading training and test genotype data
 	arma::mat X_s = zeros<mat>(n_test, num_s_block);
+	cout << "Number of columns in X_s: " << X_s.n_cols << endl;
+	cout << "Number of rows in X_s: " << X_s.n_rows << endl;
 	for (int i = 0; i < num_s_block; ++i) {
 		vec geno = zeros<vec>(n_ref);
   	arma::vec gg = zeros<vec>(n_test);
