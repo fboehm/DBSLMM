@@ -297,9 +297,8 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 		clearVector(summ_l);
 	}
 	//read file containing test indices
-	arma::uvec test_indices_pre = read_indices_file(cPar.test_indices_file); //read file containing training set indices
-  arma::uvec ones_te;
-  arma::uvec test_indices = test_indices_pre - ones_te.ones(test_indices_pre.n_elem);
+	arma::uvec test_indices = read_indices_file(cPar.test_indices_file) - 1; //read file containing training set indices
+
 
 	// we subtract one from test_indices and training_indices because our c++ indices start with zero, 
 	// while the files from which we read the indices have 1 as their smallest possible value.
