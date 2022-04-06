@@ -57,10 +57,8 @@ args_list <- list(
   make_option("--test_indices_file", type = "character", default = NULL, 
               help = "INPUT: file path for the test indices text file", metavar = "character"),
   make_option("--dat_str", type = "character", default = NULL, 
-              help = "INPUT: file path for the bed file for the nonreference data", metavar = "character"), 
-  make_option("--training_indices_file", type = "character", default = NULL, 
-              help = "INPUT: file path for the text file containing the training set indices", metavar = "character")
-  
+              help = "INPUT: file path for the bed file for the nonreference data", metavar = "character") 
+
   
 )
 
@@ -71,7 +69,7 @@ opt <- parse_args(opt_parser)
 # cat("Acccept Options: \n")
 # cat("--summary:  ", opt$summary, "\n")
 # cat("--plink:    ", opt$plink, "\n")
-# cat("--dbslmm:   ", opt$dbslmm, "\n")
+# cat("--dbslmm:   ", opt$dbslmm, "\n")/net/mulan/home/fredboe/research/ukb-intervals/training_index_files/pheno_1_cross_1.txt
 # cat("--model:    ", opt$model, "\n")
 # cat("--ref:      ", opt$ref, "\n")
 # cat("--block:    ", opt$block, "\n")

@@ -25,7 +25,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <armadillo>
 
 #include "dtpr.hpp"
-#include "dbslmmfit.hpp"
 #include "calc_asymptotic_variance.hpp"
 #include "subset_to_test_and_training.hpp"
 
@@ -39,12 +38,12 @@ public:
 	int est(int n_ref, int n_obs, double sigma_s, int num_block, vector<int> idv, string bed_str,
 			vector <INFO> info_s, vector <INFO> info_l, int thread, 
 			vector <EFF> &eff_s, vector <EFF> &eff_l,
-			uvec training_indices, uvec test_indices,
+			uvec test_indices,
 			string genotypes_str);
 	// estimate only small effect
 	int est(int n_ref, int n_obs, double sigma_s, int num_block, vector<int> idv, string bed_str,
 			vector <INFO> info_s, int thread, vector <EFF> &eff_s,
-			uvec training_indices, uvec test_indices,
+			 uvec test_indices,
 			string genotypes_str);
 	// estimate large and small effect for each block
 	arma::vec calcBlock(int n_ref, 
@@ -58,14 +57,12 @@ public:
                      int num_l_block, 
                      vector <EFF> &eff_s_block, 
                      vector <EFF> &eff_l_block, 
-                     uvec training_indices, 
                      uvec test_indices,
                      string genotypes_str);
 	// estimate only small effect for each block
 	arma::vec calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, string bed_str, 
 				  vector <INFO> info_s_block_full, int num_s_block, 
 				  vector <EFF> &eff_s_block, 
-				  uvec training_indices, 
 				  uvec test_indices,
 				  string genotypes_str);
 	// solve x=Ab

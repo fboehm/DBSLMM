@@ -157,14 +157,6 @@ void DBSLMM::Assign(int argc, char ** argv, PARAM &cPar) {
 		  str.assign(argv[i]);
 		  cPar.training_indices_file = str.c_str();
 		}
-		else if (strcmp(argv[i], "--test_indices_file") == 0 || strcmp(argv[i], "-test_indices_file") == 0) {
-		  
-		  if (argv[i + 1] == NULL || argv[i + 1][0] == '-') { continue; }
-		  ++i;
-		  str.clear();
-		  str.assign(argv[i]);
-		  cPar.test_indices_file = str.c_str();
-		}
 		else if (strcmp(argv[i], "--dat_str") == 0 || strcmp(argv[i], "-dat_str") == 0) {
 		  
 		  if (argv[i + 1] == NULL || argv[i + 1][0] == '-') { continue; }
@@ -173,14 +165,7 @@ void DBSLMM::Assign(int argc, char ** argv, PARAM &cPar) {
 		  str.assign(argv[i]);
 		  cPar.dat_str = str.c_str();
 		}
-		else if (strcmp(argv[i], "--indicator_file") == 0 || strcmp(argv[i], "-indicator_file") == 0) {
-		  
-		  if (argv[i + 1] == NULL || argv[i + 1][0] == '-') { continue; }
-		  ++i;
-		  str.clear();
-		  str.assign(argv[i]);
-		  cPar.indicator_file = str.c_str();
-		}
+
 		
 	}
 	return;
@@ -193,18 +178,19 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 	DBSLMMFIT cDBSF;
 
 	// input check
-	// cout << "Options: " << endl;
-	// cout << "-s:      " << cPar.s << endl;
-	// cout << "-l:      " << cPar.l << endl;
-	// cout << "-r:      " << cPar.r << endl;
-	// cout << "-nsnp:   " << cPar.nsnp << endl;
-	// cout << "-n:      " << cPar.n << endl;
-	// cout << "-mafMax: " << cPar.mafMax << endl;
-	// cout << "-b:      " << cPar.b << endl;
-	// cout << "-h:      " << cPar.h << endl;
-	// cout << "-t:      " << cPar.t << endl;
-	// cout << "-eff:    " << cPar.eff << endl;
-	
+	   cout << "Options: " << endl;
+	 cout << "-s:      " << cPar.s << endl;
+	 cout << "-l:      " << cPar.l << endl;
+	 cout << "-r:      " << cPar.r << endl;
+	 cout << "-nsnp:   " << cPar.nsnp << endl;
+	 cout << "-n:      " << cPar.n << endl;
+	 cout << "-mafMax: " << cPar.mafMax << endl;
+	 cout << "-b:      " << cPar.b << endl;
+	 cout << "-h:      " << cPar.h << endl;
+	 cout << "-t:      " << cPar.t << endl;
+	 cout << "-eff:    " << cPar.eff << endl;
+	cout << "-training_indices_file:  " << cPar.training_indices_file <<endl;
+
 	string ref_fam_str = cPar.r + ".fam"; //next line below declares the ifstream objects, including an ifstream object for reading the fam file! 
 	ifstream seffstream(cPar.s.c_str()), leffstream(cPar.l.c_str()), reffstream(ref_fam_str.c_str()), beffstream(cPar.b.c_str());
 	if (cPar.s.size() == 0) {
@@ -314,11 +300,10 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 	arma::uvec test_indices_pre = read_indices_file(cPar.test_indices_file); //read file containing training set indices
   arma::uvec ones_te;
   arma::uvec test_indices = test_indices_pre - ones_te.ones(test_indices_pre.n_elem);
-	arma::uvec training_indices_pre = read_indices_file(cPar.training_indices_file);
-	arma::uvec ones_tr;
-	arma::uvec training_indices = training_indices_pre - ones_tr.ones(training_indices_pre.n_elem);
+
 	// we subtract one from test_indices and training_indices because our c++ indices start with zero, 
 	// while the files from which we read the indices have 1 as their smallest possible value.
+	cout << "length of test_indices: " << test_indices.n_elem << endl;
 	// output stream
 	string eff_str = cPar.eff + ".txt"; 
 	ofstream effFout(eff_str.c_str());
@@ -342,7 +327,6 @@ void DBSLMM::BatchRun(PARAM &cPar) {
             cPar.t, 
             eff_s, 
             eff_l, 
-            training_indices, 
             test_indices, 
             cPar.dat_str); 
 		double time_fitting = cIO.getWalltime() - t_fitting;
@@ -380,7 +364,6 @@ void DBSLMM::BatchRun(PARAM &cPar) {
             info_s, 
             cPar.t, 
             eff_s, 
-            training_indices, 
             test_indices, 
             cPar.dat_str); 
 		double time_fitting = cIO.getWalltime() - t_fitting;
