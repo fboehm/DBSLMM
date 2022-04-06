@@ -200,7 +200,7 @@ int  DBSLMMFIT::est(int n_ref,
 			num_s_vec.clear();
 		}
 	}
-	//write the out object to a file
+	//write the diags object to a file
 	diags.save("variance.txt", arma_ascii);
 	return 0;
 }
@@ -308,7 +308,7 @@ int DBSLMMFIT::est(int n_ref,
 			num_s_vec.clear();
 		}
 	}
-	//write the out object to a file
+	//write the diags object to a file
 	diags.save("variance.txt", arma_ascii);
 	return 0;
 }
