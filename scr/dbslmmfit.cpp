@@ -64,8 +64,7 @@ int  DBSLMMFIT::est(int n_ref,
                     vector <EFF> &eff_l,
                     arma::uvec training_indices,
                     arma::uvec test_indices,
-                    string genotypes_str, 
-                    vector<int> missing_pheno_indic){
+                    string genotypes_str){
 	
 	// get the maximum number of each block
 	int count_s = 0, count_l = 0;
