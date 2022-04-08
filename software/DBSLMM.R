@@ -83,6 +83,7 @@ opt <- parse_args(opt_parser)
 # cat("--type:     ", opt$type, "\n")
 # cat("--mafMax:   ", opt$mafMax, "\n")
 # cat("--thread:   ", opt$thread, "\n")
+cat("--test_indicator_file:    ", opt$test_indicator_file, "\n")
 
 # check the options
 if (!file.exists(opt$summary)){
