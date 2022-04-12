@@ -380,7 +380,11 @@ void SNPPROC::nomalizeVec(vec &x) {
 }
 
 // match summary result and reference panel
-int SNPPROC::matchRef(vector<SUMM> summ, map<string, ALLELE> bim, vector<POS> &inter_snp, double mafMax, bool *badsnp_bool) {
+int SNPPROC::matchRef(vector<SUMM> summ, 
+                      map<string, ALLELE> bim, 
+                      vector<POS> &inter_snp, 
+                      double mafMax, 
+                      bool *badsnp_bool) {
 	
 	int dis_count = 0, maf_count = 0; 
 	for (size_t i = 0; i < summ.size(); ++i) {
