@@ -347,7 +347,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	unsigned int n_test = std::accumulate(test_indicator.begin(), test_indicator.end(),
                                        decltype(test_indicator)::value_type(0)); //https://stackoverflow.com/questions/3221812/how-to-sum-up-elements-of-a-c-vector
 	//https://stackoverflow.com/questions/3221812/how-to-sum-up-elements-of-a-c-vector
-	//initialize a matrix for reading training and test genotype data
+	//initialize a matrix for reading test genotype data
 	arma::mat X_s = zeros<mat>(n_test, num_s_block);
 	cout << "Number of columns in X_s: " << X_s.n_cols << endl;
 	cout << "Number of rows in X_s: " << X_s.n_rows << endl;
