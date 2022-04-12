@@ -261,7 +261,7 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 	cSP.matchRef(summ_s, ref_bim, inter_s, cPar.mafMax, badsnp_s); //matchRef is defined in scr/dtpr.cpp
 	cout << "After filtering, " << inter_s.size() << " small effect SNPs are selected." << endl;
 	vector <INFO> info_s; 
-	int num_block_s = cSP.addBlock(inter_s, block_dat, info_s); //addBlock is defined in scr/dtpr.cpp
+	 int num_block_s = cSP.addBlock(inter_s, block_dat, info_s); //addBlock is defined in scr/dtpr.cpp & populates info_s
 	// output samll effect badsnps 
 	string badsnps_str = cPar.eff + ".badsnps"; 
 	ofstream badsnpsFout(badsnps_str.c_str());

@@ -114,9 +114,9 @@ public:
 // block and pos class
 class INFO {
 public:
-	string snp;
-	long ps; // snp position
-	int pos; // bim file position
+	string snp; //rs id??? Yes, I think it's the rs id, "rs..."
+	long ps; // snp position? genomic position? 
+	int pos; // bim/bed file position
 	int block; //??block membership??
 	string a1; //?allele 1 identity? 
 	double maf;
