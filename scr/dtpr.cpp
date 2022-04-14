@@ -122,6 +122,16 @@ int IO::readBim(int n_ref,
 	return 0;
 }
 
+
+//' Read bim file & populate object bim
+//' 
+//' @param n_ref number of subjects in reference panel
+//' @param ref_str file path for reference bim file
+//' @param separator delimiter for bim file
+//' @param bim object to be populated with information from bim file
+//' @param constr logical 
+//' @return zero
+//' @details input object bim is populated with data from bim file
 // input bim data
 int IO::readBim(int n_ref, 
                 string ref_str, 
@@ -153,7 +163,7 @@ int IO::readBim(int n_ref,
 		ALLELEB alleleb; 
 		stringstream snp_stream(snp);
 		while (getline(snp_stream, elem, *separator)) snp_vec.push_back(elem);
-		alleleb.pos = count; 
+		alleleb.pos = count; //0 through (n_snp - 1)
 		alleleb.ps = atoi(snp_vec[3].c_str());
 		alleleb.a1 = snp_vec[4];
 		alleleb.a2 = snp_vec[5];
@@ -379,6 +389,17 @@ void SNPPROC::nomalizeVec(vec &x) {
 	return;
 }
 
+
+//' Match the summary results and the reference panel data
+//' 
+//' @param summ vector containing the summary results from plink
+//' @param bim map containing data from bim file (typically for the reference panel)
+//' @param inter_snp vector that gets populated with the SNP info for SNPs that are in both summ and bim
+//' @param mafMax double for the maf max difference
+//' @param badsnp_bool boolean for whether a snp is a "bad snp", ie, one to be excluded from analysis
+//' @return zero
+//' @details 
+
 // match summary result and reference panel
 int SNPPROC::matchRef(vector<SUMM> summ, 
                       map<string, ALLELE> bim, 
@@ -458,17 +479,17 @@ int SNPPROC::matchAll(vector <SUMMC> summI, map<string, ALLELEB> bim, double maf
 
 int SNPPROC::addBlock(vector<POS> summ, vector <BLOCK> block, vector<INFO> &pos_block){
 	
-	int num_block = block.size();
+	int num_block = block.size(); //number of blocks
 	int count = 0; 
-	pos_block.resize(summ.size());
-	for (int i = 0; i < num_block; i++){
+	pos_block.resize(summ.size());//set size of pos_block to be same as summ
+	for (int i = 0; i < num_block; i++){ // iterate over the blocks on a chromosome
 		int start = block[i].start;
 		int end = block[i].end;
 		// cout << i << " " << begin << " " << end << endl;
 		for (size_t j = count; j < summ.size(); j++){
 			if (summ[j].ps >= start && summ[j].ps < end) { 
-				pos_block[j].snp = summ[j].snp;
-				pos_block[j].block = i; 
+				pos_block[j].snp = summ[j].snp; //rs id
+				pos_block[j].block = i; //block number on this chromosome
 				pos_block[j].ps = summ[j].ps; // snp position
 				pos_block[j].pos = summ[j].pos; // bim file position
 				pos_block[j].a1 = summ[j].a1;
@@ -517,5 +538,16 @@ void printProgBar(int percent) {
 	cout << percent << "%     " << std::flush;
 }
 
+//' Determine which SNPs in test bim are also in the reference bim
+//' 
+//' @param test_bim_string file path to the test (and training) set bim file
+//' @param ref_bim_string file path to the reference bim file
+//' @return a logical vector with one entry per SNP in test_bim_string
+//' @details Each entry in the returned vector is TRUE or FALSE; TRUE indicates presence of that SNP in the reference bim
 
+std::vector<bool> match_bims(string test_bim_string, string ref_bim_string){
+  ifstream test_stream(test_bim_string.c_str());
+  ifstream ref_stream(ref_bim_string.c_str());
+  
+}
 

@@ -242,7 +242,17 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 	cIO.readBim(n_ref, cPar.r, separate, ref_bim, constr); //read BIM for ref data
 	int num_snp_ref = ref_bim.size(); //num_snp_ref is number of SNPs in the reference data
 	cout << num_snp_ref << " SNPs to be included from reference BIM file." << endl;
-
+// read bim file for test & training sets
+  // to get n_test, we need to read the test_indicator_file...
+  map <string, ALLELE> test_bim;
+  string test_bim_str = cPar.dat_str + ".bim";
+  string test_bed_str = cPar.dat_str + ".bed";
+  cIO.readBim(cPar.n, test_bim_str, separate, test_bim, constr); //populate test_bim
+	int test_num_snp = test_bim.size();
+	cout << test_num_snp << " SNPs to be included from test & training BIM file." << endl;
+	
+	
+	
 	// input block file
 	vector <BLOCK> block_dat; 
 	cIO.readBlock(cPar.b, separate, block_dat); //readBlock is defined in scr/dtpr.cpp. It reads the files that contain the blocking information 
@@ -254,14 +264,21 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 	vector <SUMM> summ_s;
 	int n_s = cIO.readSumm(cPar.s, separate, summ_s); //readSumm is defined in scr/dtpr.cpp
 	// What is n_s?? clearly, an integer, but is it the number of small effect snps? yes
+	// the above line populates summ_s
 	vector <POS> inter_s; // what does POS mean here? I get that it's the class for inter_s, but what exactly does it mean?
 	// see scr/dtpr.hpp for definition of POS class
-	bool badsnp_s[n_s] = {false}; 
+	bool badsnp_s[n_s] = {false}; //set all values of badsnp_s to false
 	cSP.matchRef(summ_s, ref_bim, inter_s, cPar.mafMax, badsnp_s); //matchRef is defined in scr/dtpr.cpp
+	//inter_s is populated in the above line of code
+	//inter_s has vector <POS> class.
+	
 	
 	cout << "After filtering, " << inter_s.size() << " small effect SNPs are selected." << endl;
 	vector <INFO> info_s; 
-	 int num_block_s = cSP.addBlock(inter_s, block_dat, info_s); //addBlock is defined in scr/dtpr.cpp & populates info_s
+	int num_block_s = cSP.addBlock(inter_s, block_dat, info_s); //addBlock is defined in scr/dtpr.cpp & populates info_s
+	// Does info_s hold the SNP info for only one block??? no. it contains info for all blocks on a chromosome
+	vector <INFO> test_info_s;
+	int test_num_block_s = cSP.addBlock(, block_dat, test_info_s);
 	// output samll effect badsnps 
 	string badsnps_str = cPar.eff + ".badsnps"; 
 	ofstream badsnpsFout(badsnps_str.c_str());
@@ -296,12 +313,10 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 		}
 		clearVector(summ_l);
 	}
-	//read file containing test indices
-	arma::uvec test_indicator_pre = read_indices_file(cPar.test_indicator_file) ; //read file containing training set indices
+	//read file containing test indicator
+	arma::uvec test_indicator_pre = read_indices_file(cPar.test_indicator_file) ; //read file containing test set indicator
 	vector<int> test_indicator =  conv_to<vector<int> >::from(test_indicator_pre);
 
-	// we subtract one from test_indices and training_indices because our c++ indices start with zero, 
-	// while the files from which we read the indices have 1 as their smallest possible value.
 	// output stream
 	string eff_str = cPar.eff + ".txt"; 
 	ofstream effFout(eff_str.c_str());
