@@ -67,7 +67,10 @@ int  DBSLMMFIT::est(int n_ref,
                     vector <INFO> test_info_l, 
                     bool badsnp_s[], 
                     bool badsnp_l[]){
-	
+	cout << "starting est function for large and small effects" << endl;
+	cout << "length of badsnp_s is: " << *(&badsnp_s + 1) - badsnp_s <<endl;
+  cout << "length of badsnp_l is: " << *(&badsnp_l + 1) - badsnp_l <<endl;
+  
 	// get the maximum number of each block
 	int count_s = 0, count_l = 0;
 	vec num_s = zeros<vec>(num_block), num_l = zeros<vec>(num_block); 
@@ -482,7 +485,10 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	  
 	  while (badsnp_s[second_index] == true){
 	    ++second_index;
+	    cout << "second_index has value: " << second_index<< endl; 
+	    cout << "badsnp_s[second_index] has value:" << badsnp_s[second_index] << endl;
 	  }
+	  cout << "running readSNPIm with second_index value: " << second_index << endl;
 	  cIO.readSNPIm(test_info_s_block[second_index].pos, n_test, test_indicator, dat_in, gg, maf);
 	  cSP.nomalizeVec(gg);
 	  X_s.col(i) = gg;
@@ -526,6 +532,8 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 			//check that ss_ref and pp_ref equal test_info_s_block[j].snp and test_info_s_block[j].pos for some j >= i
 			while (badsnp_l[second_index] == true){
 			  ++second_index;
+			  cout << "second_index has value: " << second_index<< endl; 
+			  cout << "badsnp_s[second_index] has value:" << badsnp_s[second_index] << endl;
 			}
 			cIO.readSNPIm(test_info_l_block[second_index].pos, n_test, test_indicator, dat_in, gg, maf);
 			cSP.nomalizeVec(gg);
@@ -662,6 +670,8 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 
 		while (badsnp_s[second_index] == true){
 		  ++second_index;
+		  cout << "second_index has value: " << second_index<< endl; 
+		  cout << "badsnp_s[second_index] has value:" << badsnp_s[second_index] << endl;
 		}
 		cIO.readSNPIm(test_info_s_block[second_index].pos, n_test, test_indicator, dat_in, gg, maf);
 		cSP.nomalizeVec(gg);
