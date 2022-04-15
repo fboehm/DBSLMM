@@ -261,12 +261,12 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 	// the above line populates summ_s
 	vector <POS> inter_s; // what does POS mean here? I get that it's the class for inter_s, but what exactly does it mean?
 	// see scr/dtpr.hpp for definition of POS class
-	vector <bool> badsnp_s[n_s] = {false}; //set all values of badsnp_s to false
+	bool badsnp_s[n_s] = {false}; //set all values of badsnp_s to false
   cSP.matchRef(summ_s, ref_bim, inter_s, cPar.mafMax, badsnp_s); //matchRef is defined in scr/dtpr.cpp
 	//inter_s is populated in the above line of code
 	//inter_s has vector <POS> class.
   vector <POS> test_inter_s;
-  vector <bool> test_badsnp_s[n_s] = {false};
+  bool test_badsnp_s[n_s] = {false};
   cSP.matchRef(summ_s, test_bim, test_inter_s, cPar.mafMax, test_badsnp_s); //matchRef is defined in scr/dtpr.cpp
   
 	//q: can  we use badsnp_s vector to do the matching between the info_s and the summary data's bim file??
@@ -303,10 +303,10 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 		cout << "Reading summary data of large effect SNPs from [" << cPar.l << "]" << endl;
 		vector <SUMM> summ_l;
 		int n_l = cIO.readSumm(cPar.l, separate, summ_l);
-		vector <bool> badsnp_l(n_l, false);
+		bool badsnp_l[n_l] = {false};
 		cSP.matchRef(summ_l, ref_bim, inter_l, cPar.mafMax, badsnp_l);
 		vector <SUMM> test_summ_l;
-		vector <bool> test_badsnp_l(n_l);
+		bool test_badsnp_l[n_l] = {false};
 		cSP.matchRef(test_summ_l, test_bim, test_inter_l, cPar.mafMax, test_badsnp_l);
 		
 		if (inter_l.size() != 0){
