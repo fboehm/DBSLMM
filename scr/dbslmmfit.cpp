@@ -65,8 +65,8 @@ int  DBSLMMFIT::est(int n_ref,
                     string genotypes_str, 
                     vector <INFO> test_info_s, 
                     vector <INFO> test_info_l, 
-                    bool badsnp_s, 
-                    bool badsnp_l){
+                    bool badsnp_s[], 
+                    bool badsnp_l[]){
 	
 	// get the maximum number of each block
 	int count_s = 0, count_l = 0;
@@ -282,7 +282,7 @@ int DBSLMMFIT::est(int n_ref,
 				            vector<int> test_indicator,
 				            string genotypes_str,  
 				            vector <INFO> test_info_s, 
-				            bool badsnp_s){
+				            bool badsnp_s[]){
 	
 	// get the maximum number of each block
 	int count_s = 0;
@@ -429,8 +429,8 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 						                    vector <INFO> test_info_l_block_full, 
 						                    int test_num_s_block, 
 						                    int test_num_l_block, 
-						                    bool badsnp_s,  
-						                    bool badsnp_l){
+						                    bool badsnp_s[],  
+						                    bool badsnp_l[]){
 	SNPPROC cSP;
 	IO cIO; 
 	ifstream bed_in(bed_str.c_str(), ios::binary);
@@ -618,7 +618,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
                     					 string genotypes_str, 
                     					 vector <INFO> test_info_s_block_full,
                     					 int test_num_s_block,
-                    					 bool badsnp_s){
+                    					 bool badsnp_s[]){
 	SNPPROC cSP;
 	IO cIO; 
 	ifstream bed_in(bed_str.c_str(), ios::binary);
