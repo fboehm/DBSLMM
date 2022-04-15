@@ -61,10 +61,12 @@ int  DBSLMMFIT::est(int n_ref,
 				            int thread, 
                     vector <EFF> &eff_s, 
                     vector <EFF> &eff_l,
+                    vector<int> test_indicator,
+                    string genotypes_str, 
                     vector <INFO> test_info_s, 
                     vector <INFO> test_info_l, 
-                    vector<int> test_indicator,
-                    string genotypes_str){
+                    vector <bool> badsnp_s, 
+                    vector <bool> badsnp_l){
 	
 	// get the maximum number of each block
 	int count_s = 0, count_l = 0;
@@ -108,14 +110,14 @@ int  DBSLMMFIT::est(int n_ref,
 	    }
 	  }
 	}
-	
+
 	count_l = count_s = 0; // reset
 	
 	double len_l = num_l.max(); //len_l is the maximum, across blocks, of the per-block number of large effect SNPs
 	double len_s = num_s.max(); //len_s is the max of the per-block number of small effect SNPs
 	double test_len_l = test_num_l.max();
 	double test_len_s = test_num_s.max();
-	
+
 	
 	int B = 0;
 	int B_MAX = 60; // number of blocks to batch at one time
@@ -168,7 +170,7 @@ int  DBSLMMFIT::est(int n_ref,
 		  }else{
 		    break;
 		  }
-		} //end loop for populating test_info_s_block
+  } //end loop for populating test_info_s_block
 		for (size_t k = 0; k < info_s_block.size(); k++)
 			// info_s_Block[B][k] = &info_s_block[k]; 
 			info_s_Block[B][k] = info_s_block[k]; 
@@ -176,7 +178,7 @@ int  DBSLMMFIT::est(int n_ref,
 		for (size_t k = 0; k < test_info_s_block.size(); k++)
 		  // info_s_Block[B][k] = &info_s_block[k]; 
 		  test_info_s_Block[B][k] = test_info_s_block[k]; 
-		test_num_s_vec.push_back((int)test_num_s(i));
+		test_num_s_vec.push_back((int)test_num_s(i)); 
 		// large effect SNP information
 		if (num_l(i) == 0){
 			// info_l_Block[B][0] = &info_pseudo;
@@ -235,12 +237,14 @@ int  DBSLMMFIT::est(int n_ref,
                                 num_l_vec[b], 
                                 eff_s_Block[b], 
                                 eff_l_Block[b], 
-                                test_info_s_Block[b],
-                                test_num_s_vec[b],                 
-                                test_info_l_Block[b],
-                                test_num_l_vec[b],                 
                                  test_indicator,
-                                 genotypes_str);
+                                 genotypes_str, 
+                                 test_info_s_Block[b], 
+                                test_info_l_Block[b],
+                                test_num_s_vec[b], 
+                                test_num_l_vec[b], 
+                                 badsnp_s, 
+                                 badsnp_l);
 
 			}
 			// eff of small effect SNPs
@@ -275,9 +279,10 @@ int DBSLMMFIT::est(int n_ref,
 				            vector <INFO> info_s, 
 				            int thread, 
 				            vector <EFF> &eff_s,
-				            vector <INFO> test_info_s,
 				            vector<int> test_indicator,
-				            string genotypes_str){
+				            string genotypes_str,  
+				            vector <INFO> test_info_s, 
+				            vector <bool> badsnp_s){
 	
 	// get the maximum number of each block
 	int count_s = 0;
@@ -306,8 +311,8 @@ int DBSLMMFIT::est(int n_ref,
 	      break;
 	    }
 	  }
-	}
-	double test_len_s = test_num_s.max(); 
+	} 
+  double test_len_s = test_num_s.max(); 
 	
 	count_s = 0; // reset
 	int B = 0;
@@ -360,7 +365,7 @@ int DBSLMMFIT::est(int n_ref,
 		  }else{
 		    break;
 		  }
-		}
+} 
 		// loop to populate info_s_Block
 		for (size_t k = 0; k < info_s_block.size(); k++)
 			// info_s_Block[B][k] = &info_s_block[k]; 
@@ -384,10 +389,11 @@ int DBSLMMFIT::est(int n_ref,
                             info_s_Block[b],
 				                    num_s_vec[b], 
                             eff_s_Block[b], 
-                            test_info_s_Block[b],           
-                            test_num_s_vec[b],           
                            test_indicator, 
-                           genotypes_str);
+                           genotypes_str, 
+                           test_info_s_Block[b],
+                            test_num_s_vec[b], 
+                            badsnp_s);
 			  //cout <<"index: " << index << endl; 
 			}
 			// eff of small effect SNPs
@@ -417,12 +423,14 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 						                    int num_l_block, 
 						                    vector <EFF> &eff_s_block, 
 						                    vector <EFF> &eff_l_block,
-						                    vector <INFO> test_info_s_block_full,
-						                    int test_num_s_block,
-						                    vector <INFO> test_info_l_block_full,
-						                    int test_num_l_block,
 						                    vector <int> test_indicator,
-						                    string genotypes_str){
+						                    string genotypes_str,  
+						                    vector <INFO> test_info_s_block_full, 
+						                    vector <INFO> test_info_l_block_full, 
+						                    int test_num_s_block, 
+						                    int test_num_l_block, 
+						                    vector <bool> badsnp_s,  
+						                    vector <bool> badsnp_l){
 	SNPPROC cSP;
 	IO cIO; 
 	ifstream bed_in(bed_str.c_str(), ios::binary);
@@ -438,7 +446,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	for (int i = 0; i < num_s_block; i++)
 	  info_s_block[i] = info_s_block_full[i];
 	for (int i = 0; i < test_num_s_block; i++)
-	  test_info_s_block[i] = test_info_s_block_full[i];
+	  test_info_s_block[i] = test_info_s_block_full[i]; 
 	// z_s
 	vec z_s = zeros<vec>(num_s_block); 
 	for (int i = 0; i < num_s_block; i++) 
@@ -459,6 +467,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	arma::mat X_s = zeros<mat>(n_test, num_s_block);
 	cout << "Number of columns in X_s: " << X_s.n_cols << endl;
 	cout << "Number of rows in X_s: " << X_s.n_rows << endl;
+  int second_index = 0;
 	for (int i = 0; i < num_s_block; ++i) {
 	  vec geno = zeros<vec>(n_ref);
 	  arma::vec gg = zeros <vec>(n_test);
@@ -470,13 +479,14 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	  //		int pp_ref = info_s_block[i].pos;
 	  string ss_ref = info_s_block[i].snp;
 	  //check that ss_ref and pp_ref equal test_info_s_block[j].snp and test_info_s_block[j].pos for some j >= i
-	  int j = i;
-	  while (test_info_s_block[j].snp != ss_ref){
-	    ++j;
+	  
+	  while (badsnp_s[second_index] == true){
+	    ++second_index;
 	  }
-	  cIO.readSNPIm(test_info_s_block[j].pos, n_test, test_indicator, dat_in, gg, maf);
+	  cIO.readSNPIm(test_info_s_block[second_index].pos, n_test, test_indicator, dat_in, gg, maf);
 	  cSP.nomalizeVec(gg);
 	  X_s.col(i) = gg;
+	  ++second_index;
 	}
 	// pseudo EFF
 	EFF eff_pseudo; 
@@ -503,6 +513,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 		// large effect matrix
 		mat geno_l = zeros<mat>(n_ref, num_l_block);
 		arma::mat X_l = zeros<mat>(n_test, num_l_block);
+		int second_index = 0;
 		for (int i = 0; i < num_l_block; ++i) {//num_l_block is the number of large effect SNPs in the block
 			vec geno = zeros<vec>(n_ref);
 		  arma::vec gg = zeros<vec>(n_test);
@@ -513,16 +524,15 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 			geno_l.col(i) = geno;
 			string ss_ref = info_l_block[i].snp;
 			//check that ss_ref and pp_ref equal test_info_s_block[j].snp and test_info_s_block[j].pos for some j >= i
-			int j = i;
-			while (test_info_l_block[j].snp != ss_ref){
-			  ++j;
+			while (badsnp_l[second_index] == true){
+			  ++second_index;
 			}
-			cIO.readSNPIm(test_info_l_block[j].pos, n_test, test_indicator, dat_in, gg, maf);
+			cIO.readSNPIm(test_info_l_block[second_index].pos, n_test, test_indicator, dat_in, gg, maf);
 			cSP.nomalizeVec(gg);
 			X_l.col(i) = gg;
-			
+			++second_index;
 		}//end populating of geno_l & of X_l. 
-		//X_l is the genotypes data for the non-reference subjects
+		//X_l is the genotypes data for the non-reference (ie "summary")subjects
 		//partition subjects - for X_s and X_l - into training and test
 		cout << "dimensions of geno_s: " << geno_s.n_rows << " rows and " << geno_s.n_cols << " columns" << endl;
 
@@ -542,7 +552,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
                                           out(1), //Sigma_sl - no need transpose because estBlock outputs Sigma_sl
                                           out(0), //Sigma_ll
                                           sigma_s, 
-                                          n_obs, 
+                                          n_obs, // SHOULD THIS BE n_test??? 
                                           X_l, 
                                           X_s);
 		
@@ -572,7 +582,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 		//variance calcs
 		result = calc_nt_by_nt_matrix(out(0), //Sigma_ss 
                                           sigma_s, 
-                                          n_obs, 
+                                          n_obs, // SHOULD THIS BE n_test???
                                           X_s);
 		
 		eff_l_block[0].snp = eff_pseudo.snp;
@@ -604,10 +614,11 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
                                vector <INFO> info_s_block_full, 
                                int num_s_block, 
                     					 vector <EFF> &eff_s_block,
+                    					 vector <int> test_indicator,
+                    					 string genotypes_str, 
                     					 vector <INFO> test_info_s_block_full,
                     					 int test_num_s_block,
-                    					 vector <int> test_indicator,
-                    					 string genotypes_str){
+                    					 vector <bool> badsnp_s){
 	SNPPROC cSP;
 	IO cIO; 
 	ifstream bed_in(bed_str.c_str(), ios::binary);
@@ -636,6 +647,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	// small effect genotype matrix
 	mat geno_s = zeros<mat>(n_ref, num_s_block);
 	arma::mat X_s = zeros <mat>(n_test, num_s_block);
+	int second_index = 0;
 	for (int i = 0; i < num_s_block; ++i) {
 		vec geno = zeros<vec>(n_ref);
 	  arma::vec gg = zeros <vec>(n_test);
@@ -647,13 +659,14 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 //		int pp_ref = info_s_block[i].pos;
 		string ss_ref = info_s_block[i].snp;
 		//check that ss_ref and pp_ref equal test_info_s_block[j].snp and test_info_s_block[j].pos for some j >= i
-		int j = i;
-		while (test_info_s_block[j].snp != ss_ref){
-		  ++j;
+
+		while (badsnp_s[second_index] == true){
+		  ++second_index;
 		}
-		cIO.readSNPIm(test_info_s_block[j].pos, n_test, test_indicator, dat_in, gg, maf);
+		cIO.readSNPIm(test_info_s_block[second_index].pos, n_test, test_indicator, dat_in, gg, maf);
 		cSP.nomalizeVec(gg);
 		X_s.col(i) = gg;
+		++second_index;
 	}
 	
 	// estimation
@@ -670,7 +683,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
   //variance calcs
   arma::mat result = calc_nt_by_nt_matrix(out(0), 
                                           sigma_s, 
-                                          n_obs, 
+                                          n_obs, //// SHOULD THIS BE n_test??? 
                                           X_s);
 	
 	// output small effect

@@ -79,11 +79,13 @@ int IO::getRow(string infile){
 	return n_row;
 }
 
+
+
 // input bim data
 int IO::readBim(int n_ref, 
                 string ref_str, 
                 char *separator, 
-                map<string, ALLELE> &bim, 
+                map<string, ALLELE> &bim, //other definition of readBim has ALLELEB here!
                 bool constr){
 	
 	string bed_str = ref_str + ".bed", bim_str = ref_str + ".bim";

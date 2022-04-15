@@ -242,17 +242,11 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 	cIO.readBim(n_ref, cPar.r, separate, ref_bim, constr); //read BIM for ref data
 	int num_snp_ref = ref_bim.size(); //num_snp_ref is number of SNPs in the reference data
 	cout << num_snp_ref << " SNPs to be included from reference BIM file." << endl;
-// read bim file for test & training sets
   // to get n_test, we need to read the test_indicator_file...
   map <string, ALLELE> test_bim;
-  string test_bim_str = cPar.dat_str + ".bim";
-  string test_bed_str = cPar.dat_str + ".bed";
-  cIO.readBim(cPar.n, test_bim_str, separate, test_bim, constr); //populate test_bim
+  cIO.readBim(cPar.n, cPar.dat_str, separate, test_bim, constr); //populate test_bim
 	int test_num_snp = test_bim.size();
 	cout << test_num_snp << " SNPs to be included from test & training BIM file." << endl;
-	
-	
-	
 	// input block file
 	vector <BLOCK> block_dat; 
 	cIO.readBlock(cPar.b, separate, block_dat); //readBlock is defined in scr/dtpr.cpp. It reads the files that contain the blocking information 
@@ -263,102 +257,118 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 	cout << "Reading summary data of small effect SNPs from [" << cPar.s << "]" << endl;
 	vector <SUMM> summ_s;
 	int n_s = cIO.readSumm(cPar.s, separate, summ_s); //readSumm is defined in scr/dtpr.cpp
-	// What is n_s?? clearly, an integer, but is it the number of small effect snps? yes
+	// What is n_s?? clearly, an integer, but is it the number of small effect snps IN THE SUMMARY FILE? yes
 	// the above line populates summ_s
 	vector <POS> inter_s; // what does POS mean here? I get that it's the class for inter_s, but what exactly does it mean?
 	// see scr/dtpr.hpp for definition of POS class
-	bool badsnp_s[n_s] = {false}; //set all values of badsnp_s to false
-	cSP.matchRef(summ_s, ref_bim, inter_s, cPar.mafMax, badsnp_s); //matchRef is defined in scr/dtpr.cpp
+	vector <bool> badsnp_s[n_s] = {false}; //set all values of badsnp_s to false
+  cSP.matchRef(summ_s, ref_bim, inter_s, cPar.mafMax, badsnp_s); //matchRef is defined in scr/dtpr.cpp
 	//inter_s is populated in the above line of code
 	//inter_s has vector <POS> class.
-	
-	
+  vector <POS> test_inter_s;
+  vector <bool> test_badsnp_s[n_s] = {false};
+  cSP.matchRef(summ_s, test_bim, test_inter_s, cPar.mafMax, test_badsnp_s); //matchRef is defined in scr/dtpr.cpp
+  
+	//q: can  we use badsnp_s vector to do the matching between the info_s and the summary data's bim file??
+
 	cout << "After filtering, " << inter_s.size() << " small effect SNPs are selected." << endl;
 	vector <INFO> info_s; 
 	int num_block_s = cSP.addBlock(inter_s, block_dat, info_s); //addBlock is defined in scr/dtpr.cpp & populates info_s
 	// Does info_s hold the SNP info for only one block??? no. it contains info for all blocks on a chromosome
 	vector <INFO> test_info_s;
-	int test_num_block_s = cSP.addBlock(, block_dat, test_info_s);
+	int test_num_block_s = cSP.addBlock(test_inter_s, block_dat, test_info_s);
 	// output samll effect badsnps 
 	string badsnps_str = cPar.eff + ".badsnps"; 
 	ofstream badsnpsFout(badsnps_str.c_str());
 	for (size_t i = 0; i < summ_s.size(); ++i) {
-		if (badsnp_s[i] == false)
+		if (!badsnp_s[i])
 			badsnpsFout << summ_s[i].snp << " " << 0 << endl;
 	}
 	clearVector(summ_s);
 
 	// large effect
 	vector <POS> inter_l;
-	vector <INFO> info_l; 
+	vector <INFO> info_l;
+	vector <POS> test_inter_l;
+	vector <INFO> test_info_l;
+	//read file containing test indicator
+	arma::uvec test_indicator_pre = read_indices_file(cPar.test_indicator_file) ; //read file containing test set indicator
+	vector<int> test_indicator =  conv_to<vector<int> >::from(test_indicator_pre);
+	// output stream
+	string eff_str = cPar.eff + ".txt"; 
+	ofstream effFout(eff_str.c_str());
+	
 	if (leffstream) {
 		// input large effect summary data
 		cout << "Reading summary data of large effect SNPs from [" << cPar.l << "]" << endl;
 		vector <SUMM> summ_l;
 		int n_l = cIO.readSumm(cPar.l, separate, summ_l);
-		// vector <POS> inter_l;
-		bool badsnp_l[n_l] = {false};
+		vector <bool> badsnp_l(n_l, false);
 		cSP.matchRef(summ_l, ref_bim, inter_l, cPar.mafMax, badsnp_l);
+		vector <SUMM> test_summ_l;
+		vector <bool> test_badsnp_l(n_l);
+		cSP.matchRef(test_summ_l, test_bim, test_inter_l, cPar.mafMax, test_badsnp_l);
+		
 		if (inter_l.size() != 0){
-			int num_block_l = cSP.addBlock(inter_l, block_dat, info_l); 
+			int num_block_l = cSP.addBlock(inter_l, block_dat, info_l);
+		  int test_num_block_l = cSP.addBlock(test_inter_l, block_dat, test_info_l);
 			cout << "After filtering, " << inter_l.size() << " large effect SNPs are selected." << endl;
 		} else {
 			cout << "After filtering, no large effect SNP is selected." << endl;
 		}
 		// output large effect badsnps 
 		for (size_t i = 0; i < summ_l.size(); ++i) {
-			if (badsnp_l[i] == false){
+			if (!badsnp_l[i]){
 				badsnpsFout << summ_l[i].snp << " " << 1 << endl;
 			}
 		}
 		clearVector(summ_l);
-	}
-	//read file containing test indicator
-	arma::uvec test_indicator_pre = read_indices_file(cPar.test_indicator_file) ; //read file containing test set indicator
-	vector<int> test_indicator =  conv_to<vector<int> >::from(test_indicator_pre);
-
-	// output stream
-	string eff_str = cPar.eff + ".txt"; 
-	ofstream effFout(eff_str.c_str());
-	if (inter_l.size() != 0){
-		// fit model
-		vector <EFF> eff_s, eff_l; 
-		vector<int> idv(n_ref); // idv is an integer vector of length n_ref
-		for (int i = 0; i < n_ref; i++) idv[i] = 1; 
-		string bed_str = cPar.r + ".bed";
-		double t_fitting = cIO.getWalltime();
-		double sigma_s = cPar.h / (double)cPar.nsnp;
-		cout << "Fitting model..." << endl;
-		cDBSF.est(n_ref, 
-            cPar.n, //number of subjects with nonmissing trait value
-            sigma_s, 
-            num_block_s, 
-            idv, //vector of length n_ref
-            bed_str, 
-            info_s, 
-            info_l, 
-            cPar.t, 
-            eff_s, 
-            eff_l, 
-            test_indicator, 
-            cPar.dat_str); 
-		double time_fitting = cIO.getWalltime() - t_fitting;
-		cout << "Fitting time: " << time_fitting << " seconds." << endl;
-
-		// output effect 
-		for (size_t i = 0; i < eff_l.size(); ++i) {
-			double beta_l_noscl = eff_l[i].beta / sqrt(2 * eff_l[i].maf * (1-eff_l[i].maf));//this is like "no scaling" for beta
-			if (eff_l[i].snp != "rs" && isinf(beta_l_noscl) == false)
-				effFout << eff_l[i].snp << " " << eff_l[i].a1 << " " << eff_l[i].beta << " " << beta_l_noscl << " " << 1 << endl; 
+		clearVector(test_summ_l);
+		if (inter_l.size() != 0){
+		  // fit model
+		  vector <EFF> eff_s, eff_l; 
+		  vector<int> idv(n_ref); // idv is an integer vector of length n_ref
+		  for (int i = 0; i < n_ref; i++) idv[i] = 1; 
+		  string bed_str = cPar.r + ".bed";
+		  double t_fitting = cIO.getWalltime();
+		  double sigma_s = cPar.h / (double)cPar.nsnp;
+		  cout << "Fitting model..." << endl;
+		  cDBSF.est(n_ref, 
+              cPar.n, //number of subjects with nonmissing trait value
+              sigma_s, 
+              num_block_s, 
+              idv, //vector of length n_ref
+              bed_str, 
+              info_s, 
+              info_l, 
+              cPar.t, 
+              eff_s, 
+              eff_l, 
+              test_indicator, 
+              cPar.dat_str, 
+              test_info_s,
+              test_info_l,
+              badsnp_s, 
+              badsnp_l); 
+		  double time_fitting = cIO.getWalltime() - t_fitting;
+		  cout << "Fitting time: " << time_fitting << " seconds." << endl;
+		  
+		  // output effect 
+		  for (size_t i = 0; i < eff_l.size(); ++i) {
+		    double beta_l_noscl = eff_l[i].beta / sqrt(2 * eff_l[i].maf * (1-eff_l[i].maf));//this is like "no scaling" for beta
+		    if (eff_l[i].snp != "rs" && isinf(beta_l_noscl) == false)
+		      effFout << eff_l[i].snp << " " << eff_l[i].a1 << " " << eff_l[i].beta << " " << beta_l_noscl << " " << 1 << endl; 
+		  }
+		  
+		  for (size_t i = 0; i < eff_s.size(); ++i) { 
+		    double beta_s_noscl = eff_s[i].beta / sqrt(2 * eff_s[i].maf * (1-eff_s[i].maf));
+		    if(eff_s[i].snp.size() != 0 && isinf(beta_s_noscl) == false)
+		      effFout << eff_s[i].snp << " " << eff_s[i].a1 << " " << eff_s[i].beta << " " << beta_s_noscl << " " << 0 << endl; 
+		  }
+		  effFout.close();
 		}
-		
-		for (size_t i = 0; i < eff_s.size(); ++i) { 
-			double beta_s_noscl = eff_s[i].beta / sqrt(2 * eff_s[i].maf * (1-eff_s[i].maf));
-			if(eff_s[i].snp.size() != 0 && isinf(beta_s_noscl) == false)
-				effFout << eff_s[i].snp << " " << eff_s[i].a1 << " " << eff_s[i].beta << " " << beta_s_noscl << " " << 0 << endl; 
-		}
-		effFout.close();
 	}
+
 	if (inter_l.size() == 0 || !leffstream){
 		// fit model
 		vector <EFF> eff_s; 
@@ -378,7 +388,9 @@ void DBSLMM::BatchRun(PARAM &cPar) {
             cPar.t, 
             eff_s, 
             test_indicator, 
-            cPar.dat_str); 
+            cPar.dat_str, 
+            test_info_s,
+            badsnp_s); 
 		double time_fitting = cIO.getWalltime() - t_fitting;
 		cout << "Fitting time: " << time_fitting << " seconds." << endl;
 

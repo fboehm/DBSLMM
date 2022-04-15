@@ -46,10 +46,12 @@ public:
          int thread, 
          vector <EFF> &eff_s, 
          vector <EFF> &eff_l,
+         vector<int> test_indicator,
+         string genotypes_str, 
          vector <INFO> test_info_s, 
          vector <INFO> test_info_l, 
-         vector<int> test_indicator,
-         string genotypes_str);
+         vector <bool> badsnp_s, 
+         vector <bool> badsnp_l);
 	// estimate only small effect
 	int est(int n_ref, 
          int n_obs, 
@@ -60,9 +62,10 @@ public:
          vector <INFO> info_s, 
          int thread, 
          vector <EFF> &eff_s,
-         vector <INFO> test_info_s,
          vector<int> test_indicator,
-         string genotypes_str);
+         string genotypes_str,  
+         vector <INFO> test_info_s, 
+         vector <bool> badsnp_s);
 	// estimate large and small effect for each block
 	arma::vec calcBlock(int n_ref, 
                      int n_obs, 
@@ -75,12 +78,14 @@ public:
                      int num_l_block, 
                      vector <EFF> &eff_s_block, 
                      vector <EFF> &eff_l_block,
-                     vector <INFO> test_info_s_block_full,
-                     int test_num_s_block,
-                     vector <INFO> test_info_l_block_full,
-                     int test_num_l_block,
                      vector <int> test_indicator,
-                     string genotypes_str);
+                     string genotypes_str,  
+                     vector <INFO> test_info_s_block_full, 
+                     vector <INFO> test_info_l_block_full, 
+                     int test_num_s_block, 
+                     int test_num_l_block, 
+                     vector <bool> badsnp_s,  
+                     vector <bool> badsnp_l);
 	// estimate only small effect for each block
 	arma::vec calcBlock(int n_ref, 
                      int n_obs, 
@@ -90,10 +95,11 @@ public:
                      vector <INFO> info_s_block_full, 
                      int num_s_block, 
                      vector <EFF> &eff_s_block,
+                     vector <int> test_indicator,
+                     string genotypes_str, 
                      vector <INFO> test_info_s_block_full,
                      int test_num_s_block,
-                     vector <int> test_indicator,
-                     string genotypes_str);
+                     vector <bool> badsnp_s);
 	// solve x=Ab
 	vec PCGv(mat A, vec b, size_t maxiter, const double tol); 
 	// solve x=AB
