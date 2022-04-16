@@ -260,15 +260,25 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 	bool badsnp_s[n_s] = {false}; 
 	cSP.matchRef(summ_s, ref_bim, inter_s, cPar.mafMax, badsnp_s); //matchRef is defined in scr/dtpr.cpp
 	cout << "After filtering, " << inter_s.size() << " small effect SNPs are selected." << endl;
+	cout << "We started with " <<summ_s.size() << " small effect SNPs" << endl;
 	//read the test bim rs ids into a string vector
-	std::vector <std::string> rs_ids = readTestBim(cPar.dat_str + "bim");
+	std::vector <std::string> base_nums = readTestBim(cPar.dat_str + ".bim");
+	cout << "length of base_nums: " << base_nums.size() << endl;
+	cout << "first entry in base_nums is: " << base_nums[0] << endl;
+	cout << "last entry in base_nums is: " << base_nums[base_nums.size() -1] << endl; 
 	//
-	vector<POS> test_inter_s = makePosObjectForTestBim(rs_ids, inter_s);
+	cout << "length of inter_s is: " << inter_s.size() << endl;
+	vector<POS> test_inter_s = makePosObjectForTestBim(base_nums, inter_s);
+	cout << "length of test_inter_s is: " << test_inter_s.size() << endl;
+	
 	vector <INFO> info_s; 
 	vector <INFO> test_info_s; 
 	
 	int num_block_s = cSP.addBlock(inter_s, block_dat, info_s); //addBlock is defined in scr/dtpr.cpp & populates info_s
 	int test_num_block_s = cSP.addBlock(test_inter_s, block_dat, test_info_s); //addBlock is defined in scr/dtpr.cpp & populates info_s
+	
+	cout << "test_num_block_s: " << test_num_block_s << endl;
+	cout << "num_block_s: " << num_block_s << endl;
 	
 	 	// output samll effect badsnps 
 	string badsnps_str = cPar.eff + ".badsnps"; 
@@ -291,7 +301,7 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 		// vector <POS> inter_l;
 		bool badsnp_l[n_l] = {false};
 		cSP.matchRef(summ_l, ref_bim, inter_l, cPar.mafMax, badsnp_l);
-		vector<POS> test_inter_l = makePosObjectForTestBim(rs_ids, inter_l);
+		vector<POS> test_inter_l = makePosObjectForTestBim(base_nums, inter_l);
 		
 		
 		if (inter_l.size() != 0){

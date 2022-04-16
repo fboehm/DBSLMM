@@ -136,7 +136,7 @@ arma::mat calc_var_betas(arma::mat Sigma_ss,
 //' Read the test & training set bim file & return SNP rs ids vector
 //' 
 //' @param test_bim
-//' @return string vector containing all rs IDs from the bim file 
+//' @return string vector containing all chr positions (genomic positions) from the bim file 
 //' 
 
 std::vector<std::string> readTestBim(string test_bim){
@@ -145,7 +145,7 @@ std::vector<std::string> readTestBim(string test_bim){
   std::vector<std::string> result;
   while (getline(bim_stream, snp)) {
     std::vector<std::string> l0 = split(snp, "\t"); //split line with tab delimiter 
-    result.push_back(l0[1]); // append only the first entry in line
+    result.push_back(l0[3]); // append only the fourth entry in line: 0,1,2,3,4,5
   }
   bim_stream.close();
   return result;
@@ -153,21 +153,39 @@ std::vector<std::string> readTestBim(string test_bim){
 
 //' Make a <POS> vector from the test bim file rs IDs and the inter_s or inter_l
 //' 
-//' @param rs_ids string vector that contains the rs ids from the test bim file
+//' @param base_nums string vector that contains the base number for the genomic positions from the test bim file
 //' @param inter vector <POS> that contains position info for either small (inter_s) or large (inter_l) SNPs to be analyzed
 //' @return vector <POS> 
 
-vector <POS> makePosObjectForTestBim(std::vector<std::string> rs_ids, vector <POS> inter){
+vector <POS> makePosObjectForTestBim(std::vector<std::string> base_nums, vector <POS> inter){
   vector <POS> result; 
-  for (int i = 0; i < rs_ids.size(); i++){
-    for (int j = 0; j < inter.size(); j++){
-      if (rs_ids[i] == inter[j].snp){
-        result[j] = inter[j];
+  cout << "inter.size() is: " << inter.size() << endl;
+  cout << "base_nums.size() is: " << base_nums.size() << endl;
+  for (int j = 0; j < inter.size(); j++){
+    for (int i = 0; i < base_nums.size(); i++){
+      if (stol(base_nums[i]) == inter[j].ps){
+        //result[j] = inter[j]; IS THIS LINE ACCEPTABLE???
+        cout << "we've a match!!!" <<endl;
         // change index value!!
-        result[j].pos = i;
-      }
+        POS foo; 
+        foo.pos = i;
+        cout << "i is: " << i << endl;
+        foo.a1 = inter[j].a1;
+        foo.maf = inter[j].maf;
+        foo.P = inter[j].P;
+        foo.ps = inter[j].ps;
+        foo.snp = inter[j].snp;
+        foo.z = inter[j].z;
+        cout << "populated foo" <<endl;
+        result.push_back(foo);
+        cout << "base_nums[i] is: " << base_nums[i] << " i is: " << i << endl;
+        cout << "inter[j].ps is: " << inter[j].ps << " j is: " << j << endl;
+        break; 
+      }//end if
     }
   }
+  cout << "exiting makePosObject function" << endl;
+  cout << "length of result is: " << result.size() << endl;
   return result;   
 }
 

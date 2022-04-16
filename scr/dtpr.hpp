@@ -96,7 +96,7 @@ public:
 	double z1; 
 	double z2; 
 	long pos; // bim file position
-	long ps;  // snp position
+	long ps;  // snp position (genomic)
 };
 
 // pos class
