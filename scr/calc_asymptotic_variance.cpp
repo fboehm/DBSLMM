@@ -2,7 +2,7 @@
 
 #include <armadillo>
 #include "calc_asymptotic_variance.hpp"
-#include "dtrp.hpp"
+#include "dtpr.hpp"
 #include "subset_to_test_and_training.hpp"
 
 using namespace std;
