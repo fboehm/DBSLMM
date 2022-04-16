@@ -50,8 +50,8 @@ public:
          string genotypes_str, 
          vector <INFO> test_info_s, 
          vector <INFO> test_info_l, 
-         bool badsnp_s[], 
-         bool badsnp_l[]);
+         vector <bool> badsnp_s, 
+         vector <bool> badsnp_l);
 	// estimate only small effect
 	int est(int n_ref, 
          int n_obs, 
@@ -65,7 +65,7 @@ public:
          vector<int> test_indicator,
          string genotypes_str,  
          vector <INFO> test_info_s, 
-         bool badsnp_s[]);
+         vector <bool> badsnp_s);
 	// estimate large and small effect for each block
 	arma::vec calcBlock(int n_ref, 
                      int n_obs, 
@@ -84,8 +84,8 @@ public:
                      vector <INFO> test_info_l_block_full, 
                      int test_num_s_block, 
                      int test_num_l_block, 
-                     bool badsnp_s[],  
-                     bool badsnp_l[]);
+                     vector <bool> badsnp_s,  
+                     vector <bool> badsnp_l);
 	// estimate only small effect for each block
 	arma::vec calcBlock(int n_ref, 
                      int n_obs, 
@@ -99,7 +99,7 @@ public:
                      string genotypes_str, 
                      vector <INFO> test_info_s_block_full,
                      int test_num_s_block,
-                     bool badsnp_s[]);
+                     vector <bool> badsnp_s);
 	// solve x=Ab
 	vec PCGv(mat A, vec b, size_t maxiter, const double tol); 
 	// solve x=AB

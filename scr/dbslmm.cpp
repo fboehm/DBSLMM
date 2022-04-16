@@ -268,7 +268,11 @@ void DBSLMM::BatchRun(PARAM &cPar) {
   vector <POS> test_inter_s;
   bool test_badsnp_s[n_s] = {false};
   cSP.matchRef(summ_s, test_bim, test_inter_s, cPar.mafMax, test_badsnp_s); //matchRef is defined in scr/dtpr.cpp
-  
+  // create vectors from arrays
+  vector<bool> badsnp_s_vec(array::begin(badsnp_s), array::end(badsnp_s));
+  vector<bool> test_badsnp_s_vec(array::begin(test_badsnp_s), array::end(test_badsnp_s));
+  cout << "length of badsnp_s_vec: " << badsnp_s_vec.size() << endl;
+  cout << "length of test_badsnp_s_vec: " << test_badsnp_s_vec.size() << endl;
 	//q: can  we use badsnp_s vector to do the matching between the info_s and the summary data's bim file??
 
 	cout << "After filtering, " << inter_s.size() << " small effect SNPs are selected." << endl;
@@ -308,7 +312,9 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 		vector <SUMM> test_summ_l;
 		bool test_badsnp_l[n_l] = {false};
 		cSP.matchRef(test_summ_l, test_bim, test_inter_l, cPar.mafMax, test_badsnp_l);
-		
+		// create vectors from arrays
+		vector<bool> badsnp_l_vec(array::begin(badsnp_l), array::end(badsnp_l));
+		vector<bool> test_badsnp_l_vec(array::begin(test_badsnp_l), array::end(test_badsnp_l));
 		if (inter_l.size() != 0){
 			int num_block_l = cSP.addBlock(inter_l, block_dat, info_l);
 		  int test_num_block_l = cSP.addBlock(test_inter_l, block_dat, test_info_l);
@@ -318,7 +324,7 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 		}
 		// output large effect badsnps 
 		for (size_t i = 0; i < summ_l.size(); ++i) {
-			if (!badsnp_l[i]){
+			if (badsnp_l_vec[i] == true){
 				badsnpsFout << summ_l[i].snp << " " << 1 << endl;
 			}
 		}
@@ -348,8 +354,8 @@ void DBSLMM::BatchRun(PARAM &cPar) {
               cPar.dat_str, 
               test_info_s,
               test_info_l,
-              badsnp_s, 
-              badsnp_l); 
+              badsnp_s_vec, 
+              badsnp_l_vec); 
 		  double time_fitting = cIO.getWalltime() - t_fitting;
 		  cout << "Fitting time: " << time_fitting << " seconds." << endl;
 		  
@@ -390,7 +396,7 @@ void DBSLMM::BatchRun(PARAM &cPar) {
             test_indicator, 
             cPar.dat_str, 
             test_info_s,
-            badsnp_s); 
+            badsnp_s_vec); 
 		double time_fitting = cIO.getWalltime() - t_fitting;
 		cout << "Fitting time: " << time_fitting << " seconds." << endl;
 
