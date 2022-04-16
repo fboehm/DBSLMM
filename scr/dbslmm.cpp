@@ -255,7 +255,7 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 	int n_s = cIO.readSumm(cPar.s, separate, summ_s); //readSumm is defined in scr/dtpr.cpp
 	// What is n_s?? clearly, an integer, but is it the number of small effect snps? or is it a number of subjects, 
 	// like the number of subjects used to get small effect snps?
-	vector <POS> inter_s; // what does POS mean here? I get that it's the class for inter_s, but what exactly does it mean?
+	vector <POS> inter_s; // what does POS mean here? I get that it's the class for elements of inter_s, but what exactly does it mean?
 	// see scr/dtpr.hpp for definition of POS class
 	bool badsnp_s[n_s] = {false}; 
 	cSP.matchRef(summ_s, ref_bim, inter_s, cPar.mafMax, badsnp_s); //matchRef is defined in scr/dtpr.cpp
@@ -263,23 +263,16 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 	cout << "We started with " <<summ_s.size() << " small effect SNPs" << endl;
 	//read the test bim rs ids into a string vector
 	std::vector <std::string> base_nums = readTestBim(cPar.dat_str + ".bim");
-	cout << "length of base_nums: " << base_nums.size() << endl;
-	cout << "first entry in base_nums is: " << base_nums[0] << endl;
-	cout << "last entry in base_nums is: " << base_nums[base_nums.size() -1] << endl; 
 	//
-	cout << "length of inter_s is: " << inter_s.size() << endl;
 	vector<POS> test_inter_s = makePosObjectForTestBim(base_nums, inter_s);
-	cout << "length of test_inter_s is: " << test_inter_s.size() << endl;
-	
+
 	vector <INFO> info_s; 
 	vector <INFO> test_info_s; 
 	
 	int num_block_s = cSP.addBlock(inter_s, block_dat, info_s); //addBlock is defined in scr/dtpr.cpp & populates info_s
 	int test_num_block_s = cSP.addBlock(test_inter_s, block_dat, test_info_s); //addBlock is defined in scr/dtpr.cpp & populates info_s
 	
-	cout << "test_num_block_s: " << test_num_block_s << endl;
-	cout << "num_block_s: " << num_block_s << endl;
-	
+
 	 	// output samll effect badsnps 
 	string badsnps_str = cPar.eff + ".badsnps"; 
 	ofstream badsnpsFout(badsnps_str.c_str());

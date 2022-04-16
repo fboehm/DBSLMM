@@ -159,33 +159,23 @@ std::vector<std::string> readTestBim(string test_bim){
 
 vector <POS> makePosObjectForTestBim(std::vector<std::string> base_nums, vector <POS> inter){
   vector <POS> result; 
-  cout << "inter.size() is: " << inter.size() << endl;
-  cout << "base_nums.size() is: " << base_nums.size() << endl;
   for (int j = 0; j < inter.size(); j++){
     for (int i = 0; i < base_nums.size(); i++){
       if (stol(base_nums[i]) == inter[j].ps){
-        //result[j] = inter[j]; IS THIS LINE ACCEPTABLE???
-        cout << "we've a match!!!" <<endl;
         // change index value!!
         POS foo; 
         foo.pos = i;
-        cout << "i is: " << i << endl;
         foo.a1 = inter[j].a1;
         foo.maf = inter[j].maf;
         foo.P = inter[j].P;
         foo.ps = inter[j].ps;
         foo.snp = inter[j].snp;
         foo.z = inter[j].z;
-        cout << "populated foo" <<endl;
         result.push_back(foo);
-        cout << "base_nums[i] is: " << base_nums[i] << " i is: " << i << endl;
-        cout << "inter[j].ps is: " << inter[j].ps << " j is: " << j << endl;
         break; 
       }//end if
     }
   }
-  cout << "exiting makePosObject function" << endl;
-  cout << "length of result is: " << result.size() << endl;
   return result;   
 }
 
