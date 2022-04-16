@@ -260,9 +260,17 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 	bool badsnp_s[n_s] = {false}; 
 	cSP.matchRef(summ_s, ref_bim, inter_s, cPar.mafMax, badsnp_s); //matchRef is defined in scr/dtpr.cpp
 	cout << "After filtering, " << inter_s.size() << " small effect SNPs are selected." << endl;
+	//read the test bim rs ids into a string vector
+	std::vector <std::string> rs_ids = readTestBim(cPar.dat_str + "bim");
+	//
+	vector<POS> test_inter_s = makePosObjectForTestBim(rs_ids, inter_s);
 	vector <INFO> info_s; 
-	 int num_block_s = cSP.addBlock(inter_s, block_dat, info_s); //addBlock is defined in scr/dtpr.cpp & populates info_s
-	// output samll effect badsnps 
+	vector <INFO> test_info_s; 
+	
+	int num_block_s = cSP.addBlock(inter_s, block_dat, info_s); //addBlock is defined in scr/dtpr.cpp & populates info_s
+	int test_num_block_s = cSP.addBlock(test_inter_s, block_dat, test_info_s); //addBlock is defined in scr/dtpr.cpp & populates info_s
+	
+	 	// output samll effect badsnps 
 	string badsnps_str = cPar.eff + ".badsnps"; 
 	ofstream badsnpsFout(badsnps_str.c_str());
 	for (size_t i = 0; i < summ_s.size(); ++i) {
@@ -274,6 +282,7 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 	// large effect
 	vector <POS> inter_l;
 	vector <INFO> info_l; 
+	vector <INFO> test_info_l;
 	if (leffstream) {
 		// input large effect summary data
 		cout << "Reading summary data of large effect SNPs from [" << cPar.l << "]" << endl;
@@ -282,8 +291,13 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 		// vector <POS> inter_l;
 		bool badsnp_l[n_l] = {false};
 		cSP.matchRef(summ_l, ref_bim, inter_l, cPar.mafMax, badsnp_l);
+		vector<POS> test_inter_l = makePosObjectForTestBim(rs_ids, inter_l);
+		
+		
 		if (inter_l.size() != 0){
 			int num_block_l = cSP.addBlock(inter_l, block_dat, info_l); 
+		  int test_num_block_l = cSP.addBlock(test_inter_l, block_dat, test_info_l); 
+		  
 			cout << "After filtering, " << inter_l.size() << " large effect SNPs are selected." << endl;
 		} else {
 			cout << "After filtering, no large effect SNP is selected." << endl;
@@ -324,7 +338,9 @@ void DBSLMM::BatchRun(PARAM &cPar) {
             eff_s, 
             eff_l, 
             test_indicator, 
-            cPar.dat_str); 
+            cPar.dat_str, 
+            test_info_s,
+            test_info_l); 
 		double time_fitting = cIO.getWalltime() - t_fitting;
 		cout << "Fitting time: " << time_fitting << " seconds." << endl;
 
@@ -361,7 +377,8 @@ void DBSLMM::BatchRun(PARAM &cPar) {
             cPar.t, 
             eff_s, 
             test_indicator, 
-            cPar.dat_str); 
+            cPar.dat_str, 
+            test_info_s); 
 		double time_fitting = cIO.getWalltime() - t_fitting;
 		cout << "Fitting time: " << time_fitting << " seconds." << endl;
 
