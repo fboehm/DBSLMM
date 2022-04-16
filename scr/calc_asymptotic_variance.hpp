@@ -1,5 +1,6 @@
 
 #include <armadillo>
+#include "dtpr.hpp"
 
 arma::mat calc_nt_by_nt_matrix(arma::mat Sigma_ll, 
                                arma::mat Sigma_ls, 
@@ -29,4 +30,7 @@ arma::mat calc_var_betas(arma::mat Sigma_ss,
                          arma::mat A_inverse,
                          double sigma2_s,
                          unsigned int n);
-  
+
+std::vector<std::string> readTestBim(string test_bim);
+
+vector <POS> makePosObjectForTestBim(std::vector<std::string> rs_ids, vector <POS> inter);

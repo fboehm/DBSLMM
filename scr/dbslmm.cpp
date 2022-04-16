@@ -300,8 +300,6 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 	arma::uvec test_indicator_pre = read_indices_file(cPar.test_indicator_file) ; //read file containing training set indices
 	vector<int> test_indicator =  conv_to<vector<int> >::from(test_indicator_pre);
 
-	// we subtract one from test_indices and training_indices because our c++ indices start with zero, 
-	// while the files from which we read the indices have 1 as their smallest possible value.
 	// output stream
 	string eff_str = cPar.eff + ".txt"; 
 	ofstream effFout(eff_str.c_str());
