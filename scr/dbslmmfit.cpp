@@ -171,7 +171,7 @@ int  DBSLMMFIT::est(int n_ref,
 				info_l_Block[B][k] = info_l_block[k]; 
       // test_info_l_block
 			vector <INFO> test_info_l_block;
-			for (size_t j = count_l; j < test_info_l.size(); j++) {
+			for (size_t j = test_count_l; j < test_info_l.size(); j++) {
 			  if(test_info_l[j].block == i){ 
 			    test_info_l_block.push_back(test_info_l[j]);
 			    test_count_l++;
@@ -270,7 +270,7 @@ int DBSLMMFIT::est(int n_ref,
 	    }
 	  }
 	}
-	count_s = 0; // reset
+	test_count_s = 0; // reset
 	
 	double len_s = num_s.max(); 
 	
