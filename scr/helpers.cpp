@@ -40,25 +40,7 @@ unsigned int sum_vec(vector<int> vv){
   return result;
 }
 
-//' Subset info object for a whole chromosome to info object for a single block only
-//' 
-//' @param info a vector <INFO> object
-//' @param block_num integer indicating which block it is
-//' @return a vector <INFO> object for exactly one block 
 
-vector <INFO> subset_info_by_block(vector <INFO> info, int block_num){
-  vector <INFO> result; 
-  int count_s = 0;
-  for (size_t j = count_s; j < info.size(); j++) {
-    if(info[j].block == block_num){ 
-      result.push_back(info[j]);
-      count_s++;
-    }else{
-      break;
-    }
-  }
-  return result;
-}
 
 
 //' Populate vector of vector of INFO
