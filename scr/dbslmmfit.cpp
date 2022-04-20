@@ -29,6 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "dbslmmfit.hpp"
 #include "calc_asymptotic_variance.hpp"
 #include "subset_to_test_and_training.hpp"
+#include "helpers.hpp"
 
 using namespace std;
 using namespace arma;
@@ -48,6 +49,8 @@ using namespace arma;
 //' @param eff_l large effects SNP effects object
 //' @param test_indicator vector containing ones and zeroes for indicating which subjects are in the test set.
 //' @param genotypes_str a string containing the file path to the file containing genotypes for test and training subjects
+//' @param test_info_s info object for small effect SNPs from the test set
+//' @param test_info_l info object for the large effect SNPs from test set
 //' @return zero is returned
 // estimate large and small effect
 int  DBSLMMFIT::est(int n_ref, 
@@ -68,163 +71,132 @@ int  DBSLMMFIT::est(int n_ref,
 ){
 	
 	// get the maximum number of each block
-	int count_s = 0, count_l = 0;
-	vec num_s = zeros<vec>(num_block), num_l = zeros<vec>(num_block); 
-	for (int i = 0; i < num_block; i++) {
-		for (size_t j = count_s; j < info_s.size(); j++) {
-			if(info_s[j].block == i){ 
-				num_s(i) += 1; 
-				count_s++;
-			}else{
-				break;
-			}
-		}
-		for (size_t j = count_l; j < info_l.size(); j++) {
-			if(info_l[j].block == i){ 
-				num_l(i) += 1; 
-				count_l++;
-			}else{
-				break;
-			}
-		}
-	}// end of counting and populating num_l and num_s, ie, iterates over i
-	count_l = count_s = 0; // reset
+	vec num_s = count_snps_per_block(num_block, info_s);
+	vec num_l = count_snps_per_block(num_block, info_l);
+	vec test_num_s = count_snps_per_block(num_block, test_info_s);
+	vec test_num_l = count_snps_per_block(num_block, test_info_l);
 	
+	  
+
 	double len_l = num_l.max(); //len_l is the maximum, across blocks, of the per-block number of large effect SNPs
 	double len_s = num_s.max(); //len_s is the max of the per-block number of small effect SNPs
+	double test_len_l = test_num_l.max(); //len_l is the maximum, across blocks, of the per-block number of large effect SNPs
+	double test_len_s = test_num_s.max(); //len_s is the max of the per-block number of small effect SNPs
 	
 	int B = 0;
 	int B_MAX = 60; // number of blocks to batch at one time
-	if (num_block < 60){ //num_block is the number of blocks across the genome.
+	if (num_block < 60){ //num_block is the number of blocks across the chromosome.
 		B_MAX = num_block; 
 	}
 
 	// pseudo INFO
-	INFO info_pseudo; 
-	info_pseudo.snp = "rs"; 
-	info_pseudo.ps = 0; 
-	info_pseudo.pos = 0; 
-	info_pseudo.block = 0; 
-	info_pseudo.a1 = "Y"; 
-	info_pseudo.maf = 0; 
-	info_pseudo.z = 0; 
-	info_pseudo.P = 0; 
-	
+	INFO info_pseudo = make_pseudo_info(); 
+
 	// loop 
 	// vector < vector <INFO*> > info_s_Block(B_MAX, vector <INFO*> ((int)len_s)), info_l_Block(B_MAX, vector <INFO*> ((int)len_l));
 
 	vector < vector <INFO> > info_s_Block(B_MAX, vector <INFO> ((int)len_s)), info_l_Block(B_MAX, vector <INFO> ((int)len_l)), test_info_s_Block(B_MAX, vector <INFO> ((int)len_s)), test_info_l_Block(B_MAX, vector <INFO> ((int)len_l));
 	vector < vector <EFF> > eff_s_Block(B_MAX, vector <EFF> ((int)len_s)), eff_l_Block(B_MAX, vector <EFF> ((int)len_l));
 	vector <int> num_s_vec, num_l_vec;
+	vector <int> test_num_s_vec, test_num_l_vec;
+	
+  unsigned int n_test = sum_vec(test_indicator);
+	int count_s = 0;
+	int count_l = 0;	
+	arma::mat diags = zeros(n_test, num_block); //specify dims of diags
 
-  unsigned int n_test = std::accumulate(test_indicator.begin(), test_indicator.end(),
-                                        decltype(test_indicator)::value_type(0));
-	arma::vec diags = zeros(n_test); //specify length of diags
-	for (int i = 0; i < num_block; ++i) {
-		// small effect SNP information
-		vector <INFO> info_s_block; 
-		for (size_t j = count_s; j < info_s.size(); j++) {
-			if(info_s[j].block == i){ 
-				info_s_block.push_back(info_s[j]);
-				count_s++;
-			}else{
-				break;
-			}
-		} //end loop for populating info_s_block
-		count_s = 0;
-		int test_count_s = 0;
-		int test_count_l = 0;
-		
-		vector <INFO> test_info_s_block; 
-		for (size_t j = count_s; j < test_info_s.size(); j++) {
-		  if(test_info_s[j].block == i){ 
-		    test_info_s_block.push_back(test_info_s[j]);
-		    test_count_s++;
-		  }else{
-		    break;
-		  }
-		} //end loop for populating test_info_s_block
-		for (size_t k = 0; k < info_s_block.size(); k++)
-			// info_s_Block[B][k] = &info_s_block[k]; 
-			info_s_Block[B][k] = info_s_block[k]; 
-		for (size_t k = 0; k < test_info_s_block.size(); k++)
-		  // info_s_Block[B][k] = &info_s_block[k]; 
-		  test_info_s_Block[B][k] = test_info_s_block[k]; 
-		
-		num_s_vec.push_back((int)num_s(i));
-		// large effect SNP information
-		if (num_l(i) == 0){
-			// info_l_Block[B][0] = &info_pseudo;
-			info_l_Block[B][0] = info_pseudo;
-		  test_info_l_Block[B][0] = info_pseudo;
-		}else{
-			vector <INFO> info_l_block;
-			for (size_t j = count_l; j < info_l.size(); j++) {
-				if(info_l[j].block == i){ 
-					info_l_block.push_back(info_l[j]);
-					count_l++;
-				}else{
-					break;
-				}
-			}
-			for (size_t k = 0; k < info_l_block.size(); k++)
-				info_l_Block[B][k] = info_l_block[k]; 
-      // test_info_l_block
-			vector <INFO> test_info_l_block;
-			for (size_t j = test_count_l; j < test_info_l.size(); j++) {
-			  if(test_info_l[j].block == i){ 
-			    test_info_l_block.push_back(test_info_l[j]);
-			    test_count_l++;
-			  }else{
-			    break;
-			  }
-			}
-			for (size_t k = 0; k < test_info_l_block.size(); k++)
-			  info_l_Block[B][k] = test_info_l_block[k]; 
-		}
-		num_l_vec.push_back((int)num_l(i));
 
-		B++;
-		if (B == B_MAX || i + 1 == num_block) { // process the block of SNPs using multi-threading
-			omp_set_num_threads(thread);
+
+        for (int i = 0; i < num_block; ++i) {
+                // small effect SNP information
+                vector <INFO> info_s_block;
+                for (size_t j = count_s; j < info_s.size(); j++) {
+                        if(info_s[j].block == i){
+                                info_s_block.push_back(info_s[j]);
+                                count_s++;
+                        }else{
+                                break;
+                        }
+                }
+                for (size_t k = 0; k < info_s_block.size(); k++)
+                        // info_s_Block[B][k] = &info_s_block[k]; 
+
+
+
+                        info_s_Block[B][k] = info_s_block[k];
+num_s_vec.push_back((int)num_s(i));
+
+                // large effect SNP information
+                if (num_l(i) == 0){
+                        // info_l_Block[B][0] = &info_pseudo;
+                        info_l_Block[B][0] = info_pseudo;
+                }else{
+                        vector <INFO> info_l_block;
+                        for (size_t j = count_l; j < info_l.size(); j++) {
+                                if(info_l[j].block == i){
+                                        info_l_block.push_back(info_l[j]);
+                                        count_l++;
+                                }else{
+                                        break;
+                                }
+                        }
+                        for (size_t k = 0; k < info_l_block.size(); k++)
+                                // info_l_Block[B][k] = &info_l_block[k]; 
+                                info_l_Block[B][k] = info_l_block[k];
+                }
+                num_l_vec.push_back((int)num_l(i));
+
+                B++;
+                if (B == B_MAX || i + 1 == num_block) { // process the block of SNPs using multi-threading
+
+                        omp_set_num_threads(thread);
 #pragma omp parallel for schedule(dynamic)
-			for (int b = 0; b < B; b++){
-			  cout << "call calcBlock... b has value:"<< b << endl;
-			  diags += calcBlock(n_ref, 
-                                n_obs, 
-                                sigma_s, 
-                                idv, 
-                                bed_str, 
-                                info_s_Block[b], 
+                        for (int b = 0; b < B; b++){
+                         cout << "call calcBlock... b has value:"<< b << endl;
+                          arma::vec cb_out  = calcBlock(n_ref,
+                                n_obs,
+                                sigma_s,
+                                idv,
+                                bed_str,
+                                info_s_Block[b],
                                 info_l_Block[b],
-                                num_s_vec[b], 
-                                num_l_vec[b], 
-                                eff_s_Block[b], 
-                                eff_l_Block[b], 
+                                num_s_vec[b],
+                                num_l_vec[b],
+                                eff_s_Block[b],
+                                eff_l_Block[b],
                                  test_indicator,
-                                 genotypes_str, 
-                                 test_info_s_Block[b], 
+                                 genotypes_str,
+                                 test_info_s_Block[b],
                                 test_info_l_Block[b]);
-			 // int index = floor(i / B_MAX) * B_MAX + b;
+                          cout << "size of cb_out: " << cb_out.size() <<endl;
+                          int col_num = i - B_MAX + b + 1;
+                          cout << "col_num: " << col_num << endl;
+                          diags.col(col_num) = cb_out;
 
+                         // int index = floor(i / B_MAX) * B_MAX + b;
+
+
+			
+			
 			}
-			// eff of small effect SNPs
-			for (int r = 0; r < B; r++) {
-				for (int l = 0; l < num_s_vec[r]; l++){
-					eff_s.push_back(eff_s_Block[r][l]);
-				}
-			}
-			// eff of large effect SNPs
-			for (int r = 0; r < B; r++){
-				for (int l = 0; l < num_l_vec[r]; l++){
-					eff_l.push_back(eff_l_Block[r][l]);
-				}
-			}
-			B = 0;
-			num_l_vec.clear(); 
-			num_s_vec.clear();
-		}
-	}
+                        // eff of small effect SNPs
+                        for (int r = 0; r < B; r++) {
+                                for (int l = 0; l < num_s_vec[r]; l++){
+                                        eff_s.push_back(eff_s_Block[r][l]);
+                                }
+                        }
+                        // eff of large effect SNPs
+                        for (int r = 0; r < B; r++){
+                                for (int l = 0; l < num_l_vec[r]; l++){
+                                        eff_l.push_back(eff_l_Block[r][l]);
+                                }
+                        }
+                        B = 0;
+                        num_l_vec.clear();
+                        num_s_vec.clear();
+                }
+        }
+
 	//write the diags object to a file
 	diags.save("variance.txt", arma_ascii);
 	return 0;
@@ -246,33 +218,12 @@ int DBSLMMFIT::est(int n_ref,
 ){
 	
 	// get the maximum number of each block
-	int count_s = 0;
-	vec num_s = zeros<vec>(num_block); 
-	for (int i = 0; i < num_block; i++) {
-		for (size_t j = count_s; j < info_s.size(); j++) {
-			if(info_s[j].block == i){ 
-				num_s(i) += 1; 
-				count_s++;
-			}else{
-				break;
-			}
-		}
-	}
-	count_s = 0; // reset
-	int test_count_s = 0;
-	for (int i = 0; i < num_block; i++) {
-	  for (size_t j = test_count_s; j < test_info_s.size(); j++) {
-	    if(test_info_s[j].block == i){ 
-	      num_s(i) += 1; 
-	      test_count_s++;
-	    }else{
-	      break;
-	    }
-	  }
-	}
-	test_count_s = 0; // reset
-	
+  arma::vec num_s = count_snps_per_block(num_block, info_s);
+  cout << "num_block: " << num_block <<endl;
+  arma::vec test_num_s = count_snps_per_block(num_block, test_info_s);	
+
 	double len_s = num_s.max(); 
+	double test_len_s = test_num_s.max();
 	
 	int B = 0;
 	int B_MAX = 60;
@@ -281,84 +232,73 @@ int DBSLMMFIT::est(int n_ref,
 	}
 
 	// pseudo INFO
-	INFO info_pseudo; 
-	info_pseudo.snp = "rs"; 
-	info_pseudo.ps = 0; 
-	info_pseudo.pos = 0; 
-	info_pseudo.block = 0; 
-	info_pseudo.a1 = "Y"; 
-	info_pseudo.maf = 0; 
-	info_pseudo.z = 0; 
-	info_pseudo.P = 0; 
-	
+	INFO info_pseudo = make_pseudo_info();
+
 	// loop 
 	// vector < vector <INFO*> > info_s_Block(B_MAX, vector <INFO*> ((int)len_s));
 	vector < vector <INFO> > info_s_Block(B_MAX, vector <INFO> ((int)len_s));
-	vector < vector <INFO> > test_info_s_Block(B_MAX, vector <INFO> ((int)len_s));
+	vector < vector <INFO> > test_info_s_Block(B_MAX, vector <INFO> ((int)test_len_s));
 	vector < vector <EFF> > eff_s_Block(B_MAX, vector <EFF> ((int)len_s));
 	vector <int> num_s_vec;
-	unsigned int n_test = std::accumulate(test_indicator.begin(), test_indicator.end(),
-                                       decltype(test_indicator)::value_type(0));
+	vector <int> test_num_s_vec;
+	//
+	unsigned int n_test = sum_vec(test_indicator);//test_indicator contains only ones and zeros
 	cout << "n_test: " << n_test << endl;
-	arma::vec diags = zeros(n_test); //specify length of diags & set all to zeros
+	arma::mat diags = zeros(n_test, num_block); //specify length of diags & set all entries to zeros
+  cout << "dimensions of diags: " << diags.n_rows << " rows and cols: " << diags.n_cols << endl;
+	int count_s = 0;
+       for (int i = 0; i < num_block; ++i) {
+                // small effect SNP information
+                vector <INFO> info_s_block;
+                for (size_t j = count_s; j < info_s.size(); j++) {
+                        if(info_s[j].block == i){
+                                info_s_block.push_back(info_s[j]);
+                                count_s++;
+                        }else{
+                                break;
+                        }
+                }
+                for (size_t k = 0; k < info_s_block.size(); k++)
+                        // info_s_Block[B][k] = &info_s_block[k]; 
+                        info_s_Block[B][k] = info_s_block[k];
+                num_s_vec.push_back((int)num_s(i));
 
-	for (int i = 0; i < num_block; ++i) {
-		// small effect SNP information
-		vector <INFO> info_s_block; 
-		for (size_t j = count_s; j < info_s.size(); j++) {
-			if(info_s[j].block == i){ 
-				info_s_block.push_back(info_s[j]);
-				count_s++;
-			}else{
-				break;
-			}
-		}
-		for (size_t k = 0; k < info_s_block.size(); k++)
-			// info_s_Block[B][k] = &info_s_block[k]; 
-			info_s_Block[B][k] = info_s_block[k]; 
-		vector <INFO> test_info_s_block; 
-		test_count_s = 0;
-		for (size_t j = test_count_s; j < test_info_s.size(); j++) {
-		  if(test_info_s[j].block == i){ 
-		    test_info_s_block.push_back(test_info_s[j]);
-		    test_count_s++;
-		  }else{
-		    break;
-		  }
-		}
-		for (size_t k = 0; k < info_s_block.size(); k++)
-		  // info_s_Block[B][k] = &info_s_block[k]; 
-		  info_s_Block[B][k] = info_s_block[k]; 		
-		num_s_vec.push_back((int)num_s(i));
-		
-		B++;
-		if (B == B_MAX || i + 1 == num_block) { // process the block of SNPs using multi-threading
-		  omp_set_num_threads(thread);
+                B++;
+                if (B == B_MAX || i + 1 == num_block) { // process the block of SNPs using multi-threading
+
+                        omp_set_num_threads(thread);
 #pragma omp parallel for schedule(dynamic)
-			for (int b = 0; b < B; b++){
-			  diags += calcBlock(n_ref, 
-                            n_obs, 
-                            sigma_s, 
-                            idv, 
-                            bed_str, 
+                        for (int b = 0; b < B; b++){
+                        arma::vec cb_out = calcBlock(n_ref,
+                            n_obs,
+                            sigma_s,
+                            idv,
+                            bed_str,
                             info_s_Block[b],
-				                    num_s_vec[b], 
-                            eff_s_Block[b], 
-                           test_indicator, 
-                           genotypes_str, 
+                                                    num_s_vec[b],
+                            eff_s_Block[b],
+                           test_indicator,
+                           genotypes_str,
                            test_info_s_Block[b]);
-			  //cout <<"index: " << index << endl; 
+                          cout << "size of cb_out: " << cb_out.size() <<endl;
+                          int col_num = i - B_MAX + b + 1;
+                          cout << "col_num: " << col_num << endl;
+                          diags.col(col_num) = cb_out;
+
 			}
-			// eff of small effect SNPs
-			for (int r = 0; r < B; r++) {
-				for (int l = 0; l < num_s_vec[r]; l++){
-					eff_s.push_back(eff_s_Block[r][l]);
-				}
-			}
-			B = 0;
-			num_s_vec.clear();
-		}
-	}
+                        // eff of small effect SNPs
+                        for (int r = 0; r < B; r++) {
+                                for (int l = 0; l < num_s_vec[r]; l++){
+                                        eff_s.push_back(eff_s_Block[r][l]);
+                                }
+                        }
+                        B = 0;
+                        num_s_vec.clear();
+                }
+        }
+
+
+
 	//write the diags object to a file
 	diags.save("variance.txt", arma_ascii);
 	return 0;
@@ -381,12 +321,12 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 						                    vector <INFO> test_info_s_block_full, 
 						                    vector <INFO> test_info_l_block_full
 ){
-  cout << "starting line 1 of calcBlock..."<< endl;
 	SNPPROC cSP;
 	IO cIO; 
 	ifstream bed_in(bed_str.c_str(), ios::binary);
 	//open stream for observed data (not the reference panel)
-	ifstream dat_in(genotypes_str.c_str(), ios::binary);
+	string test_bed = genotypes_str + ".bed";
+	ifstream dat_in(test_bed.c_str(), ios::binary);
 	
 	// INFO small effect SNPs 
 	// vector <INFO*> info_s_block(num_s_block);
@@ -560,7 +500,8 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	IO cIO; 
 	ifstream bed_in(bed_str.c_str(), ios::binary);
 	//open stream for observed data (not the reference panel)
-	ifstream dat_in(genotypes_str.c_str(), ios::binary);
+	string test_bed = genotypes_str + ".bed";
+	ifstream dat_in(test_bed.c_str(), ios::binary);
 	// INFO small effect SNPs 
 	// vector <INFO*> info_s_block(num_s_block);
 	// for (int i = 0; i < num_s_block; i++)

@@ -265,13 +265,16 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 	std::vector <std::string> base_nums = readTestBim(cPar.dat_str + ".bim");
 	//
 	vector<POS> test_inter_s = makePosObjectForTestBim(base_nums, inter_s);
-
+  cout << "test_inter_s[1].snp: " << test_inter_s[1].snp << endl;
+  cout << "test_inter_s[1].pos: " << test_inter_s[1].pos << endl;
+  cout << "test_inter_s[1].ps: " << test_inter_s[1].ps << endl;  
 	vector <INFO> info_s; 
 	vector <INFO> test_info_s; 
 	
 	int num_block_s = cSP.addBlock(inter_s, block_dat, info_s); //addBlock is defined in scr/dtpr.cpp & populates info_s
 	int test_num_block_s = cSP.addBlock(test_inter_s, block_dat, test_info_s); //addBlock is defined in scr/dtpr.cpp & populates info_s
-	
+	cout << "test_num_block_s: " << test_num_block_s << endl;
+	cout << "test_info_s[1].pos: " << test_info_s[1].pos << endl;
 
 	 	// output samll effect badsnps 
 	string badsnps_str = cPar.eff + ".badsnps"; 
@@ -341,7 +344,7 @@ void DBSLMM::BatchRun(PARAM &cPar) {
             eff_s, 
             eff_l, 
             test_indicator, 
-            cPar.dat_str, 
+            cPar.dat_str, //no file ending, like ".bed" or ".bim"
             test_info_s,
             test_info_l); 
 		double time_fitting = cIO.getWalltime() - t_fitting;
