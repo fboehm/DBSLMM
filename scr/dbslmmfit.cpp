@@ -169,7 +169,7 @@ num_s_vec.push_back((int)num_s(i));
                                  test_info_s_Block[b],
                                 test_info_l_Block[b]);
                           cout << "size of cb_out: " << cb_out.size() <<endl;
-                          int col_num = i - B_MAX + b + 1;
+                          int col_num = i - B + b + 1;
                           cout << "col_num: " << col_num << endl;
                           diags.col(col_num) = cb_out;
 
@@ -281,7 +281,7 @@ int DBSLMMFIT::est(int n_ref,
                            genotypes_str,
                            test_info_s_Block[b]);
                           cout << "size of cb_out: " << cb_out.size() <<endl;
-                          int col_num = i - B_MAX + b + 1;
+                          int col_num = i - B + b + 1;
                           cout << "col_num: " << col_num << endl;
                           diags.col(col_num) = cb_out;
 
