@@ -95,7 +95,7 @@ int  DBSLMMFIT::est(int n_ref,
 	// loop 
 	// vector < vector <INFO*> > info_s_Block(B_MAX, vector <INFO*> ((int)len_s)), info_l_Block(B_MAX, vector <INFO*> ((int)len_l));
 
-	vector < vector <INFO> > info_s_Block(B_MAX, vector <INFO> ((int)len_s)), info_l_Block(B_MAX, vector <INFO> ((int)len_l)), test_info_s_Block(B_MAX, vector <INFO> ((int)len_s)), test_info_l_Block(B_MAX, vector <INFO> ((int)len_l));
+	vector < vector <INFO> > info_s_Block(B_MAX, vector <INFO> ((int)len_s)), info_l_Block(B_MAX, vector <INFO> ((int)len_l)), test_info_s_Block(B_MAX, vector <INFO> ((int)test_len_s)), test_info_l_Block(B_MAX, vector <INFO> ((int)test_len_l));
 	vector < vector <EFF> > eff_s_Block(B_MAX, vector <EFF> ((int)len_s)), eff_l_Block(B_MAX, vector <EFF> ((int)len_l));
 	vector <int> num_s_vec, num_l_vec;
 	vector <int> test_num_s_vec, test_num_l_vec;
@@ -103,6 +103,10 @@ int  DBSLMMFIT::est(int n_ref,
   unsigned int n_test = sum_vec(test_indicator);
 	int count_s = 0;
 	int count_l = 0;	
+	int test_count_s = 0;
+	int test_count_l = 0;
+	
+
 	arma::mat diags = zeros(n_test, num_block); //specify dims of diags
 
 
@@ -118,13 +122,23 @@ int  DBSLMMFIT::est(int n_ref,
                                 break;
                         }
                 }
+                vector <INFO> test_info_s_block;
+                for (size_t j = test_count_s; j < test_info_s.size(); j++) {
+                  if(test_info_s[j].block == i){
+                    test_info_s_block.push_back(test_info_s[j]);
+                    test_count_s++;
+                  }else{
+                    break;
+                  }
+                }
                 for (size_t k = 0; k < info_s_block.size(); k++)
                         // info_s_Block[B][k] = &info_s_block[k]; 
-
-
-
                         info_s_Block[B][k] = info_s_block[k];
-num_s_vec.push_back((int)num_s(i));
+                num_s_vec.push_back((int)num_s(i));
+                for (size_t k = 0; k < test_info_s_block.size(); k++)
+                  // info_s_Block[B][k] = &info_s_block[k]; 
+                  test_info_s_Block[B][k] = test_info_s_block[k];
+                test_num_s_vec.push_back((int)test_num_s(i));
 
                 // large effect SNP information
                 if (num_l(i) == 0){
@@ -145,6 +159,25 @@ num_s_vec.push_back((int)num_s(i));
                                 info_l_Block[B][k] = info_l_block[k];
                 }
                 num_l_vec.push_back((int)num_l(i));
+                ///// test set large effect SNPs
+                if (test_num_l(i) == 0){
+                  // info_l_Block[B][0] = &info_pseudo;
+                  test_info_l_Block[B][0] = info_pseudo;
+                }else{
+                  vector <INFO> test_info_l_block;
+                  for (size_t j = test_count_l; j < test_info_l.size(); j++) {
+                    if(test_info_l[j].block == i){
+                      test_info_l_block.push_back(test_info_l[j]);
+                      test_count_l++;
+                    }else{
+                      break;
+                    }
+                  }
+                  for (size_t k = 0; k < test_info_l_block.size(); k++)
+                    // info_l_Block[B][k] = &info_l_block[k]; 
+                    test_info_l_Block[B][k] = test_info_l_block[k];
+                }
+                test_num_l_vec.push_back((int)test_num_l(i));
 
                 B++;
                 if (B == B_MAX || i + 1 == num_block) { // process the block of SNPs using multi-threading
@@ -194,6 +227,8 @@ num_s_vec.push_back((int)num_s(i));
                         B = 0;
                         num_l_vec.clear();
                         num_s_vec.clear();
+                        test_num_l_vec.clear();
+                        test_num_s_vec.clear();
                 }
         }
 
@@ -247,6 +282,7 @@ int DBSLMMFIT::est(int n_ref,
 	arma::mat diags = zeros(n_test, num_block); //specify length of diags & set all entries to zeros
   cout << "dimensions of diags: " << diags.n_rows << " rows and cols: " << diags.n_cols << endl;
 	int count_s = 0;
+	int test_count_s = 0;
        for (int i = 0; i < num_block; ++i) {
                 // small effect SNP information
                 vector <INFO> info_s_block;
@@ -262,7 +298,21 @@ int DBSLMMFIT::est(int n_ref,
                         // info_s_Block[B][k] = &info_s_block[k]; 
                         info_s_Block[B][k] = info_s_block[k];
                 num_s_vec.push_back((int)num_s(i));
-
+                // test set info
+                vector <INFO> test_info_s_block;
+                for (size_t j = test_count_s; j < test_info_s.size(); j++) {
+                  if(test_info_s[j].block == i){
+                    test_info_s_block.push_back(test_info_s[j]);
+                    test_count_s++;
+                  }else{
+                    break;
+                  }
+                }
+                for (size_t k = 0; k < test_info_s_block.size(); k++)
+                  // info_s_Block[B][k] = &info_s_block[k]; 
+                  test_info_s_Block[B][k] = test_info_s_block[k];
+                test_num_s_vec.push_back((int)test_num_s(i));
+                
                 B++;
                 if (B == B_MAX || i + 1 == num_block) { // process the block of SNPs using multi-threading
 
@@ -294,11 +344,9 @@ int DBSLMMFIT::est(int n_ref,
                         }
                         B = 0;
                         num_s_vec.clear();
+                        test_num_s_vec.clear();
                 }
         }
-
-
-
 	//write the diags object to a file
 	diags.save("variance.txt", arma_ascii);
 	return 0;
