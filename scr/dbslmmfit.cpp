@@ -458,7 +458,6 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 			
 		}//end populating of geno_l & of X_l. 
 		//X_l is the genotypes data for the non-reference subjects
-		//partition subjects - for X_s and X_l - into training and test
 		cout << "dimensions of geno_s: " << geno_s.n_rows << " rows and " << geno_s.n_cols << " columns" << endl;
 
 		// estimation
@@ -566,10 +565,9 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 		// z_s(i) = info_s_block[i]->z;
 		z_s(i) = info_s_block[i].z;
 	cout << "length of test_indicator: " << test_indicator.size() << endl;
-	
 	// 337129 because that is the number of UKB subjects in the fam file
-	unsigned int n_test = std::accumulate(test_indicator.begin(), test_indicator.end(),
-                                       decltype(test_indicator)::value_type(0)); //https://stackoverflow.com/questions/3221812/how-to-sum-up-elements-of-a-c-vector
+	unsigned int n_test = sum_vec(test_indicator);
+	  
 	// small effect genotype matrix
 	mat geno_s = zeros<mat>(n_ref, num_s_block);
 	arma::mat X_s = zeros <mat>(n_test, num_s_block);
@@ -581,7 +579,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 		cIO.readSNPIm(info_s_block[i].pos, n_ref, idv, bed_in, geno, maf);
 		cSP.nomalizeVec(geno);
 		geno_s.col(i) = geno;
-		cIO.readSNPIm(info_s_block[i].pos, n_test, test_indicator, dat_in, gg, maf);
+		cIO.readSNPIm(test_info_s_block[i].pos, n_test, test_indicator, dat_in, gg, maf);
 		cSP.nomalizeVec(gg);
 		X_s.col(i) = gg;
 	}
