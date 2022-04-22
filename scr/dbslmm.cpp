@@ -298,8 +298,7 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 		bool badsnp_l[n_l] = {false};
 		cSP.matchRef(summ_l, ref_bim, inter_l, cPar.mafMax, badsnp_l);
 		vector<POS> test_inter_l = makePosObjectForTestBim(base_nums, inter_l);
-		
-		
+
 		if (inter_l.size() != 0){
 			int num_block_l = cSP.addBlock(inter_l, block_dat, info_l); 
 		  int test_num_block_l = cSP.addBlock(test_inter_l, block_dat, test_info_l); 

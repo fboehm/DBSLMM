@@ -82,7 +82,13 @@ int  DBSLMMFIT::est(int n_ref,
 	double len_s = num_s.max(); //len_s is the max of the per-block number of small effect SNPs
 	double test_len_l = test_num_l.max(); //len_l is the maximum, across blocks, of the per-block number of large effect SNPs
 	double test_len_s = test_num_s.max(); //len_s is the max of the per-block number of small effect SNPs
+
+	cout << "len_s: " << len_s << endl;
+	cout << "test_len_s: " << test_len_s << endl;
+	cout << "len_l: " << len_l << endl;
+	cout << "test_len_l: " << test_len_l << endl;
 	
+		
 	int B = 0;
 	int B_MAX = 60; // number of blocks to batch at one time
 	if (num_block < 60){ //num_block is the number of blocks across the chromosome.
@@ -260,6 +266,10 @@ int DBSLMMFIT::est(int n_ref,
 	double len_s = num_s.max(); 
 	double test_len_s = test_num_s.max();
 	
+	cout << "len_s: " << len_s << endl;
+	cout << "test_len_s: " << test_len_s << endl;
+	
+	
 	int B = 0;
 	int B_MAX = 60;
 	if (num_block < 60){
@@ -400,8 +410,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 
 	//make a test_indicator indicator vector
 	cout << "length of test_indicator: " << test_indicator.size() << endl;
-	unsigned int n_test = std::accumulate(test_indicator.begin(), test_indicator.end(),
-                                       decltype(test_indicator)::value_type(0)); //https://stackoverflow.com/questions/3221812/how-to-sum-up-elements-of-a-c-vector
+	unsigned int n_test = sum_vec(test_indicator); //https://stackoverflow.com/questions/3221812/how-to-sum-up-elements-of-a-c-vector
 	//https://stackoverflow.com/questions/3221812/how-to-sum-up-elements-of-a-c-vector
 	//initialize a matrix for reading test genotype data
 	arma::mat X_s = zeros<mat>(n_test, num_s_block);
