@@ -213,10 +213,6 @@ int  DBSLMMFIT::est(int n_ref,
                           diags.col(col_num) = cb_out;
 
                          // int index = floor(i / B_MAX) * B_MAX + b;
-
-
-			
-			
 			}
                         // eff of small effect SNPs
                         for (int r = 0; r < B; r++) {
@@ -293,7 +289,7 @@ int DBSLMMFIT::est(int n_ref,
   cout << "dimensions of diags: " << diags.n_rows << " rows and cols: " << diags.n_cols << endl;
 	int count_s = 0;
 	int test_count_s = 0;
-       for (int i = 0; i < num_block; ++i) {
+  for (int i = 0; i < num_block; ++i) {
                 // small effect SNP information
                 vector <INFO> info_s_block;
                 for (size_t j = count_s; j < info_s.size(); j++) {
@@ -406,90 +402,94 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	mat geno_s = zeros<mat>(n_ref, num_s_block); // from reference data
 	cout << "number of rows in geno_s: " << geno_s.n_rows << endl;
 	cout << "number of columns in geno_s: " << geno_s.n_cols << endl;
-	
-
 	//make a test_indicator indicator vector
 	cout << "length of test_indicator: " << test_indicator.size() << endl;
 	unsigned int n_test = sum_vec(test_indicator); //https://stackoverflow.com/questions/3221812/how-to-sum-up-elements-of-a-c-vector
 	//https://stackoverflow.com/questions/3221812/how-to-sum-up-elements-of-a-c-vector
 	//initialize a matrix for reading test genotype data
-	arma::mat X_s = zeros<mat>(n_test, num_s_block);
+	arma::vec test_indices = get_nonzero_indices(test_indicator);
+	arma::mat X_s = zeros<mat>(1, num_s_block);
 	cout << "Number of columns in X_s: " << X_s.n_cols << endl;
 	cout << "Number of rows in X_s: " << X_s.n_rows << endl;
-	for (int i = 0; i < num_s_block; ++i) {
-		vec geno = zeros<vec>(n_ref);
-  	arma::vec gg = zeros<vec>(n_test);
-		double maf = 0.0; 
-		// cIO.readSNPIm(info_s_block[i]->pos, n_ref, idv, bed_in, geno, maf);
-		cIO.readSNPIm(info_s_block[i].pos, n_ref, idv, bed_in, geno, maf);
-		cSP.nomalizeVec(geno);
-		geno_s.col(i) = geno;
-		cIO.readSNPIm(test_info_s_block[i].pos, n_test, test_indicator, dat_in, gg, maf);
-		cSP.nomalizeVec(gg);
-		X_s.col(i) = gg;
-	}
-	// pseudo EFF
-	EFF eff_pseudo; 
-	eff_pseudo.snp = "rs"; 
-	eff_pseudo.a1 = "Y"; 
-	eff_pseudo.maf = 0.0; 
-	eff_pseudo.beta = 0.0; 
-	arma::mat result;
-	vec beta_s = zeros<vec>(num_s_block); 
-	// INFO large effect SNPs 
-	if (num_l_block != 0){
-		// vector <INFO*> info_l_block(num_l_block);
-		vector <INFO> info_l_block(num_l_block);
-		for (int i = 0; i < num_l_block; i++) 
-			info_l_block[i] = info_l_block_full[i];
-		vector <INFO> test_info_l_block(num_l_block);
-		for (int i = 0; i < num_l_block; i++) 
-		  test_info_l_block[i] = test_info_l_block_full[i];
-		// z_l
-		vec z_l = zeros<vec>(num_l_block); 
-		for(int i = 0; i < num_l_block; i++) 
-			// z_l(i) = info_l_block[i]->z;
-			z_l(i) = info_l_block[i].z;
-		// large effect matrix
-		mat geno_l = zeros<mat>(n_ref, num_l_block);
-		arma::mat X_l = zeros<mat>(n_test, num_l_block);
-		for (int i = 0; i < num_l_block; ++i) {//num_l_block is the number of large effect SNPs in the block
-			vec geno = zeros<vec>(n_ref);
-		  arma::vec gg = zeros<vec>(n_test);
-			double maf = 0.0; 
-			// cIO.readSNPIm(info_l_block[i]->pos, n_ref, idv, bed_in, geno, maf);
-			cIO.readSNPIm(info_l_block[i].pos, n_ref, idv, bed_in, geno, maf);
-			cSP.nomalizeVec(geno);
-			geno_l.col(i) = geno;
-			cIO.readSNPIm(test_info_l_block[i].pos, n_test, test_indicator, dat_in, gg, maf);
-			cSP.nomalizeVec(gg);
-			X_l.col(i) = gg;
-			
-		}//end populating of geno_l & of X_l. 
-		//X_l is the genotypes data for the non-reference subjects
-		cout << "dimensions of geno_s: " << geno_s.n_rows << " rows and " << geno_s.n_cols << " columns" << endl;
-
-		// estimation
-		vec beta_l = zeros<vec>(num_l_block); 
-		arma::field <arma::mat> out = estBlock(n_ref, 
-                                           n_obs, 
-                                           sigma_s, 
-                                           geno_s, //ref data
-                                           geno_l, //ref data
-                                           z_s, 
-                                           z_l, 
-                                           beta_s, 
-                                           beta_l);
-		//variance calcs
-		result = calc_nt_by_nt_matrix(out(2), //Sigma_ss 
-                                          out(1), //Sigma_sl - no need transpose because estBlock outputs Sigma_sl
-                                          out(0), //Sigma_ll
-                                          sigma_s, 
-                                          n_obs, 
-                                          X_l, 
-                                          X_s);
-		
-		
+	for (int subject = 0; subject < n_test; subject++){
+	  //make a arma::vec like test_indicator, but with only one nonzero element
+	  arma::vec test_indicator_one = zeros<arma::vec>(test_indicator.n_elem);
+	  test_indicator_one(test_indices(subject)) = 1;
+	  for (int i = 0; i < num_s_block; ++i) {
+	    vec geno = zeros<vec>(n_ref);
+    	arma::vec gg = zeros<vec>(n_test);
+  		double maf = 0.0; 
+  		// cIO.readSNPIm(info_s_block[i]->pos, n_ref, idv, bed_in, geno, maf);
+  		cIO.readSNPIm(info_s_block[i].pos, n_ref, idv, bed_in, geno, maf);
+  		cSP.nomalizeVec(geno);
+  		geno_s.col(i) = geno;
+  		cIO.readSNPIm(test_info_s_block[i].pos, // 
+                  1, test_indicator_one, dat_in, gg, maf);
+  		cSP.nomalizeVec(gg);
+  		X_s.col(i) = gg;
+  	}
+  	// pseudo EFF
+  	EFF eff_pseudo; 
+  	eff_pseudo.snp = "rs"; 
+  	eff_pseudo.a1 = "Y"; 
+  	eff_pseudo.maf = 0.0; 
+  	eff_pseudo.beta = 0.0; 
+  	arma::mat result;
+  	vec beta_s = zeros<vec>(num_s_block); 
+  	// INFO large effect SNPs 
+  	if (num_l_block != 0){
+  		// vector <INFO*> info_l_block(num_l_block);
+  		vector <INFO> info_l_block(num_l_block);
+  		for (int i = 0; i < num_l_block; i++) 
+  			info_l_block[i] = info_l_block_full[i];
+  		vector <INFO> test_info_l_block(num_l_block);
+  		for (int i = 0; i < num_l_block; i++) 
+  		  test_info_l_block[i] = test_info_l_block_full[i];
+  		// z_l
+  		vec z_l = zeros<vec>(num_l_block); 
+  		for(int i = 0; i < num_l_block; i++) 
+  			// z_l(i) = info_l_block[i]->z;
+  			z_l(i) = info_l_block[i].z;
+  		// large effect matrix
+  		mat geno_l = zeros<mat>(n_ref, num_l_block);
+  		arma::mat X_l = zeros<mat>(n_test, num_l_block);
+  		for (int i = 0; i < num_l_block; ++i) {//num_l_block is the number of large effect SNPs in the block
+  			vec geno = zeros<vec>(n_ref);
+  		  arma::vec gg = zeros<vec>(n_test);
+  			double maf = 0.0; 
+  			// cIO.readSNPIm(info_l_block[i]->pos, n_ref, idv, bed_in, geno, maf);
+  			cIO.readSNPIm(info_l_block[i].pos, n_ref, idv, bed_in, geno, maf);
+  			cSP.nomalizeVec(geno);
+  			geno_l.col(i) = geno;
+  			cIO.readSNPIm(test_info_l_block[i].pos, 1, test_indicator_one, dat_in, gg, maf);
+  			cSP.nomalizeVec(gg);
+  			X_l.col(i) = gg;
+  			
+  		}//end populating of geno_l & of X_l. 
+  		//X_l is the genotypes data for the non-reference subjects
+  		cout << "dimensions of geno_s: " << geno_s.n_rows << " rows and " << geno_s.n_cols << " columns" << endl;
+  
+  		// estimation
+  		vec beta_l = zeros<vec>(num_l_block); 
+  		arma::field <arma::mat> out = estBlock(n_ref, 
+                                             n_obs, 
+                                             sigma_s, 
+                                             geno_s, //ref data
+                                             geno_l, //ref data
+                                             z_s, 
+                                             z_l, 
+                                             beta_s, 
+                                             beta_l);
+  		//variance calcs
+  		result(subject, subject) = calc_nt_by_nt_matrix(out(2), //Sigma_ss 
+                                            out(1), //Sigma_sl - no need transpose because estBlock outputs Sigma_sl
+                                            out(0), //Sigma_ll
+                                            sigma_s, 
+                                            n_obs, 
+                                            X_l, 
+                                            X_s)(0,0);
+  		
+		}	
 		// summary 
 		for(int i = 0; i < num_l_block; i++) {
 			EFF eff_l; 
@@ -502,27 +502,27 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 			eff_l.beta = beta_l(i);
 			eff_l_block[i] = eff_l;
 		}
-	}
-	else{
-	  // estimation
-		
-		arma::field <arma::mat> out = estBlock(n_ref, 
-                                           n_obs, //size of training set
-                                           sigma_s, 
-                                           geno_s, 
-                                           z_s, 
-                                           beta_s);
-		//variance calcs
-		result = calc_nt_by_nt_matrix(out(0), //Sigma_ss 
-                                          sigma_s, 
-                                          n_obs, 
-                                          X_s);
-		
-		eff_l_block[0].snp = eff_pseudo.snp;
-		eff_l_block[0].a1 = eff_pseudo.a1;
-		eff_l_block[0].maf = eff_pseudo.maf;
-		eff_l_block[0].beta = eff_pseudo.beta;
-	}
+  	else{ //ie, if num_block_l == 0
+  	  // estimation
+  		arma::field <arma::mat> out = estBlock(n_ref, 
+                                             n_obs, //size of training set
+                                             sigma_s, 
+                                             geno_s, 
+                                             z_s, 
+                                             beta_s);
+  		//variance calcs
+  		result(subject, subject) = calc_nt_by_nt_matrix(out(0), //Sigma_ss 
+                                            sigma_s, 
+                                            n_obs, 
+                                            X_s)(0, 0);
+  		
+  		eff_l_block[0].snp = eff_pseudo.snp;
+  		eff_l_block[0].a1 = eff_pseudo.a1;
+  		eff_l_block[0].maf = eff_pseudo.maf;
+  		eff_l_block[0].beta = eff_pseudo.beta;
+  	}
+	} //end loop starting at line 414 over subject
+	
 	// output small effect
 	for(int i = 0; i < num_s_block; i++) {
 		EFF eff_s; 
@@ -576,41 +576,47 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	cout << "length of test_indicator: " << test_indicator.size() << endl;
 	// 337129 because that is the number of UKB subjects in the fam file
 	unsigned int n_test = sum_vec(test_indicator);
-	  
+	arma::vec test_indices = get_nonzero_indices(test_indicator);
+	
 	// small effect genotype matrix
 	mat geno_s = zeros<mat>(n_ref, num_s_block);
-	arma::mat X_s = zeros <mat>(n_test, num_s_block);
-	for (int i = 0; i < num_s_block; ++i) {
-		vec geno = zeros<vec>(n_ref);
-	  arma::vec gg = zeros <vec>(n_obs);
-		double maf = 0.0; 
-		// cIO.readSNPIm(info_s_block[i]->pos, n_ref, idv, bed_in, geno, maf);
-		cIO.readSNPIm(info_s_block[i].pos, n_ref, idv, bed_in, geno, maf);
-		cSP.nomalizeVec(geno);
-		geno_s.col(i) = geno;
-		cIO.readSNPIm(test_info_s_block[i].pos, n_test, test_indicator, dat_in, gg, maf);
-		cSP.nomalizeVec(gg);
-		X_s.col(i) = gg;
-	}
-	
-	// estimation
-	vec beta_s = zeros<vec>(num_s_block); 
-	// partition subjects into training and test sets
-
-	//call estBlock on training data
-	arma::field <arma::mat> out = estBlock(n_ref, 
-                                        n_obs, 
-                                        sigma_s, 
-                                        geno_s, 
-                                        z_s, 
-                                        beta_s);
-  //variance calcs
-  arma::mat result = calc_nt_by_nt_matrix(out(0), 
-                                          sigma_s, 
+	arma::mat X_s = zeros <mat>(1, num_s_block);
+	for (int subject = 0; subject < n_test; subject++){
+	  arma::vec test_indicator_one = zeros<arma::vec>(test_indicator.n_elem);
+	  test_indicator_one(test_indices(subject)) = 1;
+	  //populate genotypes
+  	for (int i = 0; i < num_s_block; ++i) {
+	    vec geno = zeros<vec>(n_ref);
+  	  arma::vec gg = zeros <vec>(n_obs);
+  		double maf = 0.0; 
+  		// cIO.readSNPIm(info_s_block[i]->pos, n_ref, idv, bed_in, geno, maf);
+  		cIO.readSNPIm(info_s_block[i].pos, n_ref, idv, bed_in, geno, maf);
+  		cSP.nomalizeVec(geno);
+  		geno_s.col(i) = geno;
+  		cIO.readSNPIm(test_info_s_block[i].pos, n_test, test_indicator_one, dat_in, gg, maf);
+  		cSP.nomalizeVec(gg);
+  		X_s.col(i) = gg;
+  	} //end genotype populating
+  	
+  	// estimation
+  	vec beta_s = zeros<vec>(num_s_block); 
+  	// partition subjects into training and test sets
+  
+  	//call estBlock on training data
+  	arma::field <arma::mat> out = estBlock(n_ref, 
                                           n_obs, 
-                                          X_s);
-	
-	// output small effect
+                                          sigma_s, 
+                                          geno_s, 
+                                          z_s, 
+                                          beta_s);
+    //variance calcs
+    arma::mat result(subject, subject) = calc_nt_by_nt_matrix(out(0), 
+                                            sigma_s, 
+                                            n_obs, 
+                                            X_s)(0,0);
+  	
+	}
+  	// output small effect
 	for(int i = 0; i < num_s_block; i++) {
 		EFF eff_s; 
 		// eff_s.snp = info_s_block[i]->snp;
