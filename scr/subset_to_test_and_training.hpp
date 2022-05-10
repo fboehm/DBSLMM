@@ -29,6 +29,5 @@ std::vector<T>& operator<<(std::vector<T>& v, T2 t);
 
 
 
-template<typename T>
-std::vector<int> findItems(std::vector<T> const &v, int target);
+std::vector<int> findItems(std::vector<int> const &v, int target);
 

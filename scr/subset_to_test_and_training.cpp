@@ -174,11 +174,10 @@ std::vector<T>& operator<<(std::vector<T>& v, T2 t)
 
 
 //https://www.techiedelight.com/find-indices-of-all-occurrences-of-element-vector-cpp/
-template<typename T>
-std::vector<int> findItems(std::vector<T> const &v, int target) {
+std::vector<int> findItems(std::vector<int> const &v, int target) {
   std::vector<int> indices;
   auto it = v.begin();
-  while ((it = std::find_if(it, v.end(), [&] (T const &e) { return e == target; }))
+  while ((it = std::find_if(it, v.end(), [&] (int const &e) { return e == target; }))
            != v.end())
   {
     indices.push_back(std::distance(v.begin(), it));
