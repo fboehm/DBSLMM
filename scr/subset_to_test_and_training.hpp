@@ -26,3 +26,10 @@ void castContainer(const C1& source, C2& destination);
 
 template<typename T, typename T2>
 std::vector<T>& operator<<(std::vector<T>& v, T2 t);
+
+
+arma::uvec get_nonzero_indices(arma::vec test_indicator);
+
+template<typename T>
+std::vector<int> findItems(std::vector<T> const &v, int target);
+

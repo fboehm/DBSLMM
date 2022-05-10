@@ -168,3 +168,32 @@ std::vector<T>& operator<<(std::vector<T>& v, T2 t)
   v.push_back(T(t));
   return v;
 }
+
+
+//' 
+
+arma::uvec get_nonzero_indices(arma::vec test_indicator){
+  //convert arma::vec to standard vector
+  std::vector ti = arma::conv_to< stdvec >::from(test_indicator);
+  //call finditems
+  std::vector out_vector = findItems(ti, 1);
+  //convert std::vector to arma vec
+  arma::vec out(out_vector);
+  return(out);
+}
+
+//https://www.techiedelight.com/find-indices-of-all-occurrences-of-element-vector-cpp/
+template<typename T>
+std::vector<int> findItems(std::vector<T> const &v, int target) {
+  std::vector<int> indices;
+  auto it = v.begin();
+  while ((it = std::find_if(it, v.end(), [&] (T const &e) { return e == target; }))
+           != v.end())
+  {
+    indices.push_back(std::distance(v.begin(), it));
+    it++;
+  }
+  return indices;
+}
+
+
