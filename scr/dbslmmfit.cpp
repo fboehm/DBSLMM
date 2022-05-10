@@ -411,6 +411,9 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	arma::mat X_s = zeros<mat>(1, num_s_block);
 	cout << "Number of columns in X_s: " << X_s.n_cols << endl;
 	cout << "Number of rows in X_s: " << X_s.n_rows << endl;
+	arma::mat result;
+	vec beta_s = zeros<vec>(num_s_block); 
+	
 	for (int subject = 0; subject < n_test; subject++){
 	  //make a arma::vec like test_indicator, but with only one nonzero element
 	  std::vector<int> test_indicator_one(test_indicator.size(), 0);
@@ -434,8 +437,6 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
   	eff_pseudo.a1 = "Y"; 
   	eff_pseudo.maf = 0.0; 
   	eff_pseudo.beta = 0.0; 
-  	arma::mat result;
-  	vec beta_s = zeros<vec>(num_s_block); 
   	// INFO large effect SNPs 
   	if (num_l_block != 0){
   		// vector <INFO*> info_l_block(num_l_block);
@@ -489,7 +490,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
                                             X_l, 
                                             X_s)(0,0);
   		
-		}	
+			
 		// summary 
 		for(int i = 0; i < num_l_block; i++) {
 			EFF eff_l; 
@@ -502,6 +503,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 			eff_l.beta = beta_l(i);
 			eff_l_block[i] = eff_l;
 		}
+  	}
   	else{ //ie, if num_block_l == 0
   	  // estimation
   		arma::field <arma::mat> out = estBlock(n_ref, 
@@ -551,6 +553,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
                     						string genotypes_str, 
                     						vector <INFO> test_info_s_block_full
 ){
+  arma::mat result;
   cout << "starting line 1 of calcBlock..."<< endl;
 	SNPPROC cSP;
 	IO cIO; 
@@ -610,7 +613,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
                                           z_s, 
                                           beta_s);
     //variance calcs
-    arma::mat result(subject, subject) = calc_nt_by_nt_matrix(out(0), 
+    result(subject, subject) = calc_nt_by_nt_matrix(out(0), 
                                             sigma_s, 
                                             n_obs, 
                                             X_s)(0,0);
