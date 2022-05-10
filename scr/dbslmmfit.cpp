@@ -414,7 +414,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	for (int subject = 0; subject < n_test; subject++){
 	  //make a arma::vec like test_indicator, but with only one nonzero element
 	  std::vector<int> test_indicator_one(test_indicator.size(), 0);
-	  test_indicator_one.at(test_indices(subject)) = 1;
+	  test_indicator_one.at(test_indices.at(subject)) = 1;
 	  for (int i = 0; i < num_s_block; ++i) {
 	    vec geno = zeros<vec>(n_ref);
     	arma::vec gg = zeros<vec>(n_test);
@@ -583,7 +583,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	arma::mat X_s = zeros <mat>(1, num_s_block);
 	for (int subject = 0; subject < n_test; subject++){
 	  std::vector <int> test_indicator_one(test_indicator.size(), 0);
-	  test_indicator_one.at(test_indices(subject)) = 1;
+	  test_indicator_one.at(test_indices.at(subject)) = 1;
 	  //populate genotypes
   	for (int i = 0; i < num_s_block; ++i) {
 	    vec geno = zeros<vec>(n_ref);
