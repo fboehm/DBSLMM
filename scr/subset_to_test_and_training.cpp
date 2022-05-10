@@ -6,6 +6,7 @@
 #include <boost/lexical_cast.hpp>
 #include <iterator>
 #include <regex>
+#include <vector>
 
 
 #include "subset_to_test_and_training.hpp"

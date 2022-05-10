@@ -6,6 +6,7 @@
 #include <boost/lexical_cast.hpp>
 #include <iterator>
 #include <regex>
+#include <vector>
 
 std::vector<int> make_ones_and_zeroes_vec(arma::uvec ones_positions, unsigned int length);
 
