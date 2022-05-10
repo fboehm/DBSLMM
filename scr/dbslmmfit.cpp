@@ -407,14 +407,14 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	unsigned int n_test = sum_vec(test_indicator); //https://stackoverflow.com/questions/3221812/how-to-sum-up-elements-of-a-c-vector
 	//https://stackoverflow.com/questions/3221812/how-to-sum-up-elements-of-a-c-vector
 	//initialize a matrix for reading test genotype data
-	arma::vec test_indices = get_nonzero_indices(test_indicator);
+	std::vector <int> test_indices = findItems(test_indicator, 1);
 	arma::mat X_s = zeros<mat>(1, num_s_block);
 	cout << "Number of columns in X_s: " << X_s.n_cols << endl;
 	cout << "Number of rows in X_s: " << X_s.n_rows << endl;
 	for (int subject = 0; subject < n_test; subject++){
 	  //make a arma::vec like test_indicator, but with only one nonzero element
-	  arma::vec test_indicator_one = zeros<arma::vec>(test_indicator.n_elem);
-	  test_indicator_one(test_indices(subject)) = 1;
+	  std::vector<int> test_indicator_one(test_indicator.size(), 0);
+	  test_indicator_one.at(test_indices(subject)) = 1;
 	  for (int i = 0; i < num_s_block; ++i) {
 	    vec geno = zeros<vec>(n_ref);
     	arma::vec gg = zeros<vec>(n_test);
@@ -576,14 +576,14 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	cout << "length of test_indicator: " << test_indicator.size() << endl;
 	// 337129 because that is the number of UKB subjects in the fam file
 	unsigned int n_test = sum_vec(test_indicator);
-	arma::vec test_indices = get_nonzero_indices(test_indicator);
+	std::vector <int> test_indices = findItems(test_indicator, 1);
 	
 	// small effect genotype matrix
 	mat geno_s = zeros<mat>(n_ref, num_s_block);
 	arma::mat X_s = zeros <mat>(1, num_s_block);
 	for (int subject = 0; subject < n_test; subject++){
-	  arma::vec test_indicator_one = zeros<arma::vec>(test_indicator.n_elem);
-	  test_indicator_one(test_indices(subject)) = 1;
+	  std::vector <int> test_indicator_one(test_indicator.size(), 0);
+	  test_indicator_one.at(test_indices(subject)) = 1;
 	  //populate genotypes
   	for (int i = 0; i < num_s_block; ++i) {
 	    vec geno = zeros<vec>(n_ref);

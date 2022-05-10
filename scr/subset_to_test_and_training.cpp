@@ -172,15 +172,6 @@ std::vector<T>& operator<<(std::vector<T>& v, T2 t)
 
 //' 
 
-arma::uvec get_nonzero_indices(arma::vec test_indicator){
-  //convert arma::vec to standard vector
-  std::vector ti = arma::conv_to< stdvec >::from(test_indicator);
-  //call finditems
-  std::vector out_vector = findItems(ti, 1);
-  //convert std::vector to arma vec
-  arma::vec out(out_vector);
-  return(out);
-}
 
 //https://www.techiedelight.com/find-indices-of-all-occurrences-of-element-vector-cpp/
 template<typename T>
