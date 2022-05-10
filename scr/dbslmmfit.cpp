@@ -554,6 +554,8 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
                     						vector <INFO> test_info_s_block_full
 ){
   arma::mat result;
+  vec beta_s = zeros<vec>(num_s_block); 
+  
   cout << "starting line 1 of calcBlock..."<< endl;
 	SNPPROC cSP;
 	IO cIO; 
@@ -602,9 +604,6 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
   	} //end genotype populating
   	
   	// estimation
-  	vec beta_s = zeros<vec>(num_s_block); 
-  	// partition subjects into training and test sets
-  
   	//call estBlock on training data
   	arma::field <arma::mat> out = estBlock(n_ref, 
                                           n_obs, 
