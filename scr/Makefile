@@ -11,7 +11,7 @@ ARMALIB = /net/mulan/home/yasheng/Cpp/arma/lib
 # Put C++ complier 
 CXX = g++
 #CXX = clang++-11
-CPP_FILES = main_dbslmm.cpp dtpr.cpp dbslmm.cpp dbslmmfit.cpp calc_asymptotic_variance.cpp subset_to_test_and_training.cpp helpers.cpp 
+CPP_FILES = main_dbslmm.cpp dtpr.cpp dbslmm.cpp calc_asymptotic_variance.cpp subset_to_test_and_training.cpp dbslmmfit.cpp helpers.cpp 
 HPP_FILES = dtpr.hpp dbslmm.hpp dbslmmfit.hpp calc_asymptotic_variance.hpp subset_to_test_and_training.hpp helpers.hpp
 
 
