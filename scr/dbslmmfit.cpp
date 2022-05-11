@@ -418,6 +418,8 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	  //make a arma::vec like test_indicator, but with only one nonzero element
 	  std::vector<int> test_indicator_one(test_indicator.size(), 0);
 	  test_indicator_one.at(test_indices.at(subject)) = 1;
+	  cout << "number of ones in test_indicator_one: " << sum_vec(test_indicator_one) << endl;
+	  cout << "length of test_indicator_one: " << test_indicator_one.size() << endl;
 	  for (int i = 0; i < num_s_block; ++i) {
 	    vec geno = zeros<vec>(n_ref);
     	arma::vec gg = zeros<vec>(n_test);
@@ -482,14 +484,14 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
                                              beta_s, 
                                              beta_l);
   		//variance calcs
-  		result(subject, subject) = calc_nt_by_nt_matrix(out(2), //Sigma_ss 
+  		 arma::mat calc_nt_out = calc_nt_by_nt_matrix(out(2), //Sigma_ss 
                                             out(1), //Sigma_sl - no need transpose because estBlock outputs Sigma_sl
                                             out(0), //Sigma_ll
                                             sigma_s, 
                                             n_obs, 
                                             X_l, 
-                                            X_s)(0,0);
-  		
+                                            X_s);
+  		 result(subject, subject) = calc_nt_out(0,0);
 			
 		// summary 
 		for(int i = 0; i < num_l_block; i++) {
@@ -513,11 +515,11 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
                                              z_s, 
                                              beta_s);
   		//variance calcs
-  		result(subject, subject) = calc_nt_by_nt_matrix(out(0), //Sigma_ss 
+  		 arma::mat calc_nt_out = calc_nt_by_nt_matrix(out(0), //Sigma_ss 
                                             sigma_s, 
                                             n_obs, 
-                                            X_s)(0, 0);
-  		
+                                            X_s);
+  		 result(subject, subject) = calc_nt_out(0,0);
   		eff_l_block[0].snp = eff_pseudo.snp;
   		eff_l_block[0].a1 = eff_pseudo.a1;
   		eff_l_block[0].maf = eff_pseudo.maf;
@@ -589,6 +591,8 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	for (int subject = 0; subject < n_test; subject++){
 	  std::vector <int> test_indicator_one(test_indicator.size(), 0);
 	  test_indicator_one.at(test_indices.at(subject)) = 1;
+	  cout << "number of ones in test_indicator_one: " << sum_vec(test_indicator_one) << endl;
+	  cout << "length of test_indicator_one: " << test_indicator_one.size() << endl;
 	  //populate genotypes
   	for (int i = 0; i < num_s_block; ++i) {
 	    vec geno = zeros<vec>(n_ref);
@@ -598,7 +602,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
   		cIO.readSNPIm(info_s_block[i].pos, n_ref, idv, bed_in, geno, maf);
   		cSP.nomalizeVec(geno);
   		geno_s.col(i) = geno;
-  		cIO.readSNPIm(test_info_s_block[i].pos, n_test, test_indicator_one, dat_in, gg, maf);
+  		cIO.readSNPIm(test_info_s_block[i].pos, 1, test_indicator_one, dat_in, gg, maf);
   		cSP.nomalizeVec(gg);
   		X_s.col(i) = gg;
   	} //end genotype populating
@@ -612,11 +616,11 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
                                           z_s, 
                                           beta_s);
     //variance calcs
-    result(subject, subject) = calc_nt_by_nt_matrix(out(0), 
+    arma::mat calc_nt_out = calc_nt_by_nt_matrix(out(0), 
                                             sigma_s, 
                                             n_obs, 
-                                            X_s)(0,0);
-  	
+                                            X_s);
+    result(subject, subject) = calc_nt_out(0, 0);
 	}
   	// output small effect
 	for(int i = 0; i < num_s_block; i++) {
