@@ -453,7 +453,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
   			z_l(i) = info_l_block[i].z;
   		// large effect matrix
   		mat geno_l = zeros<mat>(n_ref, num_l_block);
-  		arma::mat X_l = zeros<mat>(n_test, num_l_block);
+  		arma::mat X_l = zeros<mat>(1, num_l_block);
   		for (int i = 0; i < num_l_block; ++i) {//num_l_block is the number of large effect SNPs in the block
   			vec geno = zeros<vec>(n_ref);
   		  arma::vec gg = zeros<vec>(n_test);
