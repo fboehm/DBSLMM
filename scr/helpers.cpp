@@ -72,3 +72,55 @@ INFO make_pseudo_info(){
   info_pseudo.P = 0; 
   return info_pseudo;
 }
+
+EFF make_pseudo_eff(){ 
+  EFF eff_pseudo; 
+  eff_pseudo.snp = "rs"; 
+  eff_pseudo.a1 = "Y"; 
+  eff_pseudo.maf = 0.0; 
+  eff_pseudo.beta = 0.0; 
+  return eff_pseudo;
+}
+
+
+//' Populate geno_s or geno_l
+//' 
+//' @param bed_in ifstream to needed bed file
+//' @param idv vector of 1s and 0s to indicate which subjects to use
+//' @param info_block SNP info vector
+//' @param cSP instance of SNPPROC
+//' @param cIO instance of IO
+//' @param maf minor allele frequency for filtering
+
+arma::mat populate_geno(string bed_str, 
+                        vector<int> idv, 
+                        vector <INFO> info_block,
+                        SNPPROC& cSP, 
+                        IO& cIO,
+                        double maf){
+  int n = idv.size();
+  int num_block = info_block.size();
+  arma::mat geno = zeros<mat>(n, num_block);
+  ifstream bed_in(bed_str.c_str(), ios::binary);
+  for (int i = 0; i < num_block; ++i) {
+    vec gg = zeros<vec>(n);
+    cIO.readSNPIm(info_block[i].pos, n, idv, bed_in, gg, maf);
+    cSP.nomalizeVec(gg);
+    geno.col(i) = gg;
+  }
+  return geno;
+}
+
+//' Populate info block
+//' 
+
+vector<INFO> populate_info_block(vector <INFO> info_block_full, int num_block){
+  vector <INFO> out;
+  for (int i = 0; i < num_block; i++) 
+    out[i] = info_block_full[i];
+  return out;
+}
+  
+  
+
+
