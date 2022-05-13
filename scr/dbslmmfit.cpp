@@ -87,8 +87,6 @@ int  DBSLMMFIT::est(int n_ref,
 	cout << "test_len_s: " << test_len_s << endl;
 	cout << "len_l: " << len_l << endl;
 	cout << "test_len_l: " << test_len_l << endl;
-	
-		
 	int B = 0;
 	int B_MAX = 60; // number of blocks to batch at one time
 	if (num_block < 60){ //num_block is the number of blocks across the chromosome.
@@ -111,12 +109,7 @@ int  DBSLMMFIT::est(int n_ref,
 	int count_l = 0;	
 	int test_count_s = 0;
 	int test_count_l = 0;
-	
-
 	arma::mat diags = zeros(n_test, num_block); //specify dims of diags
-
-
-
         for (int i = 0; i < num_block; ++i) {
                 // small effect SNP information
                 vector <INFO> info_s_block;
@@ -325,23 +318,24 @@ int DBSLMMFIT::est(int n_ref,
                         omp_set_num_threads(thread);
 #pragma omp parallel for schedule(dynamic)
                         for (int b = 0; b < B; b++){
-                        arma::vec cb_out = calcBlock(n_ref,
-                            n_obs,
-                            sigma_s,
-                            idv,
-                            bed_str,
-                            info_s_Block[b],
-                                                    num_s_vec[b],
-                            eff_s_Block[b],
-                           test_indicator,
-                           genotypes_str,
-                           test_info_s_Block[b]);
+                          cout << "call calcBlock... b has value:"<< b << endl;
+                          
+                          arma::vec cb_out = calcBlock(n_ref,
+                                                       n_obs,
+                                                       sigma_s,
+                                                       idv,
+                                                       bed_str,
+                                                       info_s_Block[b],
+                                                       num_s_vec[b],
+                                                       eff_s_Block[b],
+                                                       test_indicator,
+                                                       genotypes_str,
+                                                       test_info_s_Block[b]);
                           cout << "size of cb_out: " << cb_out.size() <<endl;
                           int col_num = i - B + b + 1;
                           cout << "col_num: " << col_num << endl;
                           diags.col(col_num) = cb_out;
-
-			}
+                        }
                         // eff of small effect SNPs
                         for (int r = 0; r < B; r++) {
                                 for (int l = 0; l < num_s_vec[r]; l++){
@@ -401,7 +395,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	//https://stackoverflow.com/questions/3221812/how-to-sum-up-elements-of-a-c-vector
 	//initialize a matrix for reading test genotype data
 	std::vector <int> test_indices = findItems(test_indicator, 1);
-	arma::vec result(n_test);
+	arma::vec result = zeros<vec>(n_test);
 	vec beta_s = zeros<vec>(num_s_block); 
 	// pseudo EFF
 	EFF eff_pseudo = make_pseudo_eff();
@@ -449,6 +443,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
                                               X_l, 
                                               X_s);
     		 cout << "dimensions of calc_nt_out: " << calc_nt_out.n_rows << " rows and " << calc_nt_out.n_cols << " cols"<<endl;
+    		 cout << "var for subject " << subject << " : " << calc_nt_out(0,0) << endl;
     		 result(subject) = calc_nt_out(0,0);
     			
 		// summary     		 result(subject, subject) = calc_nt_out(0,0);
@@ -484,6 +479,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
                                             n_obs, 
                                             X_s);
     		 cout << "dimensions of calc_nt_out: " << calc_nt_out.n_rows << " rows and " << calc_nt_out.n_cols << " cols"<<endl;
+    		 cout << "var for subject " << subject << " : " << calc_nt_out(0,0) << endl;
     		 result(subject) = calc_nt_out(0,0);
   	  } //end loop starting at line 468 over subject
   	  eff_l_block[0].snp = eff_pseudo.snp;
@@ -538,7 +534,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	// 337129 because that is the number of UKB subjects in the fam file
 	int n_test = sum_vec(test_indicator);
 	std::vector <int> test_indices = findItems(test_indicator, 1);
-	arma::vec result(n_test);
+	arma::vec result = zeros<vec>(n_test);
 	
 	// small effect genotype matrix
 	for (int subject = 0; subject < n_test; subject++){
@@ -563,15 +559,13 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
                                             n_obs, 
                                             X_s);
     cout << "dimensions of calc_nt_out: " << calc_nt_out.n_rows << " rows and " << calc_nt_out.n_cols << " cols"<<endl; 
+    cout << "var for subject " << subject << " : " << calc_nt_out(0,0) << endl;
     result(subject) = calc_nt_out(0, 0);
 	}
 	cout << "length of result in calcBlock_small: "<< result.n_elem << endl;
   	// output small effect
 	for(int i = 0; i < num_s_block; i++) {
 		EFF eff_s; 
-		// eff_s.snp = info_s_block[i]->snp;
-		// eff_s.a1 = info_s_block[i]->a1;
-		// eff_s.maf = info_s_block[i]->maf;
 		eff_s.snp = info_s_block[i].snp;
 		eff_s.a1 = info_s_block[i].a1;
 		eff_s.maf = info_s_block[i].maf;
