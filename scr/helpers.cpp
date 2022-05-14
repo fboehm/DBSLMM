@@ -114,7 +114,7 @@ arma::mat populate_geno(string bed_str,
 //' Populate info block
 //' 
 
-vector<INFO> populate_info_block(vector <INFO> info_block_full, int num_block){
+vector<INFO> populate_info_block(const vector <INFO> & info_block_full, int num_block){
   vector <INFO> out;
   for (int i = 0; i < num_block; i++) 
     out[i] = info_block_full[i];

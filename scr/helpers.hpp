@@ -22,6 +22,6 @@ arma::mat populate_geno(string bed_str,
                         vector <INFO> info_block,
                         double maf = 0.0);
 
-vector<INFO> populate_info_block(vector <INFO> info_block_full, int num_block);
+vector<INFO> populate_info_block(const vector <INFO> &info_block_full, int num_block);
 
 

@@ -378,6 +378,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	// INFO small effect SNPs 
 	vector <INFO> info_s_block = populate_info_block(info_s_block_full, num_s_block);
 	vector <INFO> test_info_s_block = populate_info_block(test_info_s_block_full, num_s_block);
+  cout << "INFO - for small effects - vectors populated" << endl;
 		// z_s
 	vec z_s = zeros<vec>(num_s_block); 
 	for (int i = 0; i < num_s_block; i++) 
@@ -422,6 +423,8 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
                                           beta_s, 
                                           beta_l);
   	for (int subject = 0; subject < n_test; subject++){
+  	  cout << "subject: " << subject << endl;
+  	  
   	  //make a arma::vec like test_indicator, but with only one nonzero element
   	  std::vector<int> test_indicator_one(test_indicator.size(), 0);
   	  test_indicator_one.at(test_indices.at(subject)) = 1;
