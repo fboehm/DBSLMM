@@ -85,7 +85,7 @@ EFF make_pseudo_eff(){
 
 //' Populate geno_s or geno_l
 //' 
-//' @param bed_in ifstream to needed bed file
+//' @param bed_str bed file filename
 //' @param idv vector of 1s and 0s to indicate which subjects to use
 //' @param info_block SNP info vector
 //' @param cSP instance of SNPPROC
@@ -95,13 +95,13 @@ EFF make_pseudo_eff(){
 arma::mat populate_geno(string bed_str, 
                         vector<int> idv, 
                         vector <INFO> info_block,
-                        SNPPROC& cSP, 
-                        IO& cIO,
                         double maf){
-  int n = idv.size();
+  IO cIO;
+  SNPPROC cSP;
+  int n = sum_vec(idv); //n is number of subjects whose genotypes we'll get
   int num_block = info_block.size();
   arma::mat geno = zeros<mat>(n, num_block);
-  ifstream bed_in(bed_str.c_str(), ios::binary);
+  ifstream bed_in(bed_str, ios::binary);
   for (int i = 0; i < num_block; ++i) {
     vec gg = zeros<vec>(n);
     cIO.readSNPIm(info_block[i].pos, n, idv, bed_in, gg, maf);
