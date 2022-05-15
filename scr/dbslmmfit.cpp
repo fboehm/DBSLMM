@@ -442,7 +442,6 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	  for (int i = 0; i < num_l_block; ++i) {
 	    vec geno = zeros<vec>(n_ref);
 	    double maf = 0.0; 
-	    // cIO.readSNPIm(info_l_block[i]->pos, n_ref, idv, bed_in, geno, maf);
 	    cIO.readSNPIm(info_l_block[i].pos, n_ref, idv, bed_in, geno, maf);
 	    cSP.nomalizeVec(geno);
 	    geno_l.col(i) = geno;
@@ -475,7 +474,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
   	   vec geno = zeros<vec>(1);
   	   double maf = 0.0; 
   	   cIO.readSNPIm(test_info_s_block[i].pos, 1, test_indicator_one, test_in, geno, maf);
-  	   cSP.nomalizeVec(geno);
+  	  // cSP.nomalizeVec(geno);
   	   X_s.col(i) = geno;
   	 }
   	 
@@ -491,7 +490,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
       	   double maf = 0.0; 
       	   // cIO.readSNPIm(info_l_block[i]->pos, n_ref, idv, bed_in, geno, maf);
       	   cIO.readSNPIm(test_info_l_block[i].pos, 1, test_indicator_one, test_in, geno, maf);
-      	   cSP.nomalizeVec(geno);
+      	//   cSP.nomalizeVec(geno);
       	   X_l.col(i) = geno;
       	 }
   	 
@@ -538,7 +537,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
   	      vec geno = zeros<vec>(1);
   	      double maf = 0.0; 
   	      cIO.readSNPIm(test_info_s_block[i].pos, 1, test_indicator_one, test_in, geno, maf);
-  	      cSP.nomalizeVec(geno);
+  	      //cSP.nomalizeVec(geno);
   	      X_s.col(i) = geno;
   	    }
   	    //variance calcs
@@ -641,7 +640,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	    vec geno = zeros<vec>(1);
 	    double maf = 0.0; 
 	    cIO.readSNPIm(test_info_s_block[i].pos, 1, test_indicator_one, test_in, geno, maf);
-	    cSP.nomalizeVec(geno);
+	    //cSP.nomalizeVec(geno);
 	    X_s.col(i) = geno;
 	  }
 	  // estimation
