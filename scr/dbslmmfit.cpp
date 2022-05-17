@@ -446,7 +446,6 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	    cSP.nomalizeVec(geno);
 	    geno_l.col(i) = geno;
 	  }
-  	//start loop over subjects	
   	vec beta_l = zeros<vec>(num_l_block); 
   	arma::field <arma::mat> out = estBlock(n_ref, 
                                           n_obs, 
@@ -457,10 +456,10 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
                                           z_l, 
                                           beta_s, 
                                           beta_l);
+  	//start loop over subjects	
   	for (int subject = 0; subject < n_test; subject++){
   	  cout << "subject: " << subject << endl;
-  	  
-  	  //make a arma::vec like test_indicator, but with only one nonzero element
+  	  //make a vector<int> like test_indicator, but with only one nonzero element
   	  std::vector<int> test_indicator_one(test_indicator.size(), 0);
   	  test_indicator_one.at(test_indices.at(subject)) = 1;
   	  cout << "number of ones in test_indicator_one: " << sum_vec(test_indicator_one) << endl;
@@ -489,7 +488,6 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
       	 for (int i = 0; i < num_l_block; ++i) {
       	   vec geno = zeros<vec>(1);
       	   double maf = 0.0; 
-      	   // cIO.readSNPIm(info_l_block[i]->pos, n_ref, idv, bed_in, geno, maf);
       	   cIO.readSNPIm(test_info_l_block[i].pos, 1, test_indicator_one, test_in, geno, maf);
       	   cout << "geno(0) is: " << geno(0) << endl;
       	   cSP.nomalizeVec(geno);
