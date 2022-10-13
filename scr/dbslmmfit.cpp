@@ -257,8 +257,7 @@ int DBSLMMFIT::est(int n_ref,
 	
 	cout << "len_s: " << len_s << endl;
 	cout << "test_len_s: " << test_len_s << endl;
-	
-	
+
 	int B = 0;
 	int B_MAX = 60;
 	if (num_block < 60){
@@ -411,7 +410,7 @@ arma::vec DBSLMMFIT::calcBlock(int n_ref,
 	cout << "number of columns in geno_s: " << geno_s.n_cols << endl;
 	//make a test_indicator indicator vector
 	cout << "length of test_indicator: " << test_indicator.size() << endl;
-	int n_test = sum_vec(test_indicator); //https://stackoverflow.com/questions/3221812/how-to-sum-up-elements-of-a-c-vector
+	int n_test = sum_vec(test_indicator); 
 	//https://stackoverflow.com/questions/3221812/how-to-sum-up-elements-of-a-c-vector
 	//initialize a matrix for reading test genotype data
 	std::vector <int> test_indices = findItems(test_indicator, 1);

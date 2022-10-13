@@ -60,7 +60,7 @@ arma::mat calc_nt_by_nt_matrix(arma::mat Sigma_ss,
 //' Calculate A inverse matrix
 //' 
 //' @details (sigma^{-2}n^{-1} I_ms + Sigma_ss) = A. 
-//' @param Sigma_ss
+//' @param Sigma_ss snp correlations for small effects SNPs for a single LD block
 //' @param sigma2_s estimate of sigma^2_s
 //' @param n sample size
 //' @return an Armadillo matrix, the inverse of A
