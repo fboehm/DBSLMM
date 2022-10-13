@@ -88,8 +88,6 @@ EFF make_pseudo_eff(){
 //' @param bed_str bed file filename
 //' @param idv vector of 1s and 0s to indicate which subjects to use
 //' @param info_block SNP info vector
-//' @param cSP instance of SNPPROC
-//' @param cIO instance of IO
 //' @param maf minor allele frequency for filtering
 
 arma::mat populate_geno(string bed_str, 
