@@ -137,7 +137,6 @@ arma::mat calc_var_betas(arma::mat Sigma_ss,
 //' 
 //' @param test_bim
 //' @return string vector containing all chr positions (genomic positions) from the bim file 
-//' 
 
 std::vector<std::string> readTestBim(string test_bim){
   ifstream bim_stream(test_bim.c_str());
