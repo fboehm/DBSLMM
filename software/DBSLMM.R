@@ -57,7 +57,7 @@ args_list <- list(
   make_option("--test_indicator_file", type = "character", default = NULL, 
               help = "INPUT: file path for the test indicator text file", metavar = "character"),
   make_option("--dat_str", type = "character", default = NULL, 
-              help = "INPUT: file path for the bed file for the nonreference data", metavar = "character") 
+              help = "INPUT: file path for the bed file for the test & training (nonreference) data", metavar = "character") 
 
   
 )
