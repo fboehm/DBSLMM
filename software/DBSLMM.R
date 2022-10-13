@@ -213,7 +213,9 @@ prefix_file <- paste(prefix_file[-c((len_prefix_file-1):len_prefix_file)], colla
                       " -b ",      opt$block,
                       " -h ",      h2d,
                       " -t ",      opt$thread,
-                      " -eff ",    opt$outPath, prefix_file, "_h2f", hh, ".dbslmm"))
+                      " -eff ",    opt$outPath, prefix_file, "_h2f", hh, ".dbslmm",
+                      " -test_indicator_file ", opt$test_indicator_file,
+                      " -dat_str ", opt$dat_str))
       }
     }
 #    system(paste0("rm ", opt$outPath, "l_", prefix_file, "*"))
