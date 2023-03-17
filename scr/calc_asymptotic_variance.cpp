@@ -71,7 +71,6 @@ arma::mat calc_A_inverse(arma::mat Sigma_ss,
 {
   unsigned int m_s = Sigma_ss.n_rows;
   arma::mat result = arma::inv_sympd(arma::eye(m_s, m_s) / (n * sigma2_s) + Sigma_ss);
-  
   return(result);
 }
 
@@ -88,7 +87,6 @@ arma::mat calc_var_betal(arma::mat Sigma_ll,
                          arma::mat Sigma_sl, 
                          arma::mat A_inverse,
                          unsigned int n){
-
   //calculate big matrix
   arma::mat big = Sigma_ll - arma::trans(Sigma_sl) * A_inverse * Sigma_sl;
   //invert and divide by n
