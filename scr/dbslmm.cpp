@@ -178,7 +178,7 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 	DBSLMMFIT cDBSF;
 
 	// input check
-	   cout << "Options: " << endl;
+	 cout << "Options: " << endl;
 	 cout << "-s:      " << cPar.s << endl;
 	 cout << "-l:      " << cPar.l << endl;
 	 cout << "-r:      " << cPar.r << endl;
