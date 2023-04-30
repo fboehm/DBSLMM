@@ -23,6 +23,8 @@ library(optparse)
 
 # Parameter setting
 args_list <- list(
+  make_option("--pth", type = "numeric", default = NULL,
+              help = "INPUT: pvalue threshold", metavar = "character"),
   make_option("--summary", type = "character", default = NULL,
               help = "INPUT: the summary statistics (gemma output format)", metavar = "character"),
   make_option("--plink", type = "character", default = NULL,
@@ -137,7 +139,7 @@ prefix_file <- paste(prefix_file[-c((len_prefix_file-1):len_prefix_file)], colla
   ## large effect clumping
   clumping_cmd <- paste0(opt$plink, " --bfile ", opt$ref, 
                          " --silent --clump ", opt$outPath, "plink_", prefix_file, ".txt",
-                         " --clump-r2 ", 0.2, " --clump-p1 ", 1e-6,
+                         " --clump-r2 ", 0.2, " --clump-p1 ", opt$pth,
                          " --clump-kb ", 1000, 
                          " --out ", opt$outPath, "/l_", prefix_file)
   system(clumping_cmd)
